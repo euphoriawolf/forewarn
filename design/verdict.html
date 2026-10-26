@@ -71,6 +71,12 @@
   .bottom { margin-top: auto; display: flex; gap: 8px; padding-bottom: 16px; }
   .btn { flex: 1; white-space: nowrap; height: 48px; border-radius: 24px; border: 0; font: 600 14px/1 var(--text); display: flex; align-items: center; justify-content: center; gap: 8px; }
   .btn svg { width: 18px; height: 18px; }
+  .bottom.stack { flex-direction: column; }
+  .two-small { display: flex; gap: 8px; } .two-small .btn { height: 40px; }
+  .askbar { height: 52px; border-radius: 26px; background: var(--ink); color: #eef1ec; display: flex; align-items: center; padding: 0 8px 0 20px; }
+  .askbar span { flex: 1; opacity: .8; }
+  .askbar i { width: 38px; height: 38px; border-radius: 50%; background: #eef1ec; color: var(--ink); display: grid; place-items: center; }
+  .askbar svg { width: 18px; height: 18px; }
   .btn.dark { background: var(--ink); color: #fff; } .btn.light { background: var(--line); color: var(--ink); }
 
   /* day detail: likely range against the flood line */
@@ -127,6 +133,7 @@ const svg = {
   drop: '<svg viewBox="0 0 13 16"><path d="M6.5 1C4 5 1.5 7.6 1.5 10.3a5 5 0 0 0 10 0C11.5 7.6 9 5 6.5 1z" fill="currentColor"/></svg>',
   ok: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M7.5 12.5l3 3 6-6.5"/></svg>',
   warn: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18v.2"/></svg>',
+  mic: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>',
   play: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>',
   share: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>',
   cube: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 2l9 5v10l-9 5-9-5V7z"/><path d="M12 12l9-5M12 12v10M12 12L3 7"/></svg>',
@@ -170,9 +177,8 @@ phones.push({
   ${strip(E.map((x) => ({ lv: x.lv, name: dayShort(x.d, x.j), icon: rainIcon(x.med) })))}
   <div class="todo"><h3>What to do</h3>
     <div class="act"><i>${svg.ok}</i>Nothing for now.</div>
-    <div class="act"><i>${svg.bell}</i>We will tell you if Sunday gets worse.</div>
-  </div>
-  <div class="bottom"><button class="btn dark">${svg.share}Share</button><button class="btn light">${svg.cube}March in 3D</button></div>`,
+      </div>
+  <div class="bottom stack"><div class="two-small"><button class="btn light">${svg.share}Share</button><button class="btn light">${svg.cube}March in 3D</button></div><div class="askbar"><span>Ask about your place</span><i>${svg.mic}</i></div></div>`,
 });
 
 // 2. main screen, a real amber: Durban, replayed from 5 days before the 25 Feb 2025 flood

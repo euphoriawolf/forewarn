@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Forewarn agent screens</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Public+Sans:wght@400;600&display=swap" rel="stylesheet" />
+<style>
+  /* Forewarn agent: you ask about your place, the agent checks the data and answers with the same
+     cards as the main screen. What it checked is shown, so the answer can be trusted. */
+  :root {
+    --bg: #e3e7e2; --paper: #f8f9f6; --ink: #16201b; --muted: #5d6a63; --line: #dde2dc;
+    --water: #1d4ed8; --water-soft: #e3eafc;
+    --green: #2f7d4f; --green-soft: #e3f1e7; --amber: #b86e00; --amber-soft: #fbefd9;
+    --display: 'Bricolage Grotesque', system-ui, sans-serif; --text: 'Public Sans', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.45 var(--text); -webkit-font-smoothing: antialiased; }
+  header { max-width: 1240px; margin: 0 auto; padding: 36px 16px 0; }
+  h1 { font: 800 36px/1.05 var(--display); letter-spacing: -0.02em; margin: 0 0 8px; }
+  header p { margin: 0; color: var(--muted); max-width: 64ch; }
+  .row { max-width: 1240px; margin: 0 auto; padding: 24px 16px 60px; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; justify-items: center; align-items: start; }
+  figure { margin: 0; width: 100%; max-width: 360px; }
+  figcaption { padding: 12px 4px 0; }
+  figcaption b { font: 600 18px/1.2 var(--display); display: block; }
+  figcaption span { color: var(--muted); font-size: 14px; }
+  .phone { position: relative; width: 100%; aspect-ratio: 360 / 760; background: var(--paper); border-radius: 26px; overflow: hidden; box-shadow: 0 16px 36px rgba(22,32,27,.13); display: flex; flex-direction: column; }
+  .head { padding: 16px 16px 10px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--line); }
+  .head b { font-weight: 600; } .head small { display: block; color: var(--muted); font-size: 13px; }
+  .chat { flex: 1; padding: 14px 14px 0; display: flex; flex-direction: column; gap: 10px; overflow: hidden; }
+  .me { align-self: flex-end; max-width: 85%; background: var(--ink); color: #fff; padding: 10px 13px; border-radius: 18px 18px 4px 18px; }
+  .me .voice { display: flex; align-items: center; gap: 8px; font-size: 12px; opacity: .75; margin-bottom: 4px; }
+  .wave { display: flex; gap: 2px; align-items: center; height: 14px; }
+  .wave i { width: 2px; background: #fff; border-radius: 1px; }
+  .steps { display: grid; gap: 5px; font-size: 13px; color: var(--muted); padding: 2px 2px; }
+  .steps div { display: flex; gap: 8px; align-items: center; }
+  .steps svg { width: 15px; height: 15px; color: var(--green); flex: none; }
+  .bot { align-self: flex-start; max-width: 94%; background: #fff; border: 1px solid var(--line); padding: 11px 13px; border-radius: 18px 18px 18px 4px; display: grid; gap: 9px; }
+  .bot p { margin: 0; }
+  .mini { border-radius: 14px; padding: 10px 12px; display: grid; gap: 4px; }
+  .mini.green { background: var(--green-soft); } .mini.amber { background: var(--amber-soft); }
+  .mini b { font: 800 19px/1.1 var(--display); }
+  .mini.green b { color: var(--green); } .mini.amber b { color: var(--amber); }
+  .mini span { font-size: 13px; }
+  .depth { display: flex; gap: 10px; align-items: center; border-radius: 14px; background: var(--water-soft); padding: 9px 12px; font-size: 13px; }
+  .depth b { font: 800 22px/1 var(--display); color: var(--water); }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { border: 1px solid var(--line); background: #fff; border-radius: 16px; padding: 6px 11px; font: 600 13px/1 var(--text); }
+  .chip.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .ask { margin: 10px 14px 14px; height: 52px; border-radius: 26px; background: var(--ink); color: #eef1ec; display: flex; align-items: center; gap: 12px; padding: 0 8px 0 20px; }
+  .ask > span:first-child { flex: 1; opacity: .75; }
+  .mic { width: 38px; height: 38px; border-radius: 50%; background: #eef1ec; display: grid; place-items: center; }
+  .mic svg { width: 18px; height: 18px; color: var(--ink); }
+  .mic.live { background: var(--water); } .mic.live svg { color: #fff; }
+  .note { font-size: 11px; color: var(--muted); text-align: center; margin: -6px 14px 10px; }
+  .draft { border: 2px dashed var(--amber); border-radius: 16px; padding: 12px; display: grid; gap: 8px; background: #fff; }
+  .draft h4 { margin: 0; font-size: 12px; color: var(--amber); font-weight: 600; }
+  .sms { background: #eef1ec; border-radius: 12px; padding: 10px; font-size: 14px; }
+  .who { font-size: 12px; color: var(--muted); }
+  .two { display: flex; gap: 8px; }
+  .two button { flex: 1; height: 42px; border-radius: 21px; border: 0; font: 600 14px/1 var(--text); }
+  .two .go { background: var(--ink); color: #fff; } .two .no { background: var(--line); color: var(--ink); }
+  .home-ask { padding: 16px; display: flex; flex-direction: column; gap: 12px; flex: 1; }
+  .home-ask h2 { font: 800 26px/1.1 var(--display); margin: 0; letter-spacing: -0.02em; }
+  .home-ask .sug { display: grid; gap: 8px; }
+  .home-ask .sug div { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 12px; }
+  .home-ask .sug small { display: block; color: var(--muted); font-size: 12px; margin-top: 2px; }
+  .listening { margin-top: auto; display: grid; justify-items: center; gap: 10px; padding-bottom: 6px; }
+  .listening .big { width: 84px; height: 84px; border-radius: 50%; background: var(--water); display: grid; place-items: center; box-shadow: 0 0 0 12px var(--water-soft); }
+  .listening .big svg { width: 34px; height: 34px; color: #fff; }
+  .listening span { color: var(--muted); font-size: 13px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Forewarn: the agent</h1>
+  <p>Ask about your place by voice or text. The agent checks the forecast, your flood line and the last flood, then answers in plain words with the same cards as the main screen. It shows what it checked. Warnings to other people are drafts until a person approves them. Agent wording here is a draft for design, not a Muse Spark output yet. The numbers are real.</p>
+</header>
+<main class="row" id="row"></main>
+
+<script type="module">
+const get = (u) => fetch(u).then((r) => r.json());
+const [F, M] = await Promise.all(['futures-eastleigh', 'march-eastleigh'].map((n) => get(`data/${n}.json`)));
+const LINE = Math.round(F.trigger_mm);
+const sun = F.days.length - 1;
+const med = (j) => { const v = F.daily.map((m) => m[j]).sort((a, b) => a - b); return v[25]; };
+const peak = Math.max(...M.cm.map((h) => h[30 * 61 + 30]));
+const svg = {
+  mic: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>',
+  tick: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+};
+const wave = () => `<span class="wave">${[6, 10, 14, 8, 12, 5, 11, 7, 13, 6].map((h) => `<i style="height:${h}px"></i>`).join('')}</span>`;
+const askBar = (live) => `<div class="ask"><span>${live ? 'Listening…' : 'Ask about your place'}</span><span class="mic ${live ? 'live' : ''}">${svg.mic}</span></div>`;
+const head = (sub) => `<div class="head"><div><b>Eastleigh</b><small>${sub}</small></div></div>`;
+const phones = [];
+
+phones.push({
+  title: '1. Ask, by voice or text',
+  note: 'The Ask bar sits on the main screen. Tap the mic and speak. Suggestions come from your place and this week.',
+  html: `${head('Nairobi')}
+  <div class="home-ask">
+    <h2>What do you want to know?</h2>
+    <div class="sug">
+      <div>Will my street flood this weekend?<small>Sunday has one long shot</small></div>
+      <div>Can I drive to work on Monday?<small>Checks the road, not only your pin</small></div>
+      <div>How bad was it here in March?<small>The last flood at your door</small></div>
+    </div>
+    <div class="listening"><div class="big">${svg.mic}</div><span>Speak in English. More languages after testing.</span></div>
+  </div>`,
+});
+
+phones.push({
+  title: '2. The answer, with what it checked',
+  note: 'Four real checks, then a plain answer and the same card as the main screen. Every number comes from a tool, not from the model\'s memory.',
+  html: `${head('Asked just now')}
+  <div class="chat">
+    <div class="me"><div class="voice">${wave()} 0:04</div>Will my street flood this weekend?</div>
+    <div class="steps">
+      <div>${svg.tick}Found your pin in Eastleigh, Nairobi</div>
+      <div>${svg.tick}Read 51 forecasts for the next 7 days</div>
+      <div>${svg.tick}Compared them with the ${LINE} mm that flooded here in March</div>
+      <div>${svg.tick}Looked up the March water at your pin</div>
+    </div>
+    <div class="bot">
+      <p>Probably not. Saturday looks wet but safe. Sunday has one long shot.</p>
+      <div class="mini green"><b>Unlikely to flood</b><span>About 1 in 50 forecasts bring ${LINE} mm or more on Sunday. Most say about ${Math.round(med(sun))} mm.</span></div>
+      <div class="depth"><b>${peak} cm</b><span>If it did happen, March is a guide: the water reached shin deep at your pin.</span></div>
+      <p>I will tell you if Sunday gets worse.</p>
+    </div>
+    <div class="chips"><span class="chip">Show me in 3D</span><span class="chip">Warn my family</span><span class="chip">Follow this place</span></div>
+  </div>
+  ${askBar(false)}`,
+});
+
+phones.push({
+  title: '3. It acts, but a person approves',
+  note: 'The agent drafts a warning and who gets it. Nothing goes out until you tap Send. Meta\'s rules need a person to check safety messages, and this is the place to show it.',
+  html: `${head('Asked just now')}
+  <div class="chat">
+    <div class="me">Warn my family if Sunday gets worse.</div>
+    <div class="steps">
+      <div>${svg.tick}Set a check every 6 hours until Sunday</div>
+      <div>${svg.tick}Trigger: 1 in 4 forecasts over ${LINE} mm</div>
+    </div>
+    <div class="bot">
+      <p>Done. If that happens, I will write a message like this and ask you before it goes out:</p>
+      <div class="draft">
+        <h4>Draft, not sent</h4>
+        <div class="sms">Forewarn: heavy rain likely in Eastleigh on Sunday. In March, water reached shin deep here. Move papers and phones up. Avoid the low road after dark.</div>
+        <div class="who">To: Mum, Ken (WhatsApp)</div>
+        <div class="two"><button class="go">Send</button><button class="no">Edit</button></div>
+      </div>
+    </div>
+  </div>
+  ${askBar(false)}`,
+});
+
+document.getElementById('row').innerHTML = phones.map((p) => `<figure><div class="phone">${p.html}</div><figcaption><b>${p.title}</b><span>${p.note}</span></figcaption></figure>`).join('');
+window.__ready = true;
+</script>
+</body>
+</html>
