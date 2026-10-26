@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Forewarn: your place</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Public+Sans:wght@400;600&display=swap" rel="stylesheet" />
+<style>
+  /* Forewarn, second design pass (26 Oct 2026): the place first, the forecast in plain words,
+     and the consequence in 3D. No chart to learn. */
+  :root {
+    --overcast: #dfe4de; --paper: #f6f7f3; --ink: #16201b; --muted: #5d6a63; --line: #d3d9d2;
+    --laterite: #7a4630; --water: #1d4ed8; --water-soft: #dbe4fb; --warn: #b42318;
+    --display: 'Bricolage Grotesque', system-ui, sans-serif; --text: 'Public Sans', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; min-height: 100vh; background: var(--overcast); color: var(--ink); font: 15px/1.45 var(--text); -webkit-font-smoothing: antialiased; display: grid; place-items: center; padding: 24px 16px; }
+  .phone { position: relative; width: 100%; max-width: 390px; aspect-ratio: 390 / 820; background: var(--paper); border-radius: 28px; overflow: hidden; box-shadow: 0 18px 40px rgba(22,32,27,.14); }
+  .stage { position: absolute; inset: 0 0 auto; height: 60%; background: linear-gradient(#cfd7d0, #e8ebe5); transition: background .6s; touch-action: none; cursor: grab; }
+  .stage.wet { background: linear-gradient(#aab4b4, #d6dbd6); }
+  .stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .top { position: absolute; left: 18px; right: 18px; top: 16px; display: flex; justify-content: space-between; align-items: start; pointer-events: none; }
+  .top b { font: 600 15px/1.2 var(--text); display: block; }
+  .top small { color: var(--muted); font-size: 13px; }
+  .clock { font: 600 13px/1.2 var(--text); background: rgba(246,247,243,.9); padding: 6px 9px; border-radius: 8px; text-align: right; display: none; }
+  .clock span { display: block; font-weight: 400; color: var(--muted); }
+  .pin { position: absolute; transform: translate(-50%, -100%); pointer-events: none; display: grid; justify-items: center; }
+  .pin i { font: 600 12px/1 var(--text); background: var(--ink); color: #fff; padding: 6px 8px; border-radius: 8px; white-space: nowrap; font-style: normal; }
+  .pin.deep i { background: var(--water); }
+  .pin::after { content: ''; width: 2px; height: 10px; background: var(--ink); }
+
+  .sheet { position: absolute; inset: 58% 0 0; background: var(--paper); border-radius: 22px 22px 0 0; padding: 20px 18px 0; display: grid; align-content: start; gap: 14px; }
+  .say { font: 800 26px/1.08 var(--display); letter-spacing: -0.02em; margin: 0; }
+  .say em { font-style: normal; color: var(--water); }
+  .sub { margin: -6px 0 0; color: var(--muted); }
+  .days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+  .day { border: 0; background: none; padding: 6px 0 7px; border-radius: 12px; display: grid; justify-items: center; gap: 3px; cursor: pointer; font: inherit; color: var(--ink); }
+  .day svg { width: 24px; height: 24px; }
+  .day span { font-size: 12px; color: var(--muted); }
+  .day[aria-pressed='true'] { background: var(--ink); color: #fff; }
+  .day[aria-pressed='true'] span { color: #d9dfda; }
+  .day .flag { width: 6px; height: 6px; border-radius: 50%; background: transparent; }
+  .day .flag.on { background: var(--water); }
+  .day[aria-pressed='true'] .flag.on { background: #8fb0ff; }
+  .what { height: 50px; border-radius: 25px; border: 0; background: var(--water); color: #fff; font: 600 15px/1 var(--text); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; }
+  .what[hidden] { display: none; }
+  .what.ghost { background: var(--water-soft); color: var(--water); }
+  .fine { font-size: 12px; color: var(--muted); margin: 0; }
+  .ask { position: absolute; left: 14px; right: 14px; bottom: 14px; height: 52px; border-radius: 26px; background: var(--ink); color: #eef1ec; display: flex; align-items: center; gap: 12px; padding: 0 8px 0 20px; }
+  .ask > span:first-child { flex: 1; opacity: .75; }
+  .mic { width: 38px; height: 38px; border-radius: 50%; background: #eef1ec; display: grid; place-items: center; }
+  .mic svg { width: 18px; height: 18px; color: var(--ink); }
+  button:focus-visible { outline: 3px solid var(--water); outline-offset: 2px; }
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="stage" id="stage">
+    <canvas id="gl"></canvas>
+    <div class="top"><div><b>Eastleigh</b><small>Nairobi</small></div><div class="clock" id="clock"></div></div>
+    <div class="pin" id="pin"><i id="pin-t">Your place</i></div>
+  </div>
+  <div class="sheet">
+    <p class="say" id="say"></p>
+    <p class="sub" id="sub"></p>
+    <div class="days" id="days" role="group" aria-label="Day"></div>
+    <button class="what" id="what" type="button" hidden></button>
+    <p class="fine" id="fine"></p>
+  </div>
+  <div class="ask"><span>Ask about your place</span><span class="mic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></span></div>
+</div>
+
+<script type="importmap">{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js" } }</script>
+<script type="module">
+import * as THREE from 'three';
+
+const get = (u) => fetch(u).then((r) => r.json());
+const [F, T, MAP, M] = await Promise.all(['futures-eastleigh', 'terrain-eastleigh', 'map-eastleigh', 'march-eastleigh'].map((n) => get(`data/${n}.json`)));
+const q = new URLSearchParams(location.search);
+const LINE = F.trigger_mm; // the worst 24 h of the March storm here
+
+// ---- the forecast in plain words, per day
+const words = (n) => (n >= 26 ? 'Likely' : n >= 10 ? 'Possible' : n >= 1 ? 'Unlikely' : 'No');
+const DAYS = F.days.map((d, j) => {
+  const v = F.daily.map((m) => m[j]).sort((a, b) => a - b);
+  const mid = v[25], flood = v.filter((x) => x >= LINE).length, wetRuns = v.filter((x) => x >= 1).length;
+  const kind = mid >= 10 ? 'heavy' : wetRuns >= 26 ? 'rain' : wetRuns >= 10 ? 'shower' : 'dry';
+  const date = new Date(d + 'T12:00:00Z');
+  return { d, j, mid, flood, kind,
+    short: j === 0 ? 'Tonight' : date.toLocaleDateString('en-GB', { weekday: 'short', timeZone: 'UTC' }),
+    long: j === 0 ? 'Tonight' : date.toLocaleDateString('en-GB', { weekday: 'long', timeZone: 'UTC' }) };
+});
+const icon = {
+  dry: '<circle cx="12" cy="12" r="4.5" fill="currentColor"/>',
+  shower: '<path d="M7 14h9.5a3.5 3.5 0 0 0 .3-7A5 5 0 0 0 7.3 8.5 3 3 0 0 0 7 14z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M11 17l-1 2.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
+  rain: '<path d="M7 13h9.5a3.5 3.5 0 0 0 .3-7A5 5 0 0 0 7.3 7.5 3 3 0 0 0 7 13z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M9 16l-1 2.5M13 16l-1 2.5M17 16l-1 2.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
+  heavy: '<path d="M7 12h9.5a3.5 3.5 0 0 0 .3-7A5 5 0 0 0 7.3 6.5 3 3 0 0 0 7 12z" fill="currentColor"/><path d="M8 15l-1.5 4M12 15l-1.5 4M16 15l-1.5 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>',
+};
+const kindWord = { dry: 'Dry', shower: 'A few showers', rain: 'Rain', heavy: 'Heavy rain' };
+
+const $ = (id) => document.getElementById(id);
+const worst = DAYS.reduce((a, b) => (b.flood > a.flood ? b : a));
+let sel = q.has('day') ? DAYS[Math.max(0, Math.min(6, +q.get('day')))] : null;
+
+function render() {
+  $('days').innerHTML = DAYS.map((x) => `<button class="day" type="button" aria-pressed="${sel === x}" data-j="${x.j}" aria-label="${x.long}: ${kindWord[x.kind]}"><svg viewBox="0 0 24 24">${icon[x.kind]}</svg><span>${x.short}</span><i class="flag ${x.flood ? 'on' : ''}"></i></button>`).join('');
+  const chance = (n) => (n === 1 ? '1 in 51' : `${n} in 51`);
+  if (!sel) { // the week at a glance
+    $('say').innerHTML = worst.flood ? `This week: <em>${words(worst.flood).toLowerCase()}</em> to flood like March.` : 'This week: no flood-level rain.';
+    $('sub').textContent = worst.flood ? `One small chance, on ${worst.long}. Tap a day.` : 'Showers some days. Tap a day.';
+  } else {
+    $('say').innerHTML = sel.flood ? `${sel.long}: <em>${words(sel.flood).toLowerCase()}</em> to flood like March.` : `${sel.long}: ${kindWord[sel.kind].toLowerCase()}, no flood-level rain.`;
+    $('sub').textContent = sel.flood ? `${chance(sel.flood)} forecasts bring rain as heavy as the worst day in March.` : `Most forecasts say about ${Math.round(sel.mid)} mm. March's worst day was ${Math.round(LINE)} mm.`;
+  }
+  const show = (sel ?? worst).flood > 0;
+  $('what').hidden = !show;
+  $('what').className = 'what' + (playing ? ' ghost' : '');
+  $('what').textContent = playing ? 'Stop' : 'Show me if it happens';
+  $('fine').textContent = playing ? 'The water is the March 2026 flood here, from the Flood Check model. A model estimate, not a measurement.' : 'ECMWF forecast, 51 runs, 26 Oct 20:00.';
+}
+$('days').addEventListener('click', (e) => { const b = e.target.closest('.day'); if (!b) return; const x = DAYS[+b.dataset.j]; sel = sel === x ? null : x; stop(); render(); });
+$('what').addEventListener('click', () => (playing ? stop() : play()));
+
+// ---- 3D: the place as a round model, real ground, roads and buildings
+const N = T.n, R = (N - 1) / 2 - 1, EX = 0.1, BASE = -2.5;
+const hAt = (x, z) => {
+  const gx = Math.min(N - 1.001, Math.max(0, x + (N - 1) / 2)), gz = Math.min(N - 1.001, Math.max(0, z + (N - 1) / 2));
+  const i = Math.floor(gx), j = Math.floor(gz), fx = gx - i, fz = gz - j, H = (a, b) => T.h[b * N + a];
+  return ((H(i, j) * (1 - fx) + H(i + 1, j) * fx) * (1 - fz) + (H(i, j + 1) * (1 - fx) + H(i + 1, j + 1) * fx) * fz) * EX;
+};
+const H0 = hAt(0, 0), gy = (x, z) => hAt(x, z) - H0;
+const renderer = new THREE.WebGLRenderer({ canvas: $('gl'), antialias: true, alpha: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+const scene = new THREE.Scene();
+const hemi = new THREE.HemisphereLight('#ffffff', '#8d7f70', 1.6); scene.add(hemi);
+const sun = new THREE.DirectionalLight('#ffffff', 2.1); sun.position.set(-40, 70, 30); sun.castShadow = true;
+sun.shadow.mapSize.set(2048, 2048); Object.assign(sun.shadow.camera, { left: -40, right: 40, top: 40, bottom: -40, far: 200 }); scene.add(sun);
+const camera = new THREE.PerspectiveCamera(30, 1, 1, 500);
+const world = new THREE.Group(); scene.add(world);
+
+{ // land
+  const seg = 140, rings = 70, pos = [], col = [], idx = [], c = new THREE.Color(), open = new THREE.Color('#d3d8c6'), built = new THREE.Color('#b9b4a5');
+  const bAt = (x, z) => { const i = Math.round(x + (N - 1) / 2), j = Math.round(z + (N - 1) / 2); return T.buildings[Math.max(0, Math.min(N - 1, j)) * N + Math.max(0, Math.min(N - 1, i))]; };
+  const put = (x, z) => { pos.push(x, gy(x, z), z); c.lerpColors(open, built, Math.min(1, bAt(x, z) / 25)); col.push(c.r, c.g, c.b); };
+  put(0, 0);
+  for (let r = 1; r <= rings; r++) for (let s = 0; s < seg; s++) { const a = (s / seg) * Math.PI * 2, rr = (r / rings) * R; put(Math.cos(a) * rr, Math.sin(a) * rr); }
+  const v = (r, s) => (r === 0 ? 0 : 1 + (r - 1) * seg + (s % seg));
+  for (let s = 0; s < seg; s++) idx.push(0, v(1, s + 1), v(1, s));
+  for (let r = 1; r < rings; r++) for (let s = 0; s < seg; s++) idx.push(v(r, s), v(r, s + 1), v(r + 1, s), v(r, s + 1), v(r + 1, s + 1), v(r + 1, s));
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute('color', new THREE.Float32BufferAttribute(col, 3)); g.setIndex(idx); g.computeVertexNormals();
+  const land = new THREE.Mesh(g, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.95 })); land.receiveShadow = true; world.add(land);
+  const side = new THREE.CylinderGeometry(R, R, 1, seg, 1, true), sp = side.attributes.position;
+  for (let i = 0; i < sp.count; i++) sp.setY(i, sp.getY(i) > 0 ? gy(sp.getX(i), sp.getZ(i)) : BASE);
+  side.computeVertexNormals(); world.add(new THREE.Mesh(side, new THREE.MeshStandardMaterial({ color: '#7a4630', roughness: 1, side: THREE.DoubleSide })));
+  const base = new THREE.Mesh(new THREE.CircleGeometry(R, seg), new THREE.MeshStandardMaterial({ color: '#5a3324' })); base.rotation.x = Math.PI / 2; base.position.y = BASE; world.add(base);
+  // roads
+  const rp = [];
+  for (const rd of MAP.roads) {
+    const w = rd.k === 'secondary' ? 0.55 : rd.k === 'tertiary' ? 0.42 : 0.26;
+    for (let k = 0; k < rd.p.length - 1; k++) {
+      const [ax, az] = rd.p[k], [bx, bz] = rd.p[k + 1], L = Math.hypot(bx - ax, bz - az) || 1, nx = (-(bz - az) / L) * w / 2, nz = ((bx - ax) / L) * w / 2;
+      const p = [[ax + nx, az + nz], [ax - nx, az - nz], [bx + nx, bz + nz], [bx - nx, bz - nz]].map(([x, z]) => [x, gy(x, z) + 0.05, z]);
+      rp.push(...p[0], ...p[1], ...p[2], ...p[1], ...p[3], ...p[2]);
+    }
+  }
+  const rg = new THREE.BufferGeometry(); rg.setAttribute('position', new THREE.Float32BufferAttribute(rp, 3)); rg.computeVertexNormals();
+  world.add(new THREE.Mesh(rg, new THREE.MeshStandardMaterial({ color: '#f4f2ea', roughness: 1, side: THREE.DoubleSide })));
+  // buildings: small blocks, as many per square as Overture counts (capped), at stable spots
+  const box = new THREE.BoxGeometry(1, 1, 1), mat = new THREE.MeshStandardMaterial({ color: '#efeee8', roughness: 0.8 });
+  const spots = [];
+  let seed = 7; const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+  for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) {
+    const n = Math.min(4, Math.round(T.buildings[j * N + i] / 8));
+    for (let k = 0; k < n; k++) { const x = i - (N - 1) / 2 + rnd() - 0.5, z = j - (N - 1) / 2 + rnd() - 0.5; if (x * x + z * z < (R - 1) ** 2) spots.push([x, z, 0.25 + rnd() * 0.35]); }
+  }
+  const inst = new THREE.InstancedMesh(box, mat, spots.length), o = new THREE.Object3D();
+  spots.forEach(([x, z, h], k) => { o.position.set(x, gy(x, z) + h / 2, z); o.scale.set(0.42, h, 0.42); o.rotation.y = 0; o.updateMatrix(); inst.setMatrixAt(k, o.matrix); });
+  inst.castShadow = true; inst.receiveShadow = true; world.add(inst);
+}
+
+// ---- the March water: one surface, rebuilt each hour, only where it is wet
+const WM = 2.2; // drawn depth: 1 m of water = 2.2 units, so knee-deep water is visible from above
+const water = new THREE.Mesh(new THREE.BufferGeometry(), new THREE.MeshStandardMaterial({ vertexColors: true, transparent: true, opacity: 0.88, roughness: 0.25, metalness: 0.05 }));
+water.receiveShadow = true; world.add(water);
+const shallow = new THREE.Color('#7fa3ef'), deep = new THREE.Color('#1d3fb8');
+function setWater(hour) {
+  const cm = M.cm[hour], pos = [], col = [], idx = [], c = new THREE.Color(), id = new Int32Array(N * N).fill(-1);
+  for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) {
+    const d = cm[j * N + i]; if (d < 4) continue;
+    const x = i - (N - 1) / 2, z = j - (N - 1) / 2; if (x * x + z * z > (R - 0.3) ** 2) continue;
+    id[j * N + i] = pos.length / 3; pos.push(x, gy(x, z) + 0.08 + (Math.min(d, 150) / 100) * WM * 0.25, z);
+    c.lerpColors(shallow, deep, Math.min(1, d / 80)); col.push(c.r, c.g, c.b);
+  }
+  for (let j = 0; j < N - 1; j++) for (let i = 0; i < N - 1; i++) {
+    const a = id[j * N + i], b = id[j * N + i + 1], cc = id[(j + 1) * N + i], d = id[(j + 1) * N + i + 1];
+    if (a >= 0 && b >= 0 && cc >= 0) idx.push(a, cc, b);
+    if (b >= 0 && cc >= 0 && d >= 0) idx.push(b, cc, d);
+  }
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute('color', new THREE.Float32BufferAttribute(col, 3)); g.setIndex(idx); g.computeVertexNormals();
+  water.geometry.dispose(); water.geometry = g;
+  const here = cm[30 * N + 30];
+  $('pin-t').textContent = here >= 4 ? `${here} cm here` : 'Your place';
+  $('pin').classList.toggle('deep', here >= 4);
+  const t = new Date(Date.parse(M.start + ':00Z') + hour * 3600e3);
+  $('clock').innerHTML = `${t.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' })}, ${String(t.getUTCHours()).padStart(2, '0')}:00<span>March 2026 storm</span>`;
+}
+// skip the dry start: play from the first wet hour to the peak and a little after
+const wetCount = M.cm.map((h) => h.filter((d) => d >= 10).length);
+const H_START = Math.max(0, wetCount.findIndex((n) => n > 0) - 2), H_PEAK = wetCount.indexOf(Math.max(...wetCount));
+let playing = false, hour = 0, last = 0;
+function play() { playing = true; hour = H_START; last = 0; $('clock').style.display = 'block'; $('stage').classList.add('wet'); setWater(hour); render(); }
+function stop() { playing = false; water.geometry.dispose(); water.geometry = new THREE.BufferGeometry(); $('clock').style.display = 'none'; $('stage').classList.remove('wet'); $('pin-t').textContent = 'Your place'; $('pin').classList.remove('deep'); render(); }
+
+// ---- camera, drag to turn
+const target = new THREE.Vector3(0, -1, 0);
+let yaw = -0.5, pitch = 0.82, dist = 118;
+const place = () => { camera.position.set(Math.sin(yaw) * Math.cos(pitch) * dist, Math.sin(pitch) * dist, Math.cos(yaw) * Math.cos(pitch) * dist); camera.lookAt(target); };
+let drag = null;
+$('stage').addEventListener('pointerdown', (e) => { drag = [e.clientX, e.clientY, yaw, pitch]; $('stage').setPointerCapture(e.pointerId); });
+$('stage').addEventListener('pointermove', (e) => { if (!drag) return; yaw = drag[2] - (e.clientX - drag[0]) * 0.008; pitch = Math.max(0.35, Math.min(1.35, drag[3] + (e.clientY - drag[1]) * 0.006)); });
+$('stage').addEventListener('pointerup', () => (drag = null));
+const size = () => { const b = $('stage'); renderer.setSize(b.clientWidth, b.clientHeight, false); camera.aspect = b.clientWidth / b.clientHeight; camera.updateProjectionMatrix(); };
+new ResizeObserver(size).observe($('stage')); size();
+
+const pv = new THREE.Vector3();
+function frame(t) {
+  if (playing && t - last > 380) { last = t; hour++; if (hour > Math.min(95, H_PEAK + 14)) hour = H_START; setWater(hour); }
+  place(); renderer.render(scene, camera);
+  pv.set(0, gy(0, 0) + 0.3, 0).project(camera);
+  $('pin').style.left = ((pv.x + 1) / 2) * $('stage').clientWidth + 'px';
+  $('pin').style.top = ((1 - pv.y) / 2) * $('stage').clientHeight + 'px';
+  requestAnimationFrame(frame);
+}
+render();
+if (q.has('peak')) { play(); playing = false; hour = H_PEAK; setWater(H_PEAK); playing = true; last = Infinity; }
+requestAnimationFrame(frame);
+window.__ready = true;
+</script>
+</body>
+</html>
