@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Forewarn desktop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Public+Sans:wght@400;600&display=swap" rel="stylesheet" />
+<style>
+  /* Desktop: the place fills the screen, the answer and the agent sit in one panel on the right. */
+  :root {
+    --paper: #f8f9f6; --ink: #16201b; --muted: #5d6a63; --line: #dde2dc;
+    --water: #1d4ed8; --water-soft: #e3eafc; --green: #2f7d4f; --green-soft: #e3f1e7; --amber: #b86e00; --red: #b42318;
+    --display: 'Bricolage Grotesque', system-ui, sans-serif; --text: 'Public Sans', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body { background: #1b201d; color: var(--ink); font: 15px/1.45 var(--text); -webkit-font-smoothing: antialiased; display: grid; grid-template-rows: 56px 1fr; }
+  header { background: var(--paper); border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 18px; padding: 0 18px; }
+  .brand { font: 800 20px/1 var(--display); letter-spacing: -0.02em; display: flex; align-items: center; gap: 8px; }
+  .brand svg { width: 22px; height: 22px; color: var(--water); }
+  .search { flex: 0 1 460px; height: 38px; border: 1px solid var(--line); border-radius: 19px; background: #fff; display: flex; align-items: center; gap: 10px; padding: 0 14px; color: var(--muted); }
+  .search svg { width: 16px; height: 16px; }
+  .search b { color: var(--ink); font-weight: 600; }
+  header .right { margin-left: auto; display: flex; gap: 8px; }
+  .btn { height: 38px; border-radius: 19px; border: 0; padding: 0 16px; font: 600 14px/1 var(--text); display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }
+  .btn svg { width: 16px; height: 16px; }
+  .btn.dark { background: var(--ink); color: #fff; } .btn.light { background: var(--line); color: var(--ink); }
+
+  main { display: grid; grid-template-columns: 1fr 420px; min-height: 0; }
+  .stage { position: relative; overflow: hidden; touch-action: none; cursor: grab; }
+  .stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .tag { position: absolute; transform: translate(-50%, -130%); font: 600 13px/1 var(--text); background: var(--ink); color: #fff; padding: 7px 10px; border-radius: 9px; white-space: nowrap; pointer-events: none; }
+  .tag.blue { background: var(--water); } .tag.green { background: var(--green); }
+  .float { position: absolute; background: rgba(248,249,246,.94); border-radius: 14px; box-shadow: 0 6px 20px rgba(0,0,0,.18); }
+  .views { left: 18px; top: 18px; display: flex; padding: 4px; gap: 2px; }
+  .views button { border: 0; background: none; height: 34px; padding: 0 14px; border-radius: 10px; font: 600 13px/1 var(--text); color: var(--ink); cursor: pointer; }
+  .views button[aria-pressed='true'] { background: var(--ink); color: #fff; }
+  .clock { right: 18px; top: 18px; padding: 9px 12px; font: 600 13px/1.25 var(--text); text-align: right; display: none; }
+  .clock span { display: block; font-weight: 400; color: var(--muted); }
+  .legend { left: 18px; bottom: 18px; padding: 12px 14px; display: grid; gap: 7px; font-size: 13px; }
+  .legend[hidden] { display: none; }
+  .legend b { font-weight: 600; }
+  .ramp { width: 180px; height: 8px; border-radius: 4px; background: linear-gradient(90deg, #8d7a55, #6b6448, #3f4a42); }
+  .legend .row { display: flex; justify-content: space-between; color: var(--muted); font-size: 12px; }
+  .legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; background: #f0a12e; vertical-align: -1px; margin-right: 6px; }
+  .load { position: absolute; left: 50%; bottom: 26px; transform: translateX(-50%); width: 260px; display: grid; gap: 6px; font-size: 12px; color: #eef1ec; text-align: center; transition: opacity .4s; pointer-events: none; }
+  .load i { display: block; height: 3px; border-radius: 2px; background: rgba(255,255,255,.25); overflow: hidden; }
+  .load i b { display: block; height: 100%; width: 0; background: #fff; transition: width .3s; }
+  .load.done { opacity: 0; }
+
+  aside { background: var(--paper); border-left: 1px solid var(--line); display: flex; flex-direction: column; min-height: 0; }
+  .scroll { flex: 1; overflow: auto; padding: 20px 20px 8px; display: grid; gap: 16px; align-content: start; }
+  .place b { font: 800 24px/1.1 var(--display); letter-spacing: -0.02em; display: block; }
+  .place span { color: var(--muted); font-size: 13px; }
+  .verdict { border-radius: 18px; padding: 16px; display: grid; gap: 9px; background: var(--green-soft); }
+  .verdict .lvl { font: 800 26px/1 var(--display); color: var(--green); display: flex; gap: 8px; align-items: center; letter-spacing: -0.02em; }
+  .verdict .lvl svg { width: 26px; height: 26px; }
+  .verdict p { margin: 0; }
+  .drops { display: flex; flex-wrap: wrap; gap: 3px; }
+  .drops svg { width: 9px; height: 11px; } .drops .on { color: var(--water); } .drops .off { color: #b9c3c9; }
+  .days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
+  .day { border-radius: 10px; padding: 7px 0 6px; display: grid; justify-items: center; gap: 2px; background: #fff; border: 1px solid var(--line); }
+  .day svg { width: 20px; height: 20px; } .day b { font-size: 12px; font-weight: 600; } .day span { font-size: 10px; color: var(--green); }
+  h3 { margin: 0; font-size: 13px; font-weight: 600; color: var(--muted); }
+  .act { display: flex; gap: 10px; align-items: center; }
+  .act i { width: 32px; height: 32px; border-radius: 9px; background: #fff; border: 1px solid var(--line); display: grid; place-items: center; }
+  .act i svg { width: 18px; height: 18px; }
+  .chat { display: grid; gap: 8px; border-top: 1px solid var(--line); padding-top: 14px; }
+  .me { justify-self: end; max-width: 88%; background: var(--ink); color: #fff; padding: 9px 12px; border-radius: 16px 16px 4px 16px; font-size: 14px; }
+  .steps { display: grid; gap: 3px; font-size: 12px; color: var(--muted); }
+  .steps div { display: flex; gap: 6px; align-items: center; } .steps svg { width: 13px; height: 13px; color: var(--green); }
+  .bot { margin: 0; }
+  .fine { font-size: 11px; color: var(--muted); margin: 0; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { border: 1px solid var(--line); background: #fff; border-radius: 16px; padding: 6px 11px; font: 600 13px/1 var(--text); cursor: pointer; }
+  .ask { margin: 10px 16px 16px; height: 50px; border-radius: 25px; background: var(--ink); color: #eef1ec; display: flex; align-items: center; gap: 12px; padding: 0 7px 0 20px; }
+  .ask > span:first-child { flex: 1; opacity: .75; }
+  .mic { width: 36px; height: 36px; border-radius: 50%; background: #eef1ec; display: grid; place-items: center; }
+  .mic svg { width: 17px; height: 17px; color: var(--ink); }
+  button:focus-visible { outline: 3px solid var(--water); outline-offset: 2px; }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18c2 0 2-1.5 4.5-1.5S10 18 12 18s2-1.5 4.5-1.5S19 18 21 18"/><path d="M12 3v9M8.5 8.5L12 12l3.5-3.5"/></svg>Forewarn</div>
+  <div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><b>Eastleigh, Nairobi</b></div>
+  <div class="right"><button class="btn light" type="button">Share</button><button class="btn dark" type="button">Follow this place</button></div>
+</header>
+<main>
+  <div class="stage" id="stage">
+    <canvas></canvas>
+    <div class="float views" role="group" aria-label="View">
+      <button type="button" data-v="overview" aria-pressed="true">Overview</button>
+      <button type="button" data-v="street" aria-pressed="false">On your street</button>
+      <button type="button" data-v="march" aria-pressed="false">March flood</button>
+    </div>
+    <div class="float clock" id="clock"></div>
+    <div class="float legend" id="legend" hidden>
+      <b>Water depth</b><div class="ramp"></div><div class="row"><span>10 cm</span><span>50 cm</span><span>1 m+</span></div>
+      <div><i></i>Water at the door</div>
+    </div>
+    <div class="load" id="load"><span>Loading</span><i><b></b></i></div>
+  </div>
+  <aside>
+    <div class="scroll" id="panel"></div>
+    <div class="ask"><span>Ask about your place</span><span class="mic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></span></div>
+  </aside>
+</main>
+
+<script type="importmap">{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/" } }</script>
+<script type="module">
+import { placeScene } from './place3d.js';
+const get = (n) => fetch(`data/${n}.json`).then((r) => r.json());
+const [F, M] = await Promise.all(['futures-eastleigh', 'march-eastleigh'].map(get));
+const LINE = F.trigger_mm, $ = (id) => document.getElementById(id);
+const svg = {
+  drop: '<svg viewBox="0 0 13 16"><path d="M6.5 1C4 5 1.5 7.6 1.5 10.3a5 5 0 0 0 10 0C11.5 7.6 9 5 6.5 1z" fill="currentColor"/></svg>',
+  ok: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M7.5 12.5l3 3 6-6.5"/></svg>',
+  rain: '<svg viewBox="0 0 24 24"><path d="M7 13h9.5a3.5 3.5 0 0 0 .3-7A5 5 0 0 0 7.3 7.5 3 3 0 0 0 7 13z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M9 16l-1 2.5M13 16l-1 2.5M17 16l-1 2.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
+  bell: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 21h4"/></svg>',
+  tick: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+};
+const days = F.days.map((d, j) => { const v = F.daily.map((m) => m[j]); return { d, j, k: v.filter((x) => x >= LINE).length, med: [...v].sort((a, b) => a - b)[25] }; });
+const sun = days.at(-1);
+const here = M.cm.map((h) => h[30 * 61 + 30]), peak = Math.max(...here), peakH = here.indexOf(peak);
+const short = (d, j) => (j === 0 ? 'Today' : new Date(d + 'T12:00:00Z').toLocaleDateString('en-GB', { weekday: 'short', timeZone: 'UTC' }));
+
+$('panel').innerHTML = `
+  <div class="place"><b>Eastleigh</b><span>Nairobi, Kenya. Your place, next 7 days.</span></div>
+  <div class="verdict"><div class="lvl">${svg.ok}Unlikely to flood</div>
+    <p>About 1 in 50 forecasts bring rain as heavy as the day it flooded here in March. That one is on Sunday.</p>
+    <div class="drops">${Array.from({ length: 50 }, (_, i) => `<span class="${i < 1 ? 'on' : 'off'}">${svg.drop}</span>`).join('')}</div>
+  </div>
+  <div class="days">${days.map((x) => `<div class="day">${svg.rain}<b>${short(x.d, x.j)}</b><span>Unlikely</span></div>`).join('')}</div>
+  <div><h3>What to do</h3><div class="act" style="margin-top:8px"><i>${svg.ok}</i>Nothing for now. Follow this place and we will tell you if Sunday gets worse.</div></div>
+  <div class="chat">
+    <div class="me">How bad was it here in March?</div>
+    <div class="steps"><div>${svg.tick}Loaded the March 2026 storm for your area</div><div>${svg.tick}Read the water at your pin, hour by hour</div></div>
+    <p class="bot">The water came on Sunday 8 March. At your pin it peaked at ${peak} cm, shin deep, around 21:00. The low land along the river took the most.</p>
+    <p class="fine">Flood Check model, 60 m squares. An estimate, not a measurement. It reads too deep beside rivers.</p>
+    <div class="chips"><span class="chip" data-go="march">Play the March flood</span><span class="chip" data-go="street">Show my street</span><span class="chip">Warn my family</span></div>
+  </div>`;
+
+const stage = $('stage'), load = $('load');
+const progress = (f, text) => { load.querySelector('b').style.width = f * 100 + '%'; load.querySelector('span').textContent = text; if (f >= 1) load.classList.add('done'); };
+const s = await placeScene({ stage, canvas: stage.querySelector('canvas'), base: 'data/place-eastleigh', view: 'overview', progress });
+const pin = s.tag('Your place', 0, 0, 'green', 8);
+const when = (h) => { const t = new Date(Date.parse(M.start + ':00Z') + h * 3600e3); return `${t.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' })}, ${String(t.getUTCHours()).padStart(2, '0')}:00`; };
+let playing = false, h = 0, last = 0;
+const wetH = M.cm.map((x) => x.filter((d) => d >= 10).length), H0 = Math.max(0, wetH.findIndex((n) => n > 0) - 2), H1 = Math.min(95, peakH + 12);
+const showHour = (k) => { s.setWater(s.cmAt(k)); pin.textContent = here[k] >= 4 ? `${here[k]} cm here` : 'Your place'; pin.className = 'tag ' + (here[k] >= 4 ? 'blue' : 'green'); $('clock').innerHTML = `${when(k)}<span>March 2026 storm</span>`; };
+s.onFrame((t) => { if (!playing || t - last < 380) return; last = t; showHour(h); h = h >= H1 ? H0 : h + 1; });
+function setView(v) {
+  for (const b of document.querySelectorAll('.views button')) b.setAttribute('aria-pressed', b.dataset.v === v);
+  const march = v === 'march';
+  playing = march && !new URLSearchParams(location.search).has('still'); h = H0;
+  $('clock').style.display = march ? 'block' : 'none'; $('legend').hidden = !march;
+  if (march) { s.view('street', { dist: 420, pitch: 0.28 }); showHour(playing ? H0 : peakH); }
+  else { s.setWater(null); pin.textContent = 'Your place'; pin.className = 'tag green'; s.view(v); }
+}
+document.querySelector('.views').addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) setView(b.dataset.v); });
+$('panel').addEventListener('click', (e) => { const c = e.target.closest('[data-go]'); if (c) setView(c.dataset.go); });
+setView(new URLSearchParams(location.search).get('v') ?? 'overview');
+window.__ready = true;
+</script>
+</body>
+</html>
