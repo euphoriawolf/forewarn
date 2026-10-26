@@ -2,8 +2,10 @@
 // hour by hour, and named roads lit by what the water did to them.
 import * as THREE from 'three';
 
-export async function makeScene({ stage, canvas, data }) {
+// look: { shape: 'disc' (a cut-out model) or 'open' (the land runs out of view), skin: 'clay' or 'satellite' }
+export async function makeScene({ stage, canvas, data, look = {} }) {
   const { T, MAP, M } = data;
+  const shape = look.shape ?? 'disc', skin = look.skin ?? 'clay';
   const N = T.n, R = (N - 1) / 2 - 1, EX = 0.1, BASE = -2.5;
   const hAt = (x, z) => {
     const gx = Math.min(N - 1.001, Math.max(0, x + (N - 1) / 2)), gz = Math.min(N - 1.001, Math.max(0, z + (N - 1) / 2));
@@ -11,6 +13,9 @@ export async function makeScene({ stage, canvas, data }) {
     return ((H(i, j) * (1 - fx) + H(i + 1, j) * fx) * (1 - fz) + (H(i, j + 1) * (1 - fx) + H(i + 1, j + 1) * fx) * fz) * EX;
   };
   const H0 = hAt(0, 0), gy = (x, z) => hAt(x, z) - H0;
+  const inside = (x, z, m = 0) => (shape === 'disc' ? x * x + z * z < (R - m) ** 2 : Math.abs(x) < (N - 1) / 2 - m && Math.abs(z) < (N - 1) / 2 - m);
+  const sat = skin === 'satellite' ? await new THREE.TextureLoader().loadAsync(look.image) : null;
+  if (sat) sat.colorSpace = THREE.SRGBColorSpace;
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
   renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
   renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -26,6 +31,15 @@ export async function makeScene({ stage, canvas, data }) {
     const seg = 140, rings = 70, pos = [], col = [], idx = [], c = new THREE.Color(), open = new THREE.Color('#d3d8c6'), built = new THREE.Color('#b9b4a5');
     const bAt = (x, z) => { const i = Math.round(x + (N - 1) / 2), j = Math.round(z + (N - 1) / 2); return T.buildings[Math.max(0, Math.min(N - 1, j)) * N + Math.max(0, Math.min(N - 1, i))]; };
     const put = (x, z) => { pos.push(x, gy(x, z), z); c.lerpColors(open, built, Math.min(1, bAt(x, z) / 25)); col.push(c.r, c.g, c.b); };
+    if (shape === 'open') {
+      const S = (N - 1) * 2, half = (N - 1) / 2, uv = [];
+      for (let j = 0; j <= S; j++) for (let i = 0; i <= S; i++) { const x = -half + i / 2, z = -half + j / 2; put(x, z); uv.push(i / S, 1 - j / S); }
+      for (let j = 0; j < S; j++) for (let i = 0; i < S; i++) { const a = j * (S + 1) + i; idx.push(a, a + S + 1, a + 1, a + 1, a + S + 1, a + S + 2); }
+      const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute('color', new THREE.Float32BufferAttribute(col, 3)); g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2)); g.setIndex(idx); g.computeVertexNormals();
+      const land = new THREE.Mesh(g, sat ? new THREE.MeshStandardMaterial({ map: sat, roughness: 1 }) : new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.95 }));
+      land.receiveShadow = true; world.add(land);
+    }
+    if (shape === 'disc') {
     put(0, 0);
     for (let r = 1; r <= rings; r++) for (let s = 0; s < seg; s++) { const a = (s / seg) * Math.PI * 2, rr = (r / rings) * R; put(Math.cos(a) * rr, Math.sin(a) * rr); }
     const v = (r, s) => (r === 0 ? 0 : 1 + (r - 1) * seg + (s % seg));
@@ -37,14 +51,15 @@ export async function makeScene({ stage, canvas, data }) {
     for (let i = 0; i < sp.count; i++) sp.setY(i, sp.getY(i) > 0 ? gy(sp.getX(i), sp.getZ(i)) : BASE);
     side.computeVertexNormals(); world.add(new THREE.Mesh(side, new THREE.MeshStandardMaterial({ color: '#7a4630', roughness: 1, side: THREE.DoubleSide })));
     const base = new THREE.Mesh(new THREE.CircleGeometry(R, seg), new THREE.MeshStandardMaterial({ color: '#5a3324' })); base.rotation.x = Math.PI / 2; base.position.y = BASE; world.add(base);
-    world.add(ribbons(MAP.roads, (rd) => (rd.k === 'secondary' ? 0.55 : rd.k === 'tertiary' ? 0.42 : 0.26), 0.05, '#f4f2ea'));
+    }
+    if (!sat) world.add(ribbons(MAP.roads, (rd) => (rd.k === 'secondary' ? 0.55 : rd.k === 'tertiary' ? 0.42 : 0.26), 0.05, '#f4f2ea'));
     const box = new THREE.BoxGeometry(1, 1, 1), mat = new THREE.MeshStandardMaterial({ color: '#efeee8', roughness: 0.8 }), spots = [];
     let seed = 7; const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
     for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) {
       const n = Math.min(4, Math.round(T.buildings[j * N + i] / 8));
-      for (let k = 0; k < n; k++) { const x = i - (N - 1) / 2 + rnd() - 0.5, z = j - (N - 1) / 2 + rnd() - 0.5; if (x * x + z * z < (R - 1) ** 2) spots.push([x, z, 0.25 + rnd() * 0.35]); }
+      for (let k = 0; k < n; k++) { const x = i - (N - 1) / 2 + rnd() - 0.5, z = j - (N - 1) / 2 + rnd() - 0.5; if (!sat && inside(x, z, 1)) spots.push([x, z, 0.25 + rnd() * 0.35]); }
     }
-    const inst = new THREE.InstancedMesh(box, mat, spots.length), o = new THREE.Object3D();
+    const inst = new THREE.InstancedMesh(box, mat, Math.max(1, spots.length)), o = new THREE.Object3D();
     spots.forEach(([x, z, h], k) => { o.position.set(x, gy(x, z) + h / 2, z); o.scale.set(0.42, h, 0.42); o.updateMatrix(); inst.setMatrixAt(k, o.matrix); });
     inst.castShadow = true; inst.receiveShadow = true; world.add(inst);
   }
@@ -75,7 +90,7 @@ export async function makeScene({ stage, canvas, data }) {
     if (cm) {
       for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) {
         const d = cm[j * N + i]; if (d < 4) continue;
-        const x = i - (N - 1) / 2, z = j - (N - 1) / 2; if (x * x + z * z > (R - 0.3) ** 2) continue;
+        const x = i - (N - 1) / 2, z = j - (N - 1) / 2; if (!inside(x, z, 0.3)) continue;
         id[j * N + i] = pos.length / 3; pos.push(x, gy(x, z) + 0.08 + (Math.min(d, 150) / 100) * 0.55, z);
         c.lerpColors(shallow, deep, Math.min(1, d / 80)); col.push(c.r, c.g, c.b);
       }

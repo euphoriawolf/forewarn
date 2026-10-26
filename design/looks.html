@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Forewarn 3D looks</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Public+Sans:wght@400;600&display=swap" rel="stylesheet" />
+<style>
+  :root { --bg: #e3e7e2; --paper: #f8f9f6; --ink: #16201b; --muted: #5d6a63; --water: #1d4ed8; --display: 'Bricolage Grotesque', system-ui, sans-serif; --text: 'Public Sans', system-ui, sans-serif; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.45 var(--text); -webkit-font-smoothing: antialiased; }
+  header { max-width: 1320px; margin: 0 auto; padding: 36px 16px 0; }
+  h1 { font: 800 36px/1.05 var(--display); letter-spacing: -0.02em; margin: 0 0 8px; }
+  header p { margin: 0; color: var(--muted); max-width: 64ch; }
+  .row { max-width: 1320px; margin: 0 auto; padding: 24px 16px 60px; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 22px; justify-items: center; }
+  figure { margin: 0; width: 100%; max-width: 320px; }
+  figcaption { padding: 12px 4px 0; } figcaption b { font: 600 18px/1.2 var(--display); display: block; } figcaption span { color: var(--muted); font-size: 14px; }
+  .stage { position: relative; width: 100%; aspect-ratio: 320 / 380; border-radius: 22px; overflow: hidden; background: linear-gradient(#c9d2cc, #e9ece6); box-shadow: 0 14px 30px rgba(22,32,27,.12); touch-action: none; cursor: grab; }
+  .stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .stage.open canvas { -webkit-mask-image: radial-gradient(ellipse 62% 58% at 50% 54%, #000 55%, transparent 100%); mask-image: radial-gradient(ellipse 62% 58% at 50% 54%, #000 55%, transparent 100%); }
+  .stage.street canvas { -webkit-mask-image: linear-gradient(transparent 0%, #000 30%); mask-image: linear-gradient(transparent 0%, #000 30%); }
+  .tag { position: absolute; transform: translate(-50%, -130%); font: 600 12px/1 var(--text); background: var(--water); color: #fff; padding: 6px 8px; border-radius: 8px; white-space: nowrap; pointer-events: none; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Four looks for the 3D</h1>
+  <p>Same moment in each: the March 2026 storm at its highest in Eastleigh, with the depth at your pin. Drag any of them to turn it.</p>
+</header>
+<main class="row" id="row"></main>
+<script type="importmap">{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js" } }</script>
+<script type="module">
+import { makeScene } from './scene.js';
+const get = (n) => fetch(`data/${n}.json`).then((r) => r.json());
+const [T, MAP, M] = await Promise.all(['terrain-eastleigh', 'map-eastleigh', 'march-eastleigh'].map(get));
+const here = M.cm.map((h) => h[30 * 61 + 30]), peakH = here.indexOf(Math.max(...here));
+const looks = [
+  { t: 'A. Cut-out model', n: 'What you have now. Clear, but it reads as an object on a table, not as your place.', look: { shape: 'disc' }, cls: '' },
+  { t: 'B. Open land', n: 'The streets run out of view and fade into the sky. Clean and calm, and it feels like you are looking at the real place.', look: { shape: 'open' }, cls: 'open', view: { dist: 78, pitch: 0.75 } },
+  { t: 'C. Satellite', n: 'The real photo of your area. People find their own roof. Softer detail: the free imagery is 10 m per pixel.', look: { shape: 'open', skin: 'satellite', image: 'data/satellite-eastleigh.jpg' }, cls: 'open', view: { dist: 78, pitch: 0.8 } },
+  { t: 'D. On your street', n: 'A low camera at your pin, like standing there. Strongest for the "what would it look like" moment, weaker for the overview.', look: { shape: 'open' }, cls: 'street', view: { dist: 26, pitch: 0.32, yaw: 0.9 } },
+];
+const row = document.getElementById('row');
+row.innerHTML = looks.map((l) => `<figure><div class="stage ${l.cls}"><canvas></canvas></div><figcaption><b>${l.t}</b><span>${l.n}</span></figcaption></figure>`).join('');
+const stages = row.querySelectorAll('.stage');
+for (let i = 0; i < looks.length; i++) {
+  const s = await makeScene({ stage: stages[i], canvas: stages[i].querySelector('canvas'), data: { T, MAP, M }, look: looks[i].look });
+  s.setWater(s.cmAt(peakH)); s.tag(`${here[peakH]} cm here`, 0, 0);
+  if (looks[i].view) s.view(looks[i].view);
+}
+window.__ready = true;
+</script>
+</body>
+</html>

@@ -11,3 +11,4 @@ All numbers are real.
 - `data/terrain-eastleigh.json`: Copernicus GLO-30 ground heights and Overture building counts. Taken from Flood Check, a project that existed before the hackathon.
 - `data/map-eastleigh.json`: roads from OpenStreetMap (ODbL), taken from Flood Check.
 - `data/timemachine-durban.json`: 51 past ECMWF runs, 1 to 7 days before the Durban flood of 25 Feb 2025, from dynamical.org (CC BY 4.0).
+- `data/satellite-eastleigh.jpg`: Sentinel-2 cloudless 2024 by EOX (contains modified Copernicus Sentinel data), CC BY-NC-SA 4.0, non-commercial. Taken from Flood Check.
