@@ -12,3 +12,6 @@ All numbers are real.
 - `data/map-eastleigh.json`: roads from OpenStreetMap (ODbL), taken from Flood Check.
 - `data/timemachine-durban.json`: 51 past ECMWF runs, 1 to 7 days before the Durban flood of 25 Feb 2025, from dynamical.org (CC BY 4.0).
 - `data/satellite-eastleigh.jpg`: Sentinel-2 cloudless 2024 by EOX (contains modified Copernicus Sentinel data), CC BY-NC-SA 4.0, non-commercial. Taken from Flood Check.
+- `data/place-eastleigh-{ground,city,life}.json` and `data/place-eastleigh.jpg`: a 3 km square cut by `tools/cut-place.py` from Flood Check's Nairobi data (ground, building footprints with heights from OpenStreetMap and Overture, canopy-map trees, roads, the March model and the Sentinel-2 photo). Split in three so a slow phone shows the ground first.
+
+`place3d.js` is new code for Forewarn. It follows Flood Check's look (true scale, satellite ground, buildings, trees, see-through water, amber roofs for water at the door) but shares no code with it.

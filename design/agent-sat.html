@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Forewarn agent, satellite</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Public+Sans:wght@400;600&display=swap" rel="stylesheet" />
+<style>
+  /* The agent shows as it answers: the top half is your place in 3D and every answer changes it. */
+  :root {
+    --bg: #e3e7e2; --paper: #f8f9f6; --ink: #16201b; --muted: #5d6a63; --line: #dde2dc;
+    --water: #1d4ed8; --water-soft: #e3eafc; --green: #2f7d4f; --green-soft: #e3f1e7; --red: #b42318;
+    --display: 'Bricolage Grotesque', system-ui, sans-serif; --text: 'Public Sans', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.45 var(--text); -webkit-font-smoothing: antialiased; }
+  header { max-width: 1240px; margin: 0 auto; padding: 36px 16px 0; }
+  h1 { font: 800 36px/1.05 var(--display); letter-spacing: -0.02em; margin: 0 0 8px; }
+  header p { margin: 0; color: var(--muted); max-width: 66ch; }
+  .row { max-width: 1240px; margin: 0 auto; padding: 24px 16px 60px; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; justify-items: center; align-items: start; }
+  figure { margin: 0; width: 100%; max-width: 360px; }
+  figcaption { padding: 12px 4px 0; }
+  figcaption b { font: 600 18px/1.2 var(--display); display: block; }
+  figcaption span { color: var(--muted); font-size: 14px; }
+  .phone { position: relative; width: 100%; aspect-ratio: 360 / 760; background: var(--paper); border-radius: 26px; overflow: hidden; box-shadow: 0 16px 36px rgba(22,32,27,.13); }
+  .stage { position: absolute; inset: 0 0 auto; height: 47%; background: linear-gradient(#cfd7d0, #e8ebe5); touch-action: none; cursor: grab; }
+  .stage.wet { background: linear-gradient(#aab4b4, #d6dbd6); }
+  .stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .top { position: absolute; left: 14px; right: 14px; top: 12px; display: flex; justify-content: space-between; align-items: start; pointer-events: none; }
+  .top b { font: 600 14px/1.2 var(--text); display: block; } .top small { color: var(--muted); font-size: 12px; }
+  .clock { font: 600 12px/1.2 var(--text); background: rgba(248,249,246,.92); padding: 5px 8px; border-radius: 8px; text-align: right; }
+  .clock span { display: block; font-weight: 400; color: var(--muted); }
+  .tag { position: absolute; transform: translate(-50%, -130%); font: 600 12px/1 var(--text); background: var(--ink); color: #fff; padding: 6px 8px; border-radius: 8px; white-space: nowrap; pointer-events: none; }
+  .tag.blue { background: var(--water); } .tag.green { background: var(--green); } .tag.red { background: var(--red); }
+  .load { position: absolute; left: 14px; right: 14px; bottom: 34px; display: grid; gap: 6px; font-size: 12px; color: var(--ink); pointer-events: none; transition: opacity .4s; }
+  .load i { display: block; height: 3px; border-radius: 2px; background: rgba(22,32,27,.15); overflow: hidden; }
+  .load i b { display: block; height: 100%; width: 0; background: var(--ink); transition: width .3s; }
+  .load.done { opacity: 0; }
+  .sheet { position: absolute; inset: 45% 0 0; background: var(--paper); border-radius: 20px 20px 0 0; display: flex; flex-direction: column; box-shadow: 0 -6px 20px rgba(22,32,27,.08); }
+  .chat { flex: 1; padding: 14px 14px 0; display: flex; flex-direction: column; gap: 8px; overflow: hidden; }
+  .me { align-self: flex-end; max-width: 88%; background: var(--ink); color: #fff; padding: 9px 12px; border-radius: 16px 16px 4px 16px; font-size: 14px; }
+  .steps { display: grid; gap: 3px; font-size: 12px; color: var(--muted); }
+  .steps div { display: flex; gap: 6px; align-items: center; }
+  .steps svg { width: 13px; height: 13px; color: var(--green); flex: none; }
+  .bot { font-size: 15px; margin: 0; }
+  .card { border-radius: 12px; padding: 9px 11px; display: grid; gap: 2px; font-size: 13px; }
+  .card b { font: 800 17px/1.15 var(--display); }
+  .card.green { background: var(--green-soft); } .card.green b { color: var(--green); }
+  .card.blue { background: var(--water-soft); } .card.blue b { color: var(--water); }
+  .legend { display: flex; gap: 12px; font-size: 12px; color: var(--muted); }
+  .legend i { display: inline-block; width: 14px; height: 5px; border-radius: 3px; vertical-align: 2px; margin-right: 5px; }
+  .fine { font-size: 11px; color: var(--muted); margin: 0; }
+  .ask { margin: 8px 12px 12px; height: 48px; border-radius: 24px; background: var(--ink); color: #eef1ec; display: flex; align-items: center; gap: 12px; padding: 0 6px 0 18px; font-size: 14px; }
+  .ask > span:first-child { flex: 1; opacity: .75; }
+  .mic { width: 36px; height: 36px; border-radius: 50%; background: #eef1ec; display: grid; place-items: center; }
+  .mic svg { width: 17px; height: 17px; color: var(--ink); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Forewarn: the agent shows you</h1>
+  <p>The top half is your place in 3D, on the satellite photo, with real buildings and trees. Each answer changes it: the March water rises, a road lights up, a day gets marked. Drag to turn the model. Agent wording is a draft for design, not a Muse Spark output yet. The numbers are real: tonight's ECMWF forecast and the Flood Check model of the March 2026 storm.</p>
+</header>
+<main class="row" id="row"></main>
+
+<script type="importmap">{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js" } }</script>
+<script type="module">
+import { placeScene } from './place3d.js';
+const get = (n) => fetch(`data/${n}.json`).then((r) => r.json());
+const [F, M] = await Promise.all(['futures-eastleigh', 'march-eastleigh'].map(get));
+const LINE = Math.round(F.trigger_mm);
+const tick = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+const mic = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>';
+const steps = (a) => `<div class="steps">${a.map((s) => `<div>${tick}${s}</div>`).join('')}</div>`;
+const sunI = F.days.length - 1, sunVals = F.daily.map((m) => m[sunI]).sort((a, b) => a - b);
+const here = M.cm.map((h) => h[30 * 61 + 30]), peak = Math.max(...here), peakH = here.indexOf(peak);
+const when = (h) => { const t = new Date(Date.parse(M.start + ':00Z') + h * 3600e3); return `${t.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' })}, ${String(t.getUTCHours()).padStart(2, '0')}:00`; };
+
+const convos = [
+  {
+    title: '1. "Will my street flood this weekend?"',
+    note: 'The model marks Sunday at your pin. A plain answer, one card, and what the agent checked.',
+    chat: `<div class="me">Will my street flood this weekend?</div>
+      ${steps(['Read 51 forecasts for Eastleigh', `Compared them with the ${LINE} mm that flooded here in March`])}
+      <p class="bot">Probably not. Saturday looks wet but safe. Sunday has one long shot.</p>
+      <div class="card green"><b>Unlikely to flood</b>About 1 in 50 forecasts bring ${LINE} mm or more on Sunday. Most say about ${Math.round(sunVals[25])} mm.</div>`,
+    clock: 'Next 7 days<span>ECMWF, 26 Oct 20:00</span>',
+    view: 'overview',
+    run(s) { s.tag('Sunday: unlikely', 0, 0, 'green', 8); },
+  },
+  {
+    title: '2. "How bad was it here in March?"',
+    note: 'The March storm plays on your streets, hour by hour. The pin shows the depth at your door.',
+    chat: `<div class="me">How bad was it here in March?</div>
+      ${steps(['Loaded the March 2026 storm for your area', 'Read the water at your pin, hour by hour'])}
+      <p class="bot">The water came on Sunday 8 March. At your pin it peaked at ${peak} cm, shin deep, around 21:00. The low land along the river took the most.</p>
+      <p class="fine">Flood Check model, 60 m squares. An estimate, not a measurement. It reads too deep beside rivers.</p>`,
+    wet: true, view: 'street',
+    run(s, el) {
+      const pin = s.tag('', 0, 0, 'blue', 3), clock = el.querySelector('.clock');
+      const wetH = M.cm.map((h) => h.filter((d) => d >= 10).length), start = Math.max(0, wetH.findIndex((n) => n > 0) - 2), end = Math.min(95, peakH + 12);
+      const show = (h) => { s.setWater(s.cmAt(h)); pin.textContent = here[h] >= 4 ? `${here[h]} cm here` : 'Your place'; clock.innerHTML = `${when(h)}<span>March 2026 storm</span>`; };
+      if (new URLSearchParams(location.search).has('still')) return show(peakH);
+      let h = start, last = 0;
+      s.onFrame((t) => { if (t - last < 420) return; last = t; show(h); h = h >= end ? start : h + 1; });
+    },
+  },
+  {
+    title: '3. "Which road is safer on Sunday?"',
+    note: 'The agent lights the roads you use: red where water stood in March, green where it stayed dry.',
+    chat: `<div class="me">If it pours on Sunday, can I drive down First Avenue?</div>
+      ${steps(['Found First Avenue Eastleigh and Jogoo Road', 'Checked both against the March water'])}
+      <p class="bot">Keep off First Avenue Eastleigh where it dips to the river: water stood there in March. Jogoo Road stayed dry, so use it if you can. Sunday is unlikely to get that bad.</p>
+      <div class="legend"><span><i style="background:var(--red)"></i>Water in March</span><span><i style="background:var(--green)"></i>Stayed dry</span></div>`,
+    clock: 'March 2026 storm<span>at its highest</span>',
+    view: 'roads',
+    run(s) {
+      s.lightRoads(['First Avenue Eastleigh', 'Jogoo Road']);
+      s.setWater(s.peak);
+      const pts = (n) => s.roads.filter((r) => r.n === n).flatMap((r) => r.p);
+      const fa = pts('First Avenue Eastleigh'), wet = fa.filter(([x, z]) => s.depthAt(s.peak, x, z) >= 10);
+      const pick = wet.length ? wet[Math.floor(wet.length / 2)] : fa[Math.floor(fa.length / 2)];
+      s.tag('First Avenue', pick[0], pick[1], 'red', 12);
+      const jg = pts('Jogoo Road'), m = jg.reduce((a, q) => (Math.hypot(q[0] - pick[0], q[1] - pick[1]) < Math.hypot(a[0] - pick[0], a[1] - pick[1]) ? q : a));
+      s.tag('Jogoo Road', m[0], m[1], 'green', 12);
+      // frame both roads: aim between them and back off far enough
+      const cx = (pick[0] + m[0]) / 2, cz = (pick[1] + m[1]) / 2, span = Math.hypot(pick[0] - m[0], pick[1] - m[1]);
+      s.view('roads', { tx: cx, tz: cz, dist: Math.max(700, span * 1.9) });
+    },
+  },
+];
+
+const row = document.getElementById('row');
+row.innerHTML = convos.map((c, i) => `<figure><div class="phone" data-i="${i}">
+  <div class="stage ${c.wet ? 'wet' : ''}"><canvas></canvas><div class="load"><span>Loading</span><i><b></b></i></div><div class="top"><div><b>Eastleigh</b><small>Nairobi</small></div><div class="clock">${c.clock ?? ''}</div></div></div>
+  <div class="sheet"><div class="chat">${c.chat}</div><div class="ask"><span>Ask about your place</span><span class="mic">${mic}</span></div></div>
+</div><figcaption><b>${c.title}</b><span>${c.note}</span></figcaption></figure>`).join('');
+for (const el of row.querySelectorAll('.phone')) {
+  const stage = el.querySelector('.stage'), load = stage.querySelector('.load'), c = convos[+el.dataset.i];
+  const progress = (f, text) => { load.querySelector('b').style.width = f * 100 + '%'; load.querySelector('span').textContent = text; if (f >= 1) load.classList.add('done'); };
+  const s = await placeScene({ stage, canvas: stage.querySelector('canvas'), base: 'data/place-eastleigh', view: c.view, progress });
+  c.run(s, el);
+}
+window.__ready = true;
+</script>
+</body>
+</html>
