@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Forewarn verdict screens</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Public+Sans:wght@400;600&display=swap" rel="stylesheet" />
+<style>
+  /* Forewarn, third pass (26 Oct 2026), built on the risk-communication research:
+     one verdict in a word and a number, a small picture of the chance, colour + word + icon per day,
+     the depth against a person, and what to do. 3D sits behind a button, not on the main screen. */
+  :root {
+    --bg: #e3e7e2; --paper: #f8f9f6; --ink: #16201b; --muted: #5d6a63; --line: #dde2dc;
+    --water: #1d4ed8;
+    --green: #2f7d4f; --green-soft: #e3f1e7;
+    --amber: #b86e00; --amber-soft: #fbefd9;
+    --red: #b42318; --red-soft: #fbe3e0;
+    --display: 'Bricolage Grotesque', system-ui, sans-serif; --text: 'Public Sans', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.45 var(--text); -webkit-font-smoothing: antialiased; }
+  header { max-width: 1320px; margin: 0 auto; padding: 36px 16px 4px; }
+  h1 { font: 800 36px/1.05 var(--display); letter-spacing: -0.02em; margin: 0 0 14px; }
+  .rules { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin: 0; padding: 0; list-style: none; }
+  .rules li { background: var(--paper); border-radius: 14px; padding: 12px 14px; }
+  .rules b { display: block; font-weight: 600; }
+  .rules span { color: var(--muted); font-size: 13px; }
+  .row { max-width: 1320px; margin: 0 auto; padding: 24px 16px 60px; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; justify-items: center; align-items: start; }
+  figure { margin: 0; width: 100%; max-width: 360px; }
+  figcaption { padding: 12px 4px 0; }
+  figcaption b { font: 600 18px/1.2 var(--display); display: block; }
+  figcaption span { color: var(--muted); font-size: 14px; }
+
+  .phone { position: relative; width: 100%; aspect-ratio: 360 / 760; background: var(--paper); border-radius: 26px; overflow: hidden; box-shadow: 0 16px 36px rgba(22,32,27,.13); padding: 18px 16px 0; display: flex; flex-direction: column; gap: 12px; }
+  .bar { display: flex; justify-content: space-between; align-items: center; }
+  .bar b { font-weight: 600; } .bar small { color: var(--muted); display: block; font-size: 13px; }
+  .icon-btn { width: 38px; height: 38px; border-radius: 50%; border: 0; background: var(--line); display: grid; place-items: center; }
+  .icon-btn svg { width: 18px; height: 18px; }
+  .replay { font-size: 12px; font-weight: 600; background: var(--ink); color: #fff; border-radius: 8px; padding: 4px 8px; align-self: start; }
+
+  .verdict { border-radius: 20px; padding: 16px; display: grid; gap: 10px; }
+  .verdict.green { background: var(--green-soft); } .verdict.amber { background: var(--amber-soft); } .verdict.red { background: var(--red-soft); }
+  .level { display: flex; align-items: center; gap: 8px; font: 800 26px/1 var(--display); letter-spacing: -0.02em; }
+  .green .level { color: var(--green); } .amber .level { color: var(--amber); } .red .level { color: var(--red); }
+  .level svg { width: 28px; height: 28px; flex: none; }
+  .verdict p { margin: 0; font-size: 15px; }
+  .drops { display: flex; flex-wrap: wrap; gap: 3px; align-items: center; }
+  .drops svg { width: 9px; height: 11px; }
+  .drops.few svg { width: 26px; height: 32px; }
+  .drops .on { color: var(--water); } .drops .off { color: #b9c3c9; }
+  .drops em { font-style: normal; font-size: 13px; color: var(--muted); margin-left: 6px; }
+
+  .days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 3px; }
+  .days.three { grid-template-columns: repeat(3, 1fr); }
+  .day { min-width: 0; border-radius: 10px; padding: 6px 0 5px; display: grid; justify-items: center; gap: 2px; background: #fff; border: 1px solid var(--line); }
+  .day svg { width: 20px; height: 20px; }
+  .day b { font-size: 11px; font-weight: 600; }
+  .day span { font-size: 9.5px; }
+  .day.green span { color: var(--green); } .day.amber span { color: var(--amber); } .day.red span { color: var(--red); }
+  .day.amber { background: var(--amber-soft); border-color: transparent; } .day.red { background: var(--red-soft); border-color: transparent; }
+  .day.sel { outline: 2px solid var(--ink); outline-offset: -2px; }
+
+  .todo { display: grid; gap: 8px; }
+  .todo h3, .card h3 { margin: 0; font-size: 13px; font-weight: 600; color: var(--muted); }
+  .act { display: flex; gap: 12px; align-items: center; font-size: 15px; }
+  .act i { width: 36px; height: 36px; border-radius: 10px; background: #fff; border: 1px solid var(--line); display: grid; place-items: center; flex: none; }
+  .act i svg { width: 20px; height: 20px; }
+
+  .bottom { margin-top: auto; display: flex; gap: 8px; padding-bottom: 16px; }
+  .btn { flex: 1; white-space: nowrap; height: 48px; border-radius: 24px; border: 0; font: 600 14px/1 var(--text); display: flex; align-items: center; justify-content: center; gap: 8px; }
+  .btn svg { width: 18px; height: 18px; }
+  .btn.dark { background: var(--ink); color: #fff; } .btn.light { background: var(--line); color: var(--ink); }
+
+  /* day detail: likely range against the flood line */
+  .chart { position: relative; height: 230px; margin: 4px 0 0 0; }
+  .chart .line { position: absolute; left: 0; right: 0; border-top: 2px dashed var(--ink); }
+  .chart .line span { position: absolute; right: 0; top: -22px; font-size: 12px; font-weight: 600; background: var(--paper); padding-left: 6px; }
+  .cols { position: absolute; inset: 0 0 22px; display: grid; grid-template-columns: repeat(7, 1fr); align-items: end; }
+  .col { position: relative; height: 100%; }
+  .col i { position: absolute; left: 30%; right: 30%; border-radius: 6px; background: #c5d0d8; }
+  .col i.hit { background: var(--water); }
+  .col b { position: absolute; left: 22%; right: 22%; height: 3px; background: var(--ink); border-radius: 2px; }
+  .col span { position: absolute; bottom: -22px; left: 0; right: 0; text-align: center; font-size: 12px; color: var(--muted); }
+  .key { font-size: 13px; color: var(--muted); display: grid; gap: 4px; }
+  .key i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; background: #c5d0d8; vertical-align: -1px; margin-right: 6px; }
+  .key b { display: inline-block; width: 12px; height: 3px; background: var(--ink); vertical-align: 3px; margin-right: 6px; }
+
+  /* last time at your door */
+  .door { position: relative; height: 290px; border-radius: 20px; background: linear-gradient(#eef1ee, #e6eae5); overflow: hidden; }
+  .door svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .door .label { position: absolute; left: 16px; top: 14px; }
+  .door .label b { font: 800 34px/1 var(--display); color: var(--water); display: block; }
+  .door .label span { font-size: 14px; }
+  .fine { font-size: 12px; color: var(--muted); margin: 0; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Forewarn: the answer first, the 3D second</h1>
+  <ul class="rules">
+    <li><b>Say it in a word and a number</b><span>"Possible: about 1 in 4". Words alone get read as 50/50. Numbers alone get misread.</span></li>
+    <li><b>Never draw every forecast</b><span>People fix on the one nearest them. That is why the 51 columns confused.</span></li>
+    <li><b>Colour, word and icon together</b><span>Green, amber, red, like Kenya Met's forecasts. Never colour alone.</span></li>
+    <li><b>Show the water against a person</b><span>A depth you can picture. Labelled as the last flood, not a prediction.</span></li>
+  </ul>
+</header>
+
+<main class="row" id="row"></main>
+
+<script type="module">
+const get = (u) => fetch(u).then((r) => r.json());
+const [F, D, M] = await Promise.all(['futures-eastleigh', 'timemachine-durban', 'march-eastleigh'].map((n) => get(`data/${n}.json`)));
+
+// ---- shared rules
+const level = (share) => (share >= 0.5 ? 'red' : share >= 0.2 ? 'amber' : 'green');
+const levelWord = { green: 'Unlikely', amber: 'Possible', red: 'Likely' };
+// the simplest "1 in N" that is close to the share; the dot picture uses the same N
+function oneIn(k, n) {
+  const p = k / n; if (p === 0) return { k: 0, of: 10, say: 'none of the forecasts' };
+  let best = null;
+  for (const of of [2, 3, 4, 5, 10, 20, 50]) for (let a = 1; a < of; a++) { const e = Math.abs(a / of - p); if (!best || e < best.e - 1e-9) best = { k: a, of, e }; }
+  return { ...best, say: `about ${best.k} in ${best.of}` };
+}
+const svg = {
+  drop: '<svg viewBox="0 0 13 16"><path d="M6.5 1C4 5 1.5 7.6 1.5 10.3a5 5 0 0 0 10 0C11.5 7.6 9 5 6.5 1z" fill="currentColor"/></svg>',
+  ok: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M7.5 12.5l3 3 6-6.5"/></svg>',
+  warn: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18v.2"/></svg>',
+  play: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>',
+  share: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>',
+  cube: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 2l9 5v10l-9 5-9-5V7z"/><path d="M12 12l9-5M12 12v10M12 12L3 7"/></svg>',
+  back: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>',
+  sun: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.5" fill="currentColor"/></svg>',
+  rain: '<svg viewBox="0 0 24 24"><path d="M7 13h9.5a3.5 3.5 0 0 0 .3-7A5 5 0 0 0 7.3 7.5 3 3 0 0 0 7 13z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M9 16l-1 2.5M13 16l-1 2.5M17 16l-1 2.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
+  storm: '<svg viewBox="0 0 24 24"><path d="M7 12h9.5a3.5 3.5 0 0 0 .3-7A5 5 0 0 0 7.3 6.5 3 3 0 0 0 7 12z" fill="currentColor"/><path d="M8 15l-1.5 4M12 15l-1.5 4M16 15l-1.5 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+  papers: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h9l4 4v14H6z"/><path d="M12 17V10M9 13l3-3 3 3"/></svg>',
+  route: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="18" r="2"/><circle cx="18" cy="6" r="2"/><path d="M8 18h6a4 4 0 0 0 0-8h-4a4 4 0 0 1 0-8h6"/></svg>',
+  bell: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 21h4"/></svg>',
+};
+const drops = (o) => {
+  const n = o.of, few = n <= 10;
+  return `<div class="drops ${few ? 'few' : ''}">${Array.from({ length: n }, (_, i) => `<span class="${i < o.k ? 'on' : 'off'}">${svg.drop}</span>`).join('')}</div>`;
+};
+const dayShort = (d, j) => (j === 0 ? 'Today' : new Date(d + 'T12:00:00Z').toLocaleDateString('en-GB', { weekday: 'short', timeZone: 'UTC' }));
+const dayLong = (d) => new Date(d + 'T12:00:00Z').toLocaleDateString('en-GB', { weekday: 'long', timeZone: 'UTC' });
+const rainIcon = (med) => (med < 1 ? svg.sun : med < 10 ? svg.rain : svg.storm);
+const strip = (cells, cls = '') => `<div class="days ${cls}">${cells.map((c) => `<div class="day ${c.lv} ${c.sel ? 'sel' : ''}">${c.icon}<b>${c.name}</b><span>${levelWord[c.lv]}</span></div>`).join('')}</div>`;
+const med = (a) => [...a].sort((x, y) => x - y)[Math.floor(a.length / 2)];
+const q = (a, p) => { const s = [...a].sort((x, y) => x - y); return s[Math.round(p * (s.length - 1))]; };
+
+// ---- Eastleigh, now
+const LINE = F.trigger_mm;
+const E = F.days.map((d, j) => { const v = F.daily.map((m) => m[j]); const k = v.filter((x) => x >= LINE).length; return { d, j, v, k, lv: level(k / 51), med: med(v) }; });
+const ew = E.reduce((a, b) => (b.k > a.k ? b : a));
+const eo = oneIn(ew.k, 51), elv = level(ew.k / 51);
+
+const phones = [];
+// 1. main screen, now
+phones.push({
+  title: '1. Main screen, tonight',
+  note: 'Tonight\'s real forecast for Eastleigh. Green: nothing to do, but you can see the one long shot and when it is.',
+  html: `
+  <div class="bar"><div><b>Eastleigh</b><small>Nairobi, next 7 days</small></div><button class="icon-btn" aria-label="Listen">${svg.play}</button></div>
+  <div class="verdict ${elv}">
+    <div class="level">${svg.ok}${levelWord[elv]} to flood</div>
+    <p>${eo.say[0].toUpperCase() + eo.say.slice(1)} forecasts bring rain as heavy as the day it flooded here in March. That one is on ${dayLong(ew.d)}.</p>
+    ${drops(eo)}
+  </div>
+  ${strip(E.map((x) => ({ lv: x.lv, name: dayShort(x.d, x.j), icon: rainIcon(x.med) })))}
+  <div class="todo"><h3>What to do</h3>
+    <div class="act"><i>${svg.ok}</i>Nothing for now.</div>
+    <div class="act"><i>${svg.bell}</i>We will tell you if Sunday gets worse.</div>
+  </div>
+  <div class="bottom"><button class="btn dark">${svg.share}Share</button><button class="btn light">${svg.cube}March in 3D</button></div>`,
+});
+
+// 2. main screen, a real amber: Durban, replayed from 5 days before the 25 Feb 2025 flood
+{
+  const run = D.runs['5d'], HEAVY = 30; // no local flood line for Durban yet: 30 mm a day, heavy rain
+  const cells = D.days.map((d, i) => { const v = run.members_mm.map((m) => m[i]); const k = v.filter((x) => x >= HEAVY).length; return { d, i, v, k, lv: level(k / 51), med: med(v) }; });
+  const w = cells.reduce((a, b) => (b.k > a.k ? b : a)), o = oneIn(w.k, 51), lv = level(w.k / 51);
+  phones.push({
+    title: '2. The same screen on a bad day',
+    note: 'A real replay: what Forewarn would have said 5 days before the Durban flood of 25 Feb 2025. Line: 30 mm in a day.',
+    html: `
+    <div class="bar"><div><b>Durban</b><small>20 Feb 2025, 5 days before</small></div><span class="replay">Replay</span></div>
+    <div class="verdict ${lv}">
+      <div class="level">${svg.warn}${levelWord[lv]} flood</div>
+      <p>${o.say[0].toUpperCase() + o.say.slice(1)} forecasts bring 30 mm or more on ${dayLong(w.d)}. That is heavy enough to flood low streets.</p>
+      ${drops(o)}
+    </div>
+    ${strip(cells.map((x) => ({ lv: x.lv, name: new Date(x.d + 'T12:00:00Z').toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', timeZone: 'UTC' }), icon: rainIcon(x.med), sel: x === w })), 'three')}
+    <div class="todo"><h3>What to do before ${dayLong(w.d)}</h3>
+      <div class="act"><i>${svg.papers}</i>Move papers and phones up high.</div>
+      <div class="act"><i>${svg.route}</i>Know your way to higher ground.</div>
+      <div class="act"><i>${svg.bell}</i>Check again tomorrow. Forecasts change.</div>
+    </div>
+    <div class="bottom"><button class="btn dark">${svg.share}Warn family</button><button class="btn light">${svg.play}Listen</button></div>`,
+  });
+}
+
+// 3. tap a day: the likely range against your flood line
+{
+  const top = 50, H = 208, y = (v) => (Math.min(v, top) / top) * H;
+  const cols = E.map((x) => { const lo = q(x.v, 0.1), hi = q(x.v, 0.9), mx = Math.max(...x.v);
+    return `<div class="col"><i style="bottom:${y(lo)}px;height:${Math.max(4, y(hi) - y(lo))}px"></i>${x.k ? `<i class="hit" style="bottom:${y(LINE)}px;height:${y(mx) - y(LINE)}px;left:40%;right:40%"></i>` : ''}<b style="bottom:${y(x.med)}px"></b><span>${dayShort(x.d, x.j)}</span></div>`; }).join('');
+  phones.push({
+    title: '3. Tap the week: your flood line',
+    note: 'How much rain each day, against the rain that flooded you. The grey bar is the likely range, so nobody reads one number as certain.',
+    html: `
+    <div class="bar"><button class="icon-btn" aria-label="Back">${svg.back}</button><div style="text-align:right"><b>How much rain</b><small>Eastleigh, mm per day</small></div></div>
+    <div class="chart"><div class="cols">${cols}</div><div class="line" style="bottom:${22 + y(LINE)}px"><span>Flooded you in March: ${Math.round(LINE)} mm</span></div></div>
+    <div class="key"><div><i></i>Likely range: 8 in 10 forecasts fall here</div><div><b></b>Most likely</div><div><i style="background:var(--water)"></i>The 1 forecast that goes over the line</div></div>
+    <p class="fine">Most days bring 2 to 7 mm. That is a wet week, but far below the ${Math.round(LINE)} mm that flooded Eastleigh in March.</p>
+    <div class="bottom"><button class="btn light">${svg.play}Listen</button></div>`,
+  });
+}
+
+// 4. what it looks like: last time at your door
+{
+  const series = M.cm.map((h) => h[30 * 61 + 30]); const peak = Math.max(...series), at = series.indexOf(peak);
+  const t = new Date(Date.parse(M.start + ':00Z') + at * 3600e3);
+  const band = peak < 15 ? 'ankle deep' : peak < 35 ? 'shin deep' : peak < 60 ? 'knee deep' : peak < 100 ? 'waist deep' : 'chest deep';
+  const S = 1.75, H = 290, ground = 250, px = (cm) => (cm / 100) * ((ground - 40) / S); // a 175 cm person stands on the ground line
+  phones.push({
+    title: '4. "What would it look like?"',
+    note: 'The last flood at your pin, against a person. Labelled as March, not as a prediction. The 3D replay is one tap away, not on the main screen.',
+    html: `
+    <div class="bar"><button class="icon-btn" aria-label="Back">${svg.back}</button><div style="text-align:right"><b>Last time here</b><small>March 2026 storm</small></div></div>
+    <div class="door">
+      <svg viewBox="0 0 320 ${H}" preserveAspectRatio="xMidYMax meet">
+        <rect x="0" y="${ground - px(peak)}" width="320" height="${px(peak)}" fill="#1d4ed8" opacity=".22"/>
+        <line x1="0" x2="320" y1="${ground - px(peak)}" y2="${ground - px(peak)}" stroke="#1d4ed8" stroke-width="2.5"/>
+        <g transform="translate(200 ${ground}) scale(${(ground - 40) / 175})" fill="#16201b">
+          <circle cx="0" cy="-162" r="11"/>
+          <path d="M-14 -146h28l6 62h-9l-4 -44 -3 48v80h-11l-1 -72 -1 72h-11v-80l-3 -48 -4 44h-9z"/>
+        </g>
+        <g transform="translate(70 ${ground})" fill="none" stroke="#16201b" stroke-width="2"><path d="M0 0v-120h70v120M28 0v-58h20v58"/><path d="M-6 -118l41 -34 41 34"/></g>
+        <line x1="0" x2="320" y1="${ground}" y2="${ground}" stroke="#16201b" stroke-width="2"/>
+      </svg>
+      <div class="label"><b>${peak} cm</b><span>${band}, at its highest</span></div>
+    </div>
+    <p style="margin:0">On ${t.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' })}, about ${String(t.getUTCHours()).padStart(2, '0')}:00, the water at your pin reached ${band}.</p>
+    <p class="fine">Flood Check model of the March storm, 60 m squares. A model estimate, not a measurement. It reads too deep beside rivers.</p>
+    <div class="bottom"><button class="btn dark">${svg.cube}Watch it in 3D</button></div>`,
+  });
+}
+
+document.getElementById('row').innerHTML = phones.map((p) => `<figure><div class="phone">${p.html}</div><figcaption><b>${p.title}</b><span>${p.note}</span></figcaption></figure>`).join('');
+window.__ready = true;
+</script>
+</body>
+</html>
