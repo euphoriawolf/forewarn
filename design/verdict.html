@@ -126,7 +126,9 @@ const levelWord = { green: 'Unlikely', amber: 'Possible', red: 'Likely' };
 function oneIn(k, n) {
   const p = k / n; if (p === 0) return { k: 0, of: 10, say: 'none of the forecasts' };
   let best = null;
-  for (const of of [2, 3, 4, 5, 10, 20, 50]) for (let a = 1; a < of; a++) { const e = Math.abs(a / of - p); if (!best || e < best.e - 1e-9) best = { k: a, of, e }; }
+  // the simplest fraction within 3 points of the share: 7 in 10, not 36 in 50
+  for (const of of [2, 3, 4, 5, 10, 20, 50]) for (let a = 1; a < of; a++) { const e = Math.abs(a / of - p); if (e <= 0.03 && !best) best = { k: a, of, e }; }
+  if (!best) for (const of of [10, 20, 50]) for (let a = 1; a < of; a++) { const e = Math.abs(a / of - p); if (!best || e < best.e - 1e-9) best = { k: a, of, e }; }
   return { ...best, say: `about ${best.k} in ${best.of}` };
 }
 const svg = {
