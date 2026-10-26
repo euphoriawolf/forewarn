@@ -65,7 +65,7 @@
 </header>
 <main class="row" id="row"></main>
 
-<script type="importmap">{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js" } }</script>
+<script type="importmap">{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/" } }</script>
 <script type="module">
 import { placeScene } from './place3d.js';
 const get = (n) => fetch(`data/${n}.json`).then((r) => r.json());
@@ -140,7 +140,7 @@ row.innerHTML = convos.map((c, i) => `<figure><div class="phone" data-i="${i}">
 for (const el of row.querySelectorAll('.phone')) {
   const stage = el.querySelector('.stage'), load = stage.querySelector('.load'), c = convos[+el.dataset.i];
   const progress = (f, text) => { load.querySelector('b').style.width = f * 100 + '%'; load.querySelector('span').textContent = text; if (f >= 1) load.classList.add('done'); };
-  const s = await placeScene({ stage, canvas: stage.querySelector('canvas'), base: 'data/place-eastleigh', view: c.view, progress });
+  const s = await placeScene({ stage, canvas: stage.querySelector('canvas'), base: 'data/place-eastleigh', view: c.view, weather: c.wet ? 'storm' : 'clear', progress });
   c.run(s, el);
 }
 window.__ready = true;
