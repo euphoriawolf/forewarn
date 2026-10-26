@@ -3,7 +3,7 @@
 //
 // Light: a physical sky (three's Sky) with the sun where it really is over Nairobi at that
 // hour, the same sky lighting every surface through an environment map, soft sun shadows,
-// screen-space ambient occlusion so walls and streets get contact shadows, and AgX tone mapping.
+// screen-space ambient occlusion so walls and streets get contact shadows, and ACES tone mapping.
 //
 // Loads in stages so a slow phone shows something early: ground and photo, then buildings and
 // roads, then trees and water. `progress(f, text)` reports each stage.
@@ -49,7 +49,7 @@ export async function placeScene({ stage, canvas, base, view = 'street', weather
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, powerPreference: 'high-performance' });
   renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
   renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-  renderer.toneMapping = THREE.AgXToneMapping; renderer.toneMappingExposure = weather === 'storm' ? 0.85 : 1.0;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = weather === 'storm' ? 0.8 : 0.9;
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(42, 1, 1, 12000);
 
@@ -64,11 +64,11 @@ export async function placeScene({ stage, canvas, base, view = 'street', weather
   // the environment map is the same sky, so every reflection and the ambient light agree with it
   const envScene = new THREE.Scene(); envScene.add(setSky(new Sky()));
   scene.environment = new THREE.PMREMGenerator(renderer).fromScene(envScene, 0).texture;
-  scene.environmentIntensity = weather === 'storm' ? 0.55 : 0.75;
+  scene.environmentIntensity = weather === 'storm' ? 0.28 : 0.3; // the Sky shader is very bright: keep it a fill, not a second sun
   const haze = weather === 'storm' ? new THREE.Color('#9aa3a8') : new THREE.Color('#c3cfd8');
-  scene.fog = new THREE.FogExp2(haze, weather === 'storm' ? 0.00042 : 0.00016);
+  scene.fog = new THREE.FogExp2(haze, weather === 'storm' ? 0.0003 : 0.0001);
 
-  const sun = new THREE.DirectionalLight('#fff1dc', weather === 'storm' ? 0.9 : 3.0);
+  const sun = new THREE.DirectionalLight('#fff1dc', weather === 'storm' ? 0.8 : 2.4);
   sun.castShadow = true; sun.shadow.mapSize.set(4096, 4096); sun.shadow.bias = -0.0002; sun.shadow.normalBias = 0.6;
   scene.add(sun, sun.target);
 
