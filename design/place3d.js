@@ -27,9 +27,9 @@ function sunDir(dayOfYear, hour) {
 
 // Eastleigh colours: plaster and paint on walls, mabati (iron sheet) roofs bare, rusted or
 // painted, concrete on flat roofs. No orange: amber marks water at the door.
-const WALLS = ['#e9e1cf', '#efece6', '#e6cdb4', '#e8dba8', '#c9d2d6', '#d9d3c7', '#efe7d6'];
+const WALLS = ['#a9a59c', '#b9ad98', '#c4b493', '#9da6aa', '#b2a088', '#8f8a82', '#c2b9a6', '#a3664f', '#bfae7c'];
 const ROOFS_PITCHED = ['#9a9d9f', '#8b8f91', '#7d6455', '#6f3c33', '#4f6b5b', '#4d6178', '#56585c'];
-const ROOFS_FLAT = ['#a7a49c', '#b8b4ab', '#9d9a92', '#c4c0b6'];
+const ROOFS_FLAT = ['#8e8b84', '#9c978d', '#7f7c76', '#a8a297'];
 
 export async function placeScene({ stage, canvas, base, view = 'street', weather = 'clear', hour = 16.3, day = 300, progress }) {
   const say = progress ?? (() => {});
@@ -99,7 +99,7 @@ export async function placeScene({ stage, canvas, base, view = 'street', weather
   composer.addPass(new RenderPass(scene, camera));
   const ao = new GTAOPass(scene, camera, 1, 1);
   ao.updateGtaoMaterial({ radius: 6, distanceExponent: 1.5, thickness: 4, scale: 1.4, samples: 16, distanceFallOff: 1 });
-  ao.blendIntensity = 0.85;
+  ao.blendIntensity = 1.0;
   composer.addPass(ao);
   composer.addPass(new OutputPass());
   const size = () => {
@@ -273,7 +273,7 @@ function buildBuildings(list, gy) {
   geo.setAttribute('aKind', new THREE.Float32BufferAttribute(kind, 1));
   geo.setIndex(idx); geo.computeVertexNormals();
   const orig = Float32Array.from(col);
-  const mat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.82, metalness: 0, envMapIntensity: 0.9 });
+  const mat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.88, metalness: 0, envMapIntensity: 0.45 });
   mat.onBeforeCompile = (sh) => {
     sh.vertexShader = sh.vertexShader
       .replace('#include <common>', '#include <common>\nattribute float aRel, aU, aKind; varying float vRel, vU, vKind; varying vec3 vWpos;')
@@ -288,7 +288,7 @@ function buildBuildings(list, gy) {
           // walls: a darker foot (splash and dirt), storey lines, then windows
           float fl = vRel / 3.2, fw1 = fwidth(fl);
           float slab = (1.0 - smoothstep(0.0, 0.05 + fw1, fract(fl))) * step(1.0, fl) * (1.0 - smoothstep(0.15, 0.4, fw1));
-          diffuseColor.rgb *= (1.0 - 0.14 * slab) * mix(0.72, 1.0, smoothstep(0.2, 1.4, vRel));
+          diffuseColor.rgb *= (1.0 - 0.18 * slab) * mix(0.62, 1.0, smoothstep(0.2, 2.0, vRel));
           vec2 wc = vec2(vU / 3.6, vRel / 3.2), fw = fwidth(wc);
           float detail = 1.0 - smoothstep(0.12, 0.3, max(fw.x, fw.y));
           vec2 cell = fract(wc);
