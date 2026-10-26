@@ -25,11 +25,12 @@ function sunDir(dayOfYear, hour) {
   return new THREE.Vector3(Math.sin(az) * Math.cos(el), Math.sin(el), -Math.cos(az) * Math.cos(el));
 }
 
-// Eastleigh colours: plaster and paint on walls, mabati (iron sheet) roofs bare, rusted or
-// painted, concrete on flat roofs. No orange: amber marks water at the door.
-const WALLS = ['#a9a59c', '#b9ad98', '#c4b493', '#9da6aa', '#b2a088', '#8f8a82', '#c2b9a6', '#a3664f', '#bfae7c'];
-const ROOFS_PITCHED = ['#9a9d9f', '#8b8f91', '#7d6455', '#6f3c33', '#4f6b5b', '#4d6178', '#56585c'];
-const ROOFS_FLAT = ['#8e8b84', '#9c978d', '#7f7c76', '#a8a297'];
+// Realistic building tones anywhere: low-saturation concrete, render and stone at real-world
+// brightness (albedo about 0.35 to 0.55), metal and tile roofs in greys and muted browns.
+// No orange: amber marks water at the door.
+const WALLS = ['#9b9893', '#a8a39a', '#b3aea4', '#8c8a86', '#a59d90', '#bab4a9', '#94918b', '#aaa49a', '#9fa2a3'];
+const ROOFS_PITCHED = ['#6e6a66', '#5a5856', '#7a7470', '#6b5d55', '#4e5257', '#625a52'];
+const ROOFS_FLAT = ['#8a8781', '#96928a', '#7e7b75', '#a09b92'];
 
 export async function placeScene({ stage, canvas, base, view = 'street', weather = 'clear', hour = 16.3, day = 300, progress }) {
   const say = progress ?? (() => {});
