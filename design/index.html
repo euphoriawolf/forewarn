@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Forewarn design directions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Public+Sans:wght@400;600&display=swap" rel="stylesheet" />
+<style>
+  /* Forewarn, first design pass (26 Oct 2026).
+     Stage: overcast grey-green, the light before rain. Land: the place as a cut-out model with
+     laterite sides. One accent: water blue, only for forecasts that reach the flood line. */
+  :root {
+    --overcast: #dfe4de;
+    --paper: #f6f7f3;
+    --ink: #16201b;
+    --muted: #5d6a63;
+    --line: #c9d0c8;
+    --land: #c7ccbc;
+    --laterite: #7a4630;
+    --rain: #9eadb8;
+    --water: #1d4ed8;
+    --water-soft: #dbe4fb;
+    --display: 'Bricolage Grotesque', system-ui, sans-serif;
+    --text: 'Public Sans', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--overcast); color: var(--ink); font: 15px/1.45 var(--text); -webkit-font-smoothing: antialiased; }
+  header { max-width: 1240px; margin: 0 auto; padding: 40px 16px 8px; }
+  header h1 { font: 800 40px/1.05 var(--display); letter-spacing: -0.02em; margin: 0 0 10px; }
+  header p { margin: 0; max-width: 62ch; color: var(--muted); }
+  .row { max-width: 1240px; margin: 0 auto; padding: 28px 16px 64px; display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 28px; justify-items: center; }
+  figure { margin: 0; width: 100%; max-width: 390px; }
+  figcaption { padding: 14px 4px 0; }
+  figcaption b { font: 600 20px/1.2 var(--display); display: block; margin-bottom: 4px; }
+  figcaption span { color: var(--muted); }
+
+  .phone { position: relative; width: 100%; aspect-ratio: 390 / 820; background: var(--paper); border-radius: 28px; overflow: hidden; box-shadow: 0 1px 0 rgba(22,32,27,.06), 0 18px 40px rgba(22,32,27,.14); display: grid; grid-template-rows: 56% 1fr; }
+  .stage { position: relative; background: linear-gradient(#d3dad3, #e9ece6); }
+  .stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .place { position: absolute; left: 18px; top: 16px; font: 600 15px/1.2 var(--text); }
+  .place small { display: block; font-weight: 400; color: var(--muted); font-size: 13px; }
+  .tag { position: absolute; font: 600 12px/1 var(--text); color: var(--ink); background: rgba(246,247,243,.88); padding: 5px 8px; border-radius: 8px; transform: translate(-50%, -50%); white-space: nowrap; pointer-events: none; }
+  .tag.water { color: #fff; background: var(--water); }
+
+  .answer { padding: 18px 20px 0; display: grid; align-content: start; gap: 12px; }
+  .big { font: 800 56px/0.95 var(--display); letter-spacing: -0.03em; }
+  .big em { font-style: normal; color: var(--water); }
+  .say { font-size: 16px; margin: 0; max-width: 32ch; }
+  .week { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+  .day { display: grid; justify-items: center; gap: 4px; font-size: 12px; color: var(--muted); }
+  /* per day: pale bar = wettest forecast, dark bar = the middle forecast, tick = the March line */
+  .bar { position: relative; width: 14px; }
+  .bar i { position: absolute; left: 0; right: 0; bottom: 0; border-radius: 3px; }
+  .bar .hi { background: var(--rain); opacity: .45; }
+  .bar .hi.on { background: var(--water); opacity: 1; }
+  .bar .med { background: var(--rain); left: 3px; right: 3px; }
+  .bar b { position: absolute; left: -5px; right: -5px; height: 2px; background: var(--ink); border-radius: 1px; }
+  .key { font-size: 12px; color: var(--muted); margin-top: -4px; }
+  .ask { position: absolute; left: 14px; right: 14px; bottom: 14px; height: 52px; border-radius: 26px; background: var(--ink); color: #eef1ec; display: flex; align-items: center; gap: 12px; padding: 0 8px 0 20px; font-size: 15px; }
+  .ask > span:first-child { flex: 1; opacity: .75; }
+  .mic { width: 38px; height: 38px; border-radius: 50%; background: #eef1ec; display: grid; place-items: center; }
+  .mic svg { width: 18px; height: 18px; color: var(--ink); }
+  .src { position: absolute; right: 16px; bottom: 74px; font-size: 11px; color: var(--muted); }
+  @media (prefers-reduced-motion: reduce) { .stage canvas { animation: none; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>Forewarn: three ways to show 51 futures</h1>
+  <p>Same place, same live forecast, three pictures. Eastleigh, Nairobi, ECMWF's 51 runs fetched tonight at 20:00. The line is the worst day of the March storm here: 33 mm in 24 hours. Pick the picture that makes the answer clear in two seconds.</p>
+</header>
+
+<main class="row">
+  <figure>
+    <div class="phone" data-dir="ring">
+      <div class="stage"><canvas></canvas><div class="place">Eastleigh<small>Nairobi</small></div></div>
+      <div class="answer"></div>
+    </div>
+    <figcaption><b>A. The ring</b><span>Your place in the middle. Each column is one forecast, as tall as its wettest day this week. Columns that pass the March line turn blue.</span></figcaption>
+  </figure>
+
+  <figure>
+    <div class="phone" data-dir="week">
+      <div class="stage"><canvas></canvas><div class="place">Eastleigh<small>Nairobi</small></div></div>
+      <div class="answer"></div>
+    </div>
+    <figcaption><b>B. The week</b><span>The days walk toward your place. Each row is one day, 51 bars for 51 forecasts. You see when the danger is, not only how likely.</span></figcaption>
+  </figure>
+
+  <figure>
+    <div class="phone" data-dir="homes">
+      <div class="stage"><canvas></canvas><div class="place">Eastleigh<small>Nairobi</small></div></div>
+      <div class="answer"></div>
+    </div>
+    <figcaption><b>C. 51 homes</b><span>51 copies of your home on your own ground, one per forecast. The ones where March-level rain falls stand in water. Made to share.</span></figcaption>
+  </figure>
+</main>
+
+<script type="importmap">{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js" } }</script>
+<script type="module">
+import * as THREE from 'three';
+
+const [F, T, MAP] = await Promise.all(['data/futures-eastleigh.json', 'data/terrain-eastleigh.json', 'data/map-eastleigh.json'].map((u) => fetch(u).then((r) => r.json())));
+const TRIG = F.trigger_mm;
+const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const C = { land: css('--land'), laterite: css('--laterite'), rain: css('--rain'), water: css('--water'), ink: css('--ink') };
+const WK = F.daily.map((m) => Math.max(...m)); // each forecast's wettest day this week
+const over = WK.filter((v) => v >= TRIG).length;
+const dayName = (d) => new Date(d + 'T12:00:00Z').toLocaleDateString('en-GB', { weekday: 'short', timeZone: 'UTC' });
+const wetDay = F.days[F.daily[0].map((_, j) => F.daily.filter((m) => m[j] >= TRIG).length).findIndex((n) => n > 0)];
+const wetDayLong = wetDay ? new Date(wetDay + 'T12:00:00Z').toLocaleDateString('en-GB', { weekday: 'long', timeZone: 'UTC' }) : '';
+
+// ---- the answer panel, same words in every direction
+function answer(el) {
+  const week = F.days.map((d, j) => {
+    const vals = F.daily.map((m) => m[j]), top = Math.max(...vals), med = vals.sort((a, b) => a - b)[25], H = 46;
+    const y = (v) => Math.min(H, (v / 50) * H);
+    return `<div class="day"><div class="bar" style="height:${H}px"><i class="hi ${top >= TRIG ? 'on' : ''}" style="height:${y(top)}px"></i><i class="med" style="height:${y(med)}px"></i><b style="bottom:${y(TRIG)}px"></b></div>${j === 0 ? 'Tonight' : dayName(d)}</div>`;
+  }).join('');
+  el.innerHTML = `
+    <div class="big"><em>${over}</em> of 51</div>
+    <p class="say">forecasts bring rain like the worst day of the March flood. ${over === 1 ? `That one says ${wetDayLong}.` : ''} The rest stay under it.</p>
+    <div class="week">${week}</div>
+    <div class="key">Each day: the wettest forecast, the middle one, and the March line. ECMWF 51 runs, 26 Oct 20:00.</div>
+    <div class="ask"><span>Ask about your place</span><span class="mic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></span></div>`;
+}
+
+// ---- the place as a round cut-out model: real ground heights, laterite sides
+const N = T.n, R = (N - 1) / 2 - 1, EX = 0.1; // 1 unit = 60 m; heights x6 (0.1 unit per metre)
+const hAt = (x, z) => { // bilinear, x/z in cells from centre
+  const gx = Math.min(N - 1.001, Math.max(0, x + (N - 1) / 2)), gz = Math.min(N - 1.001, Math.max(0, z + (N - 1) / 2));
+  const i = Math.floor(gx), j = Math.floor(gz), fx = gx - i, fz = gz - j, H = (a, b) => T.h[b * N + a];
+  return ((H(i, j) * (1 - fx) + H(i + 1, j) * fx) * (1 - fz) + (H(i, j + 1) * (1 - fx) + H(i + 1, j + 1) * fx) * fz) * EX;
+};
+const H0 = hAt(0, 0), BASE = -3.5;
+function diorama() {
+  const g = new THREE.Group();
+  const seg = 120, top = new THREE.CircleGeometry(R, seg, 0, Math.PI * 2);
+  // denser top: polar grid
+  const rings = 60, pos = [], col = [], idx = [];
+  const open = new THREE.Color('#d3d8c6'), built = new THREE.Color('#b3ae9f'), c = new THREE.Color();
+  const bAt = (x, z) => { const i = Math.round(x + (N - 1) / 2), j = Math.round(z + (N - 1) / 2); return T.buildings[Math.max(0, Math.min(N - 1, j)) * N + Math.max(0, Math.min(N - 1, i))]; };
+  const tint = (x, z) => { c.lerpColors(open, built, Math.min(1, bAt(x, z) / 25)); c.offsetHSL(0, 0, (hAt(x, z) / (Math.max(...T.h) * EX) - 0.5) * 0.08); return c; };
+  pos.push(0, hAt(0, 0) - H0, 0); tint(0, 0); col.push(c.r, c.g, c.b);
+  for (let r = 1; r <= rings; r++) for (let s = 0; s < seg; s++) {
+    const a = (s / seg) * Math.PI * 2, rr = (r / rings) * R, x = Math.cos(a) * rr, z = Math.sin(a) * rr, y = hAt(x, z);
+    pos.push(x, y - H0, z); tint(x, z); col.push(c.r, c.g, c.b);
+  }
+  const v = (r, s) => (r === 0 ? 0 : 1 + (r - 1) * seg + (s % seg));
+  for (let s = 0; s < seg; s++) idx.push(0, v(1, s + 1), v(1, s));
+  for (let r = 1; r < rings; r++) for (let s = 0; s < seg; s++) idx.push(v(r, s), v(r, s + 1), v(r + 1, s), v(r, s + 1), v(r + 1, s + 1), v(r + 1, s));
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  geo.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
+  geo.setIndex(idx); geo.computeVertexNormals();
+  const land = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.95 }));
+  land.receiveShadow = true; land.castShadow = true; g.add(land);
+  // sides
+  const side = new THREE.CylinderGeometry(R, R, 1, seg, 1, true), sp = side.attributes.position;
+  for (let i = 0; i < sp.count; i++) {
+    const x = sp.getX(i), z = sp.getZ(i);
+    sp.setY(i, sp.getY(i) > 0 ? hAt(x, z) - H0 : BASE);
+  }
+  side.computeVertexNormals();
+  g.add(new THREE.Mesh(side, new THREE.MeshStandardMaterial({ color: C.laterite, roughness: 1, side: THREE.DoubleSide })));
+  const base = new THREE.Mesh(new THREE.CircleGeometry(R, seg), new THREE.MeshStandardMaterial({ color: '#5a3324' }));
+  base.rotation.x = Math.PI / 2; base.position.y = BASE; g.add(base);
+  // roads (OpenStreetMap) as flat ribbons laid on the ground
+  const rp = [];
+  for (const rd of MAP.roads) {
+    const w = rd.k === 'secondary' ? 0.55 : rd.k === 'tertiary' ? 0.42 : 0.26;
+    for (let k = 0; k < rd.p.length - 1; k++) {
+      const [ax, az] = rd.p[k], [bx, bz] = rd.p[k + 1], dx = bx - ax, dz = bz - az, L = Math.hypot(dx, dz) || 1, nx = (-dz / L) * w / 2, nz = (dx / L) * w / 2;
+      const y = (x, z) => hAt(x, z) - H0 + 0.06;
+      const q = [[ax + nx, az + nz], [ax - nx, az - nz], [bx + nx, bz + nz], [bx - nx, bz - nz]].map(([x, z]) => [x, y(x, z), z]);
+      rp.push(...q[0], ...q[1], ...q[2], ...q[1], ...q[3], ...q[2]);
+    }
+  }
+  const rg = new THREE.BufferGeometry(); rg.setAttribute('position', new THREE.Float32BufferAttribute(rp, 3)); rg.computeVertexNormals();
+  g.add(new THREE.Mesh(rg, new THREE.MeshStandardMaterial({ color: '#f4f2ea', roughness: 1, side: THREE.DoubleSide })));
+  // the pin: your place
+  const pin = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.18, 5, 12), new THREE.MeshStandardMaterial({ color: C.ink }));
+  pin.position.y = 2.5; g.add(pin);
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.75, 24, 16), new THREE.MeshStandardMaterial({ color: C.ink }));
+  head.position.y = 5.2; g.add(head);
+  return g;
+}
+
+function stage(phone, opt = {}) {
+  const canvas = phone.querySelector('canvas'), box = phone.querySelector('.stage');
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  const scene = new THREE.Scene();
+  scene.add(new THREE.HemisphereLight('#ffffff', '#8d7f70', 1.6));
+  const sun = new THREE.DirectionalLight('#ffffff', 2.2);
+  sun.position.set(-40, 70, 30); sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048);
+  Object.assign(sun.shadow.camera, { left: -70, right: 70, top: 70, bottom: -70, far: 220 });
+  scene.add(sun);
+  const camera = new THREE.PerspectiveCamera(32, 1, 1, 600);
+  const world = new THREE.Group(); scene.add(world);
+  world.add(diorama());
+  const tags = [];
+  const tag = (text, p, cls = '') => { const el = document.createElement('div'); el.className = 'tag ' + cls; el.textContent = text; box.append(el); tags.push({ el, p }); };
+  const size = () => { const w = box.clientWidth, h = box.clientHeight; renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); };
+  new ResizeObserver(size).observe(box); size();
+  const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let spin = 0;
+  const v = new THREE.Vector3();
+  function frame(t) {
+    if (!still && opt.spin !== false) spin = t * 0.00006;
+    world.rotation.y = spin;
+    renderer.render(scene, camera);
+    world.updateMatrixWorld();
+    for (const g of tags) {
+      v.copy(g.p).applyMatrix4(world.matrixWorld).project(camera);
+      g.el.style.left = ((v.x + 1) / 2) * box.clientWidth + 'px';
+      g.el.style.top = ((1 - v.y) / 2) * box.clientHeight + 'px';
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+  return { scene, world, camera, tag };
+}
+
+const mat = (c, o = {}) => new THREE.MeshStandardMaterial({ color: c, roughness: 0.6, ...o });
+const glass = (c, op) => new THREE.MeshBasicMaterial({ color: c, transparent: true, opacity: op, side: THREE.DoubleSide, depthWrite: false });
+const MM = 0.32; // 1 mm of rain = 0.32 units of height
+
+// A. the ring
+{
+  const ph = document.querySelector('[data-dir=ring]'); answer(ph.querySelector('.answer'));
+  const s = stage(ph);
+  s.camera.position.set(0, 78, 150); s.camera.lookAt(0, -9, 0);
+  const vals = WK.map((v, i) => [v, i]).sort((a, b) => a[0] - b[0]);
+  const RR = R + 6;
+  vals.forEach(([v], k) => {
+    const a = (k / 51) * Math.PI * 2 + Math.PI / 2, h = Math.max(0.3, v * MM);
+    const m = new THREE.Mesh(new THREE.BoxGeometry(1.5, h, 1.5), mat(v >= TRIG ? C.water : C.rain));
+    m.position.set(Math.cos(a) * RR, BASE + h / 2, Math.sin(a) * RR); m.rotation.y = -a; m.castShadow = true;
+    s.world.add(m);
+    if (v >= TRIG) s.tag(`${dayName(wetDay)} ${Math.round(v)} mm`, new THREE.Vector3(Math.cos(a) * RR, BASE + h + 2.2, Math.sin(a) * RR), 'water');
+  });
+  const ring = new THREE.Mesh(new THREE.RingGeometry(RR - 2.4, RR + 2.4, 128), glass(C.water, 0.16));
+  ring.rotation.x = -Math.PI / 2; ring.position.y = BASE + TRIG * MM; s.world.add(ring);
+  const edge = new THREE.Mesh(new THREE.TorusGeometry(RR + 2.4, 0.08, 6, 160), glass(C.water, 0.7));
+  edge.rotation.x = Math.PI / 2; edge.position.y = BASE + TRIG * MM; s.world.add(edge);
+  s.tag('March flood day: 33 mm', new THREE.Vector3(0, BASE + TRIG * MM + 1.6, RR + 2.4));
+}
+
+// B. the week
+{
+  const ph = document.querySelector('[data-dir=week]'); answer(ph.querySelector('.answer'));
+  const s = stage(ph, { spin: false }); // time has a direction, so this one stands still
+  s.camera.position.set(0, 118, 132); s.camera.lookAt(0, -6, 0);
+  const W = 1.0, gap = 0.25, rowLen = 51 * (W + gap);
+  F.days.forEach((d, j) => {
+    const zz = -R - 6 - j * 7.5;
+    const vals = F.daily.map((m) => m[j]).sort((a, b) => a - b);
+    vals.forEach((v, k) => {
+      const h = Math.max(0.15, v * MM);
+      const b = new THREE.Mesh(new THREE.BoxGeometry(W, h, W * 2.4), mat(v >= TRIG ? C.water : C.rain));
+      b.position.set(-rowLen / 2 + k * (W + gap), BASE + h / 2, zz); b.castShadow = true; b.receiveShadow = true;
+      s.world.add(b);
+      if (v >= TRIG) s.tag(`${dayName(d)}: ${Math.round(v)} mm`, new THREE.Vector3(-rowLen / 2 + k * (W + gap), BASE + h + 2, zz), 'water');
+    });
+    s.tag(j === 0 ? 'Tonight' : dayName(d), new THREE.Vector3(rowLen / 2 + 4.5, BASE, zz));
+  });
+  const depth = F.days.length * 7.5;
+  const plane = new THREE.Mesh(new THREE.PlaneGeometry(rowLen + 4, depth), glass(C.water, 0.12));
+  plane.rotation.x = -Math.PI / 2; plane.position.set(0, BASE + TRIG * MM, -R - 6 - (F.days.length - 1) * 3.75); s.world.add(plane);
+  s.tag('March flood day: 33 mm', new THREE.Vector3(-rowLen / 2 + 8, BASE + TRIG * MM + 1.5, -R - 6 + 3.75));
+  s.world.position.z = 30;
+}
+
+// C. 51 homes
+{
+  const ph = document.querySelector('[data-dir=homes]'); answer(ph.querySelector('.answer'));
+  const s = stage(ph);
+  s.camera.position.set(0, 70, 112); s.camera.lookAt(0, -9, 0);
+  const golden = Math.PI * (3 - Math.sqrt(5));
+  const order = WK.map((v, i) => [v, i]).sort((a, b) => b[0] - a[0]);
+  const wall = mat('#eef0ea'), roof = mat('#4b5650');
+  order.forEach(([v], k) => {
+    const r = 4 + Math.sqrt(k + 0.5) / Math.sqrt(51) * (R - 6), a = k * golden;
+    const x = Math.cos(a) * r, z = Math.sin(a) * r, y = hAt(x, z) - H0;
+    const home = new THREE.Group();
+    const body = new THREE.Mesh(new THREE.BoxGeometry(1.8, 1.4, 1.8), wall); body.position.y = 0.7; body.castShadow = true;
+    const top = new THREE.Mesh(new THREE.ConeGeometry(1.5, 1.0, 4), roof); top.position.y = 1.9; top.rotation.y = Math.PI / 4; top.castShadow = true;
+    home.add(body, top); home.position.set(x, y, z); home.rotation.y = a;
+    if (v >= TRIG) {
+      const pool = new THREE.Mesh(new THREE.CylinderGeometry(3.4, 3.4, 0.9, 48), mat(C.water, { transparent: true, opacity: 0.85 }));
+      pool.position.y = 0.3; home.add(pool);
+      s.tag(`${dayName(wetDay)} ${Math.round(v)} mm`, new THREE.Vector3(x, y + 4.6, z), 'water');
+    }
+    s.world.add(home);
+  });
+  s.world.children[0].children.slice(-2).forEach((m) => (m.visible = false)); // no pin: the homes are the place
+}
+</script>
+</body>
+</html>
