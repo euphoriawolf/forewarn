@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Forewarn forecast area</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Public+Sans:wght@400;600&display=swap" rel="stylesheet" />
+<style>
+  /* "What area is this for?": the sizes behind one answer, drawn on the real map. */
+  :root {
+    --bg: #e3e7e2; --paper: #f8f9f6; --ink: #16201b; --muted: #5d6a63; --line: #dde2dc;
+    --water: #1d4ed8; --green: #2f7d4f; --green-soft: #e3f1e7; --sq: #ffd23f;
+    --display: 'Bricolage Grotesque', system-ui, sans-serif; --text: 'Public Sans', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.45 var(--text); -webkit-font-smoothing: antialiased; }
+  header { max-width: 1240px; margin: 0 auto; padding: 36px 16px 0; }
+  h1 { font: 800 36px/1.05 var(--display); letter-spacing: -0.02em; margin: 0 0 8px; }
+  header p { margin: 0; color: var(--muted); max-width: 68ch; }
+  .row { max-width: 1240px; margin: 0 auto; padding: 24px 16px 60px; display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 26px; justify-items: center; align-items: start; }
+  figure { margin: 0; width: 100%; max-width: 360px; }
+  figure.wide { max-width: 560px; }
+  figcaption { padding: 12px 4px 0; } figcaption b { font: 600 18px/1.2 var(--display); display: block; } figcaption span { color: var(--muted); font-size: 14px; }
+  .phone { position: relative; width: 100%; aspect-ratio: 360 / 760; background: var(--paper); border-radius: 26px; overflow: hidden; box-shadow: 0 16px 36px rgba(22,32,27,.13); display: flex; flex-direction: column; }
+  .pad { padding: 16px; display: flex; flex-direction: column; gap: 12px; flex: 1; }
+  .top b { font-weight: 600; } .top small { display: block; color: var(--muted); font-size: 12px; }
+  .verdict { border-radius: 18px; padding: 14px; display: grid; gap: 8px; background: var(--green-soft); }
+  .lvl { display: flex; align-items: center; gap: 7px; font: 800 24px/1 var(--display); color: var(--green); letter-spacing: -0.02em; }
+  .lvl svg { width: 24px; height: 24px; }
+  .verdict p { margin: 0; font-size: 14px; }
+  .area { display: flex; gap: 10px; align-items: center; border: 1px solid var(--line); background: #fff; border-radius: 14px; padding: 10px 12px; font-size: 13px; }
+  .area i { width: 26px; height: 26px; border: 2.5px solid #b08a00; background: rgba(255,210,63,.35); border-radius: 4px; flex: none; }
+  .area b { display: block; font-size: 14px; } .area span { color: var(--muted); }
+  .area em { margin-left: auto; font-style: normal; font-weight: 600; color: var(--water); white-space: nowrap; }
+  .dim { position: absolute; inset: 0; background: rgba(22,32,27,.45); }
+  .sheet { position: absolute; left: 0; right: 0; bottom: 0; top: 9%; background: var(--paper); border-radius: 22px 22px 0 0; padding: 10px 16px 16px; display: flex; flex-direction: column; gap: 10px; }
+  .grab { width: 40px; height: 4px; border-radius: 2px; background: var(--line); margin: 0 auto 4px; }
+  .sheet h2 { font: 800 22px/1.1 var(--display); margin: 0; letter-spacing: -0.02em; }
+  .map { position: relative; width: 100%; aspect-ratio: 1; border-radius: 16px; overflow: hidden; background: #333 center / cover; }
+  .map svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .key { display: grid; gap: 8px; }
+  .k { display: grid; grid-template-columns: 22px 1fr; gap: 9px; align-items: start; font-size: 13px; }
+  .k i { width: 18px; height: 18px; border-radius: 3px; margin-top: 1px; }
+  .k b { font-weight: 600; } .k span { color: var(--muted); }
+  .warn { font-size: 12px; color: var(--muted); background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 9px 11px; }
+  .big .map { aspect-ratio: 1; border-radius: 20px; box-shadow: 0 16px 36px rgba(22,32,27,.13); }
+  .inset { position: absolute; left: 12px; bottom: 12px; width: 34%; aspect-ratio: 1; border-radius: 12px; border: 3px solid #fff; background: center / cover; box-shadow: 0 4px 14px rgba(0,0,0,.35); overflow: hidden; }
+  .inset svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .inset span { position: absolute; left: 6px; top: 6px; font: 600 10px/1.2 var(--text); background: rgba(248,249,246,.92); padding: 3px 5px; border-radius: 5px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>What area is the answer for?</h1>
+  <p>One answer uses three sizes. The rain forecast covers a 28 km square. The flood line comes from rain over about 9 km. The water on your street comes from 60 m squares. Here they are on the real map of Nairobi, with the real grid points the Eastleigh answer uses.</p>
+</header>
+<main class="row" id="row"></main>
+
+<script type="module">
+const B = await fetch('data/scales-nairobi.json').then((r) => r.json());
+const PIN = [36.8608, -1.2847];
+const FC = { lon: 36.75, lat: -1.25, half: 0.125 };          // ECMWF ensemble grid point the forecast used (0.25 degrees)
+const RAIN = { lon: 36.895737, lat: -1.3005272, half: 0.0405 }; // ECMWF 9 km point the March rain came from
+const CUT = { half: 1500 / 111320 };                           // the 3 km street model around the pin
+// map lon/lat to 0..1000 in the base image (near the equator, so lon/lat are close to square)
+const X = (lon) => ((lon - B.west) / (B.east - B.west)) * 1000, Y = (lat) => ((B.north - lat) / (B.north - B.south)) * 1000;
+const box = (lon, lat, h) => ({ x: X(lon - h), y: Y(lat + h), w: X(lon + h) - X(lon - h), h: Y(lat - h) - Y(lat + h) });
+const f = box(FC.lon, FC.lat, FC.half), r = box(RAIN.lon, RAIN.lat, RAIN.half), c = box(PIN[0], PIN[1], CUT.half);
+const label = (x, y, t, fill = '#16201b', bg = 'rgba(248,249,246,.93)', size = 26) =>
+  `<g font-family="Public Sans, sans-serif" font-weight="600" font-size="${size}"><rect x="${x - 8}" y="${y - size}" width="${t.length * size * 0.56 + 16}" height="${size + 14}" rx="8" fill="${bg}"/><text x="${x}" y="${y + 2}" fill="${fill}">${t}</text></g>`;
+const overlay = (big) => `<svg viewBox="0 0 1000 1000">
+  <rect x="${f.x}" y="${f.y}" width="${f.w}" height="${f.h}" fill="rgba(255,210,63,.18)" stroke="#ffd23f" stroke-width="6"/>
+  <rect x="${r.x}" y="${r.y}" width="${r.w}" height="${r.h}" fill="rgba(110,160,255,.18)" stroke="#8fb3ff" stroke-width="5" stroke-dasharray="14 10"/>
+  <rect x="${c.x}" y="${c.y}" width="${c.w}" height="${c.h}" fill="none" stroke="#fff" stroke-width="5"/>
+  <circle cx="${X(PIN[0])}" cy="${Y(PIN[1])}" r="11" fill="#1d4ed8" stroke="#fff" stroke-width="5"/>
+  ${label(f.x + 14, f.y + 44, 'Rain forecast: 28 km', '#16201b', '#ffd23f', big ? 30 : 34)}
+  ${label(r.x + 10, r.y + r.h + 46, 'March rain: 9 km', '#fff', '#3a5bbf', big ? 28 : 32)}
+  ${label(c.x + c.w + 12, c.y + 14, 'Your 3D: 3 km', '#16201b', 'rgba(248,249,246,.95)', big ? 28 : 32)}
+  ${label(X(PIN[0]) - 60, Y(PIN[1]) + 62, 'Eastleigh', '#16201b', 'rgba(248,249,246,.95)', big ? 26 : 30)}
+</svg>`;
+// the 60 m square inside the 3 km cut (1024 px for 3000 m)
+const cell = 60 / 3000 * 100;
+const inset = `<div class="inset" style="background-image:url(data/place-eastleigh.jpg)"><svg viewBox="0 0 100 100"><rect x="${50 - cell / 2}" y="${50 - cell / 2}" width="${cell}" height="${cell}" fill="rgba(29,78,216,.35)" stroke="#fff" stroke-width="0.8"/></svg><span>Your 3D, 3 km. The blue square is one 60 m block.</span></div>`;
+const tick = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M7.5 12.5l3 3 6-6.5"/></svg>';
+
+document.getElementById('row').innerHTML = `
+<figure><div class="phone"><div class="pad">
+  <div class="top"><b>Eastleigh</b><small>Nairobi, next 7 days</small></div>
+  <div class="verdict"><div class="lvl">${tick}Unlikely to flood</div><p>About 1 in 50 forecasts bring rain as heavy as the day it flooded here in March. That one is on Sunday.</p></div>
+  <div class="area"><i></i><div><b>Rain forecast for your area</b><span>A 28 km square around you</span></div><em>See it</em></div>
+  <p style="margin:0;font-size:13px;color:var(--muted)">One line under every answer says what area it covers. Tap it to see the map.</p>
+</div></div><figcaption><b>1. On the answer</b><span>A small line, always there, so nobody reads "your area" as "your street".</span></figcaption></figure>
+
+<figure><div class="phone"><div class="dim"></div><div class="sheet">
+  <div class="grab"></div>
+  <h2>What area is this for?</h2>
+  <div class="map" style="background-image:url(data/scales-nairobi.jpg)">${overlay(false)}</div>
+  <div class="key">
+    <div class="k"><i style="background:rgba(255,210,63,.4);border:2.5px solid #d6a800"></i><div><b>When and how likely: 28 km.</b> <span>The 51 forecasts give one rain amount for this whole square.</span></div></div>
+    <div class="k"><i style="border:2.5px dashed #5b7fd6"></i><div><b>The flood line: 9 km.</b> <span>The rain on the March flood day, for this area.</span></div></div>
+    <div class="k"><i style="border:2.5px solid #16201b"></i><div><b>Where the water goes: 60 m blocks,</b> <span>in the 3D around your pin.</span></div></div>
+  </div>
+  <div class="warn">Storms can be smaller than the square. One part of Nairobi can get 60 mm while another stays dry.</div>
+</div></div><figcaption><b>2. "What area is this for?"</b><span>The sheet that opens from that line: the real squares on the real map, and three short rows.</span></figcaption></figure>
+
+<figure class="wide big"><div class="map" style="background-image:url(data/scales-nairobi.jpg)">${overlay(true)}${inset}</div>
+<figcaption><b>3. The same map, larger</b><span>The yellow square is the ECMWF forecast square at 1.25 S, 36.75 E. It covers most of central and western Nairobi, and Eastleigh sits near its east edge. The dashed square is the 9 km grid point the March rain came from. The white square is the 3 km street model, and the inset shows one 60 m block inside it.</span></figcaption></figure>`;
+window.__ready = true;
+</script>
+</body>
+</html>
