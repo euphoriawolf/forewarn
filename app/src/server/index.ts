@@ -2,22 +2,25 @@
 //   /api/search?q=        places across Africa
 //   /api/place?lat&lon    the answer for a place, computed in code: flood line, 7 days, levels
 //   /api/ask?lat&lon&q=   one checked agent answer (local testing only)
-//   /api/witness (POST)   a flood photo through SAM 3.1: the water and the people in it
+//   /api/witness (POST)   a flood photo through SAM 3.1 and Muse Spark: the water and the people in it
+//   /api/reports          send a report (POST), or the approved ones near ?lat&lon; /review is the review page
 //   /agents/ask-agent/<session>   the chat, over WebSocket
 // Everything else is the page.
 import { routeAgentRequest } from 'agents';
 import { AIChatAgent } from '@cloudflare/ai-chat';
 import { streamText, convertToModelMessages } from 'ai';
-import { model, system, makeTools, checkNumbers, answer, loopOptions, noEmDash, type Env, type Place } from './harness';
+import { model, system, makeTools, checkNumbers, answer, loopOptions, noEmDash, followUps, OPENING, type Env, type Place } from './harness';
 import { readForecast, outlookWeeks } from './forecast';
 import { floodLine, search } from './place';
 import { packFor, nearestFlood } from './packs';
 import { Logbook, stepsOf, bookOf } from './logbook';
 import { witness } from './witness';
-export { Logbook };
+import { Reports, reportsOf } from './reports';
+import { reviewPage } from './review';
+export { Logbook, Reports };
 
 // One chat agent per visitor session. The page sets the place in its state before the first question.
-export class AskAgent extends AIChatAgent<Env, { place: Place | null }> {
+export class AskAgent extends AIChatAgent<Env, { place: Place | null; suggestions?: string[] }> {
   initialState = { place: null };
 
   async onChatMessage(onFinish: Parameters<AIChatAgent<Env>['onChatMessage']>[0], options?: Parameters<AIChatAgent<Env>['onChatMessage']>[1]) {
@@ -40,6 +43,10 @@ export class AskAgent extends AIChatAgent<Env, { place: Place | null }> {
           await bookOf(this.env.Logbook).add({ at: new Date().toISOString(), session: this.name, place, question, answer: event.text, ms: Date.now() - t0, checked: bad.length === 0, badNumbers: bad, steps: stepsOf(event.steps as never) }).catch((e: unknown) => console.error('logbook:', e));
         }
         await onFinish(event as never);
+        // the chips under the chat: follow-ups that fit this answer (the page shows them when they arrive)
+        const asked = this.messages.filter((m) => m.role === 'user').map((m) => m.parts?.map((p) => ('text' in p ? p.text : '')).join(' ') ?? '').filter((q) => q && q !== OPENING);
+        this.setState({ ...this.state, suggestions: [] });
+        followUps(this.env, place, asked, event.text).then((suggestions) => this.setState({ ...this.state, suggestions })).catch((e: unknown) => console.error('follow-ups:', e instanceof Error ? e.message : e));
       },
     });
     return result.toUIMessageStreamResponse();
@@ -65,6 +72,39 @@ export default {
         const body = (await req.json()) as { image?: string; width?: number; height?: number };
         try { return Response.json(await witness(env, String(body.image ?? ''), Number(body.width), Number(body.height))); }
         catch (e) { return Response.json({ error: e instanceof Error ? e.message : 'The photo check failed. Try again.' }, { status: 400 }); }
+      }
+      if (url.pathname === '/api/reports' && req.method === 'POST') {
+        const origin = req.headers.get('Origin');
+        if (origin && new URL(origin).host !== url.host) return new Response('Not found', { status: 404 });
+        const b = (await req.json()) as Record<string, unknown>;
+        const lat = num(String(b.lat)), lon = num(String(b.lon)), image = String(b.image ?? '');
+        if (lat === null || lon === null || !/^data:image\/jpeg;base64,/.test(image) || image.length > 1_500_000) return Response.json({ error: 'That report could not be read. Try again.' }, { status: 400 });
+        const r = await reportsOf(env.Reports).add({ session: String(b.session ?? '').slice(0, 60), lat, lon, place: String(b.place ?? ''), reaches: String(b.reaches ?? ''), moving: String(b.moving ?? ''), meaning: String(b.meaning ?? ''), waterPct: Number(b.waterPct) || 0, people: Number(b.people) || 0, image });
+        return Response.json(r, { status: 'error' in r ? 429 : 200 });
+      }
+      if (url.pathname === '/api/reports') {
+        const lat = num(q.get('lat')), lon = num(q.get('lon'));
+        if (lat === null || lon === null) return Response.json({ error: 'Add lat and lon.' }, { status: 400 });
+        return Response.json(await reportsOf(env.Reports).near(lat, lon));
+      }
+      const pic = url.pathname.match(/^\/api\/reports\/([0-9a-f-]{36})\.jpg$/);
+      if (pic) {
+        // approved photos are public; a pending one only with the review token
+        const any = !!env.REVIEW_TOKEN && q.get('token') === env.REVIEW_TOKEN;
+        const data = await reportsOf(env.Reports).image(pic[1], any);
+        if (!data) return new Response('Not found', { status: 404 });
+        return new Response(Uint8Array.from(atob(data.split(',')[1]), (c) => c.charCodeAt(0)), { headers: { 'Content-Type': 'image/jpeg', 'Cache-Control': any ? 'no-store' : 'public, max-age=3600' } });
+      }
+      if (url.pathname === '/review') {
+        // the review page: needs the REVIEW_TOKEN secret (?token=)
+        const token = q.get('token') ?? '';
+        if (!env.REVIEW_TOKEN || token !== env.REVIEW_TOKEN) return new Response('Not found', { status: 404 });
+        if (req.method === 'POST') {
+          const f = await req.formData(), id = String(f.get('id')), d = String(f.get('decision'));
+          if (d === 'approved' || d === 'rejected') await reportsOf(env.Reports).decide(id, d);
+          return Response.redirect(`${url.origin}/review?token=${encodeURIComponent(token)}`, 303);
+        }
+        return new Response(reviewPage(await reportsOf(env.Reports).pending(), token), { headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' } });
       }
       if (url.pathname === '/api/search') {
         const text = (q.get('q') ?? '').trim();

@@ -18,6 +18,7 @@ export function Answer({ place, onChange }: { place: Place; onChange: () => void
   const [error, setError] = useState('');
   const stage = useRef<StageApi>(null);
   const [notes, setNotes] = useState<Note[]>([]);
+  const [say, setSay] = useState<{ id: number; text: string } | null>(null);
   // Witness: a photo through SAM 3.1, shown as a card in the chat and tagged on the map
   const photo = async (file: File) => {
     const id = Date.now();
@@ -33,8 +34,17 @@ export function Answer({ place, onChange }: { place: Place; onChange: () => void
         ? [m?.reaches ? `The water reaches ${m.reaches}${moving}.` : '', m?.meaning ?? '', m?.advice ?? ''].filter(Boolean).map((x) => (/[.!?]$/.test(x.trim()) ? x.trim() : `${x.trim()}.`)).join(' ')
         : r.found ? `This looks like standing water, not a flood${m?.reaches ? `: it reaches ${m.reaches}` : ''}.` : 'No floodwater in this photo.';
       const how = `SAM 3.1 marked the water${r.found ? ` (${r.waterPct}% of the photo)` : ''}${r.people ? ` and pixelated ${r.people === 1 ? '1 person' : `${r.people} people`}` : ''}. Only you can see this photo for now.`;
-      put({ img: r.image, text: lines, small: how });
+      // Report this flood: it waits for a person to check it, then shows on maps nearby
+      const report = async () => {
+        put({ action: undefined, small: 'Sending your report' });
+        let session = ''; try { session = localStorage.getItem('fw-session') ?? ''; } catch { /* private window */ }
+        const res = await fetch('/api/reports', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ image: r.image, lat: place.lat, lon: place.lon, place: [place.name, place.where].filter(Boolean).join(', '), reaches: m?.reaches ?? '', moving: m?.moving ?? '', meaning: m?.meaning ?? '', waterPct: r.waterPct, people: r.people, session }) }).then((x) => x.json() as Promise<{ id?: string; error?: string }>).catch(() => ({ id: undefined, error: 'The report did not send. Check your connection and try again.' }));
+        put(res.id ? { small: 'Reported. A person checks every report; once approved, people within 5 km see it on their map for 48 hours.' } : { small: res.error, action: { label: 'Try again', run: report } });
+      };
+      put({ img: r.image, text: lines, small: how, action: flood ? { label: 'Report this flood', run: report } : undefined });
       if (flood) stage.current?.run({ action: 'witness', text: m?.reaches ? `Your photo: water to ${m.reaches}` : 'Your photo: floodwater' });
+      // the agent answers the photo with the forecast and the ground for this place
+      if (flood) setSay({ id, text: `I added a photo of floodwater here.${m?.reaches ? ` The water reaches ${m.reaches}${moving}.` : ''}` });
     } catch (e) { put({ text: e instanceof Error ? e.message : 'The photo check failed. Try again.' }); }
   };
   // Phone: the chat is a sheet over the map with three stops (peek, half, full), dragged by its handle.
@@ -54,6 +64,26 @@ export function Answer({ place, onChange }: { place: Place; onChange: () => void
   useEffect(() => {
     const fit = () => { if (phone()) snapTo(stops()[1], false); else { if (sheet.current) sheet.current.style.height = ''; setInset(0); } };
     fit(); addEventListener('resize', fit); return () => removeEventListener('resize', fit);
+  }, []);
+  // Scrolling the chat or typing opens the sheet fully, the way a map app's sheet does; at full, pulling
+  // down from the top of the chat brings it back to half.
+  useEffect(() => {
+    const el = sheet.current; if (!el) return;
+    const full = () => (sheet.current?.clientHeight ?? 0) >= stops()[2] - 4;
+    const inChat = (t: EventTarget | null) => t instanceof Element && !!t.closest('.chat');
+    let y0 = 0, done = false;
+    const wheel = (e: WheelEvent) => { if (phone() && inChat(e.target) && !full()) snapTo(stops()[2]); };
+    const start = (e: TouchEvent) => { y0 = e.touches[0].clientY; done = false; };
+    const move = (e: TouchEvent) => {
+      if (!phone() || done || !inChat(e.target)) return;
+      const dy = e.touches[0].clientY - y0, chat = el.querySelector<HTMLElement>('.chat');
+      if (!full() && Math.abs(dy) > 8) { done = true; snapTo(stops()[2]); }
+      else if (full() && chat && chat.scrollTop <= 0 && dy > 40) { done = true; snapTo(stops()[1]); }
+    };
+    const focus = (e: FocusEvent) => { if (phone() && e.target instanceof HTMLInputElement && !full()) snapTo(stops()[2]); };
+    el.addEventListener('wheel', wheel, { passive: true }); el.addEventListener('touchstart', start, { passive: true });
+    el.addEventListener('touchmove', move, { passive: true }); el.addEventListener('focusin', focus);
+    return () => { el.removeEventListener('wheel', wheel); el.removeEventListener('touchstart', start); el.removeEventListener('touchmove', move); el.removeEventListener('focusin', focus); };
   }, []);
   const drag = useRef<{ y: number; h: number; t: number; v: number; chat: HTMLElement | null; pinned: boolean } | null>(null);
   const down = (e: PE) => {
@@ -89,6 +119,15 @@ export function Answer({ place, onChange }: { place: Place; onChange: () => void
   // ?replay in the address plays the last flood straight away (for demos and recordings)
   useEffect(() => { if (a?.pack && new URLSearchParams(location.search).has('replay')) stage.current?.run({ action: 'play_last_flood' }); }, [a]);
   useEffect(() => {
+    if (!a?.pack) return;
+    const pk = a.pack, kx = 111320 * Math.cos((place.lat * Math.PI) / 180), ky = 110574;
+    fetch(`/api/reports?lat=${place.lat}&lon=${place.lon}`).then((r) => r.json() as Promise<{ lat: number; lon: number; reaches: string; at: string }[]>).then((list) => {
+      if (!Array.isArray(list) || !list.length) return;
+      const ago = (at: string) => { const h = Math.round((Date.now() - Date.parse(at)) / 3600e3); return h < 1 ? 'just now' : h === 1 ? '1 hour ago' : `${h} hours ago`; };
+      stage.current?.run({ action: 'reports', list: list.map((r) => ({ x: pk.dx + (r.lon - place.lon) * kx, z: pk.dz + (place.lat - r.lat) * ky, text: `Report, ${ago(r.at)}: water to ${r.reaches}` })) });
+    }).catch(() => {});
+  }, [a]);
+  useEffect(() => {
     setA(null); setError(''); setNotes([]);
     fetch(`/api/place?lat=${place.lat}&lon=${place.lon}`).then((r) => r.json() as Promise<A>).then((d) => (d.error ? setError(d.error) : setA(d))).catch(() => setError('The forecast is not answering. Check your connection and try again.'));
   }, [place]);
@@ -104,7 +143,7 @@ export function Answer({ place, onChange }: { place: Place; onChange: () => void
         </div>
         <div className="sheet" ref={sheet}>
           <div className="grab" onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerCancel={up} role="separator" aria-label="Drag to show more map or more chat"><i /></div>
-          <Safe note="The chat could not connect. Check your connection and reload the page."><Suspense fallback={<div className="talk" />}><Chat place={place} onAction={act} notes={notes} onPhoto={photo} logging={a?.logging ?? false} /></Suspense></Safe>
+          <Safe note="The chat could not connect. Check your connection and reload the page."><Suspense fallback={<div className="talk" />}><Chat place={place} onAction={act} notes={notes} onPhoto={photo} say={say} logging={a?.logging ?? false} /></Suspense></Safe>
         </div>
       </div>
     </div>

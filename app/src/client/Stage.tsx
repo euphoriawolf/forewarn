@@ -103,6 +103,10 @@ export const Stage = forwardRef<StageApi, { pack: PackPin; nearby?: Nearby | nul
       };
       s.onFrame((t) => { if (t - last < 350) return; last = t; show(h); if (h >= end) s.onFrame(null); else h++; });
     }
+    if (a.action === 'reports') {
+      // people's approved flood reports near this place, from the last 48 hours
+      for (const r of (a.list as { x: number; z: number; text: string }[])) s.tag(r.text, r.x, r.z, 'blue', 6);
+    }
     if (a.action === 'witness') {
       // a person's photo of water: tagged where the map is looking
       const c = s.camera(); roadTags.current.push(s.tag(String(a.text), c.tx, c.tz, 'blue', 6));

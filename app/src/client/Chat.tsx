@@ -23,17 +23,19 @@ const STEP: Record<string, [string, string]> = {
   read_last_30_days: ['Reading the last 30 days of rain', 'Read the last 30 days of rain'],
 };
 // a line in the chat from the page itself (a map button, a photo check), not from the agent
-export interface Note { id: number; text: string; small?: string; img?: string; busy?: boolean }
+export interface Note { id: number; text: string; small?: string; img?: string; busy?: boolean; action?: { label: string; run: () => void } }
 const textOf = (m: { parts: { type: string; text?: string }[] }) => m.parts.map((p) => (p.type === 'text' ? p.text : '')).join('');
 
-export function Chat({ place, onAction, notes, onPhoto, logging }: { place: Place; onAction: (a: Record<string, unknown>) => void; notes: Note[]; onPhoto: (f: File) => void; logging: boolean }) {
+export function Chat({ place, onAction, notes, onPhoto, say, logging }: { place: Place; onAction: (a: Record<string, unknown>) => void; notes: Note[]; onPhoto: (f: File) => void; say?: { id: number; text: string } | null; logging: boolean }) {
   const file = useRef<HTMLInputElement>(null);
   // one chat per visitor: a random id kept on this phone
   const session = useMemo(() => {
     try { let id = localStorage.getItem('fw-session'); if (!id) { id = crypto.randomUUID(); localStorage.setItem('fw-session', id); } return id; }
     catch { return crypto.randomUUID(); }
   }, []);
-  const agent = useAgent<{ place: Place | null }>({ agent: 'AskAgent', name: session });
+  // the agent writes follow-up questions after each answer into its state; they arrive here
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const agent = useAgent<{ place: Place | null; suggestions?: string[] }>({ agent: 'AskAgent', name: session, onStateUpdate: (st) => setSuggestions(st?.suggestions ?? []) });
   // no old history: each visit starts fresh, and the page never waits on loading it
   const { messages, sendMessage, status, clearHistory } = useAgentChat({ agent, getInitialMessages: null });
   // a new place starts a new conversation, and the agent opens it (once per place, also in dev's double effects)
@@ -69,12 +71,18 @@ export function Chat({ place, onAction, notes, onPhoto, logging }: { place: Plac
     }
   }, [messages]);
   const busy = status === 'submitted' || status === 'streaming';
-  const ask = (q: string) => { if (!q.trim() || busy) return; sendMessage({ text: q.trim() }); setText(''); };
+  const ask = (q: string) => { if (!q.trim() || busy) return; setSuggestions([]); sendMessage({ text: q.trim() }); setText(''); };
+  // the page can speak for the person (after they add a photo); it waits for any answer in progress
+  const said = useRef(0);
+  useEffect(() => { if (say && say.id !== said.current && !busy) { said.current = say.id; setSuggestions([]); sendMessage({ text: say.text }); } }, [say, busy]);
+  // a chip about a photo opens the camera instead of asking
+  const tapChip = (q: string) => (/photo|picture/i.test(q) ? file.current?.click() : ask(q));
   const asked = messages.some((m) => m.role === 'user' && textOf(m) !== OPENING);
   const noteAt = (k: number) => notes.map((n, i) => (at.current[i] === k ? (
     <div key={n.id} className={`note ${n.img ? 'photo' : ''}`}>
       {n.img && <img src={n.img} alt="Your photo, with the floodwater in blue and people pixelated" />}
       <div>{n.busy ? <span className="spin" /> : n.img ? <I.Camera /> : <I.Play />}<span>{n.text}{n.small && <small>{n.small}</small>}</span></div>
+      {n.action && <button type="button" className="report" onClick={n.action.run}>{n.action.label}</button>}
     </div>
   ) : null));
 
@@ -101,9 +109,9 @@ export function Chat({ place, onAction, notes, onPhoto, logging }: { place: Plac
         ))}
         {noteAt(messages.length)}
         {status === 'submitted' && <div className="steps"><div><span className="spin" />{asked ? 'Thinking' : 'Checking your place'}</div></div>}
-        {!asked && !busy && messages.length > 1 && (
+        {!busy && messages.length > 1 && (
           <div className="suggest">
-            {['What floods near me?', 'Which day is wettest?', 'Show me the last flood here'].map((q) => <button key={q} className="chip" type="button" onClick={() => ask(q)}>{q}</button>)}
+            {(suggestions.length ? suggestions : asked ? [] : ['What floods near me?', 'Which day is wettest?', 'Show me the last flood here']).map((q) => <button key={q} className="chip" type="button" onClick={() => tapChip(q)}>{q}</button>)}
           </div>
         )}
       </div>
