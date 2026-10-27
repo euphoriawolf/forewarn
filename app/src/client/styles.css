@@ -145,7 +145,7 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--water); out
 .landing .hero .photo::before { content: ''; position: absolute; inset: 0; background: var(--photo) var(--pos, 50% 55%) / cover; filter: grayscale(1) contrast(1.1) brightness(.9); }
 .landing .hero .photo::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(11,20,32,.35) 0%, rgba(11,20,32,0) 30%, rgba(11,20,32,.6) 75%, var(--night) 100%), rgba(29,78,216,.16); }
 .landing .hero .wrap { position: relative; display: flex; flex-direction: column; width: 100%; }
-.hero-text { margin-top: auto; padding-bottom: 20px; }
+.hero-text { margin-top: auto; padding-bottom: 48px; }
 .landing h1 { font: 800 clamp(36px, 6vw, 66px)/1.02 var(--display); letter-spacing: -0.03em; margin: 0; max-width: 17ch; }
 .landing .sub { font-size: clamp(18px, 2.2vw, 22px); color: #d6e0ec; max-width: 38ch; margin-top: 16px; }
 .landing .credit { font-size: 12px; color: #93a3b6; padding: 8px 0 18px; }

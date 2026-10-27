@@ -12,8 +12,8 @@ const Pin = lazy(() => import('./Pin').then((m) => ({ default: m.Pin })));
 // The hero photo. public/hero-lagos.jpg is a Guardian Nigeria photo, credited and linked, and kept out of
 // the public repo (git-ignored). Until that file is in place, the Kampala photo from Wikimedia Commons shows.
 const PHOTOS = [
-  { src: '/hero-lagos.jpg', pos: '62% 55%', alt: 'Women hold on to each other as they cross a flooded Lagos street between cars', credit: <>Lagos, Nigeria. Photo: <a href="https://guardian.ng/news/nigeria/metro/lagos-residents-lament-as-flooding-cripples-transport-businesses/">The Guardian Nigeria</a>.</> },
-  { pos: '50% 55%', src: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/Moment_of_a_life_saver_at_the_right_time.jpg/1920px-Moment_of_a_life_saver_at_the_right_time.jpg', alt: 'A man pulls a motorbike rider out of fast floodwater on a city street while people watch', credit: <>Kampala, Uganda, 25 October 2018. A rider is pulled from the flood by people on the street. Photo: <a href="https://commons.wikimedia.org/wiki/File:Moment_of_a_life_saver_at_the_right_time.jpg">Jameswasswa</a>, <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>.</> },
+  { src: '/hero-lagos.jpg', pos: '62% 55%', alt: 'Women hold on to each other as they cross a flooded Lagos street between cars', credit: <>Top photo: Lagos, Nigeria, <a href="https://guardian.ng/news/nigeria/metro/lagos-residents-lament-as-flooding-cripples-transport-businesses/">The Guardian Nigeria</a>.</> },
+  { pos: '50% 55%', src: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/Moment_of_a_life_saver_at_the_right_time.jpg/1920px-Moment_of_a_life_saver_at_the_right_time.jpg', alt: 'A man pulls a motorbike rider out of fast floodwater on a city street while people watch', credit: <>Top photo: Kampala, Uganda, 25 October 2018, by <a href="https://commons.wikimedia.org/wiki/File:Moment_of_a_life_saver_at_the_right_time.jpg">Jameswasswa</a>, <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>.</> },
 ];
 
 function Search({ onPick, id }: { onPick: (p: Place) => void; id?: string }) {
@@ -75,7 +75,6 @@ export function Find({ onPlace }: { onPlace: (p: Place) => void }) {
             <p className="sub">Forewarn warns you days before a flood reaches your area: your street, your farm, your village.</p>
             <Search onPick={setPicked} id="find" />
           </div>
-          <p className="credit">{p.credit}</p>
         </div>
       </header>
 
@@ -152,6 +151,7 @@ export function Find({ onPlace }: { onPlace: (p: Place) => void }) {
 
       <footer><div className="wrap">
         <p>Sources: <a href="https://www.aljazeera.com/news/2024/5/1/blame-the-government-kenyans-bemoan-lack-of-support-amid-record-flooding">Al Jazeera, 1 May 2024</a> (Mathare, the night of 23 April). <a href="https://wmo.int/news/media-centre/early-warnings-all-action-plan-africa-launched">WMO, Early Warnings for All Action Plan for Africa, 2023</a>. <a href="https://news.un.org/en/story/2025/10/1166151">UN News, October 2025</a>. WMO at the EUMETSAT user forum, 2024 (about 45%).</p>
+        <p>{p.credit}</p>
         <p>Data: CHIRPS daily rain (Climate Hazards Center, UC Santa Barbara), 1991 to 2024. ECMWF forecasts through Open-Meteo. Street water from Flood Check, a model estimate. Imagery: Esri, EOX Sentinel-2.</p>
       </div></footer>
     </div>
