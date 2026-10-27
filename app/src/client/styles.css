@@ -139,20 +139,48 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--water); out
 .lbrand { font: 800 20px/1 var(--display); letter-spacing: -0.02em; display: flex; gap: 8px; align-items: center; padding: 20px 0; color: #fff; }
 .lbrand svg { width: 22px; height: 22px; color: var(--water-lit); }
 
-.landing .hero { position: relative; min-height: 92vh; min-height: 92svh; display: flex; color: #fff; background: var(--night); }
-.landing .hero .photo { position: absolute; inset: 0 0 40%; }
-/* the photo in grey on its own layer, tinted night blue above it, so it sits with the page */
-.landing .hero .photo::before { content: ''; position: absolute; inset: 0; background: var(--photo) var(--pos, 50% 55%) / cover; filter: grayscale(1) contrast(1.1) brightness(.9); }
-.landing .hero .photo::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(11,20,32,.35) 0%, rgba(11,20,32,0) 30%, rgba(11,20,32,.6) 75%, var(--night) 100%), rgba(29,78,216,.16); }
-.landing .hero .wrap { position: relative; display: flex; flex-direction: column; width: 100%; }
-.hero-text { margin-top: auto; padding-bottom: 48px; }
-.landing h1 { font: 800 clamp(36px, 6vw, 66px)/1.02 var(--display); letter-spacing: -0.03em; margin: 0; max-width: 17ch; }
-.landing .sub { font-size: clamp(18px, 2.2vw, 22px); color: #d6e0ec; max-width: 38ch; margin-top: 16px; }
-.landing .credit { font-size: 12px; color: #93a3b6; padding: 8px 0 18px; }
-@media (min-width: 860px) {
-  .landing .hero .photo { inset: 0 0 0 32%; }
-  .landing .hero .photo::after { background: linear-gradient(90deg, var(--night) 0%, var(--night) 4%, rgba(11,20,32,.55) 24%, rgba(11,20,32,0) 50%), linear-gradient(180deg, rgba(11,20,32,0) 70%, var(--night) 100%), rgba(29,78,216,.16); }
+.landing .hero { background: var(--night); color: #fff; min-height: 92vh; min-height: 92svh; display: flex; }
+.landing .hero > .wrap { max-width: 1240px; width: 100%; display: flex; flex-direction: column; }
+.hero-grid { flex: 1; display: grid; gap: 28px; align-items: center; padding-bottom: 48px; }
+@media (min-width: 960px) { .hero-grid { grid-template-columns: 1fr 1.05fr; gap: 40px; } }
+@media (max-width: 959px) { .hero-text { order: 2; } }
+.landing h1 { font: 800 clamp(36px, 5.4vw, 64px)/1.02 var(--display); letter-spacing: -0.03em; margin: 0; max-width: 16ch; }
+.landing .sub { font-size: clamp(18px, 2vw, 21px); color: #d6e0ec; max-width: 38ch; margin-top: 16px; }
+
+/* the gallery: real floods, each no wider than it can hold sharply, in grey tinted night blue */
+.gallery { position: relative; height: clamp(300px, 52vw, 600px); }
+.gallery .card { position: absolute; border-radius: 18px; overflow: hidden; background: #13202f; box-shadow: 0 24px 60px rgba(0,0,0,.45); }
+.gallery .img { position: absolute; inset: 0; background-size: cover; background-position: center; filter: grayscale(1) contrast(1.08) brightness(.92); }
+.gallery .card::after { content: ''; position: absolute; inset: 0; background: rgba(29,78,216,.16); mix-blend-mode: multiply; pointer-events: none; z-index: 1; }
+.gallery .back1 { width: 46%; aspect-ratio: 4 / 3; right: 0; top: 2%; transform: rotate(5deg); opacity: .55; animation: g-float1 9s ease-in-out infinite; }
+.gallery .back2 { width: 42%; aspect-ratio: 4 / 3; left: 0; bottom: 4%; transform: rotate(-6deg); opacity: .5; animation: g-float2 11s ease-in-out infinite; }
+.gallery .front { width: 78%; aspect-ratio: 3 / 2; left: 11%; top: 50%; transform: translateY(-50%) rotate(-1.5deg); animation: g-float3 13s ease-in-out infinite; z-index: 2; }
+@keyframes g-float1 { 50% { transform: rotate(4deg) translateY(-12px); } }
+@keyframes g-float2 { 50% { transform: rotate(-5deg) translateY(10px); } }
+@keyframes g-float3 { 50% { transform: translateY(calc(-50% - 8px)) rotate(-1deg); } }
+/* the current photo drifts slowly closer */
+.gallery .front .img { animation: g-drift 7s linear both; }
+@keyframes g-drift { from { transform: scale(1.02); } to { transform: scale(1.1); } }
+/* the next photo comes in under rising water: a mask with a wavy edge moves up as the wave slides */
+.gallery .front .img.in {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 1000' preserveAspectRatio='none'%3E%3Cpath d='M0 500 Q50 470 100 500 T200 500 T300 500 T400 500 V1000 H0Z' fill='%23000'/%3E%3C/svg%3E");
+          mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 1000' preserveAspectRatio='none'%3E%3Cpath d='M0 500 Q50 470 100 500 T200 500 T300 500 T400 500 V1000 H0Z' fill='%23000'/%3E%3C/svg%3E");
+  -webkit-mask-size: 60% 260%; mask-size: 60% 260%; -webkit-mask-repeat: repeat-x; mask-repeat: repeat-x;
+  animation: g-rise 1.6s cubic-bezier(.45, .05, .25, 1) both, g-drift 7s linear both;
 }
+@keyframes g-rise { from { -webkit-mask-position: 0 0%; mask-position: 0 0%; } to { -webkit-mask-position: -240px 100%; mask-position: -240px 100%; } }
+/* a thin line of light on the water's edge, rising with it */
+.gallery .line { position: absolute; left: 0; right: 0; height: 3px; bottom: -6%; background: linear-gradient(90deg, transparent, rgba(127,178,255,.9), transparent); opacity: 0; pointer-events: none; z-index: 2; }
+.gallery .line.go { animation: g-line 1.6s cubic-bezier(.45, .05, .25, 1) both; }
+@keyframes g-line { 0% { bottom: -6%; opacity: 0; } 15% { opacity: 1; } 85% { opacity: 1; } 100% { bottom: 104%; opacity: 0; } }
+.gallery .tag { position: absolute; left: 16px; bottom: 14px; z-index: 3; font: 600 13px/1.2 var(--text); background: rgba(11,20,32,.72); backdrop-filter: blur(6px); padding: 7px 11px; border-radius: 10px; animation: g-tag .5s .7s ease both; }
+.gallery .tag span { color: #9fb0c4; font-weight: 400; margin-left: 6px; }
+@keyframes g-tag { from { opacity: 0; transform: translateY(4px); } }
+.gallery .dots { position: absolute; left: 11%; right: 11%; bottom: -6px; display: flex; gap: 6px; justify-content: center; z-index: 3; }
+.gallery .dots i { width: 22px; height: 3px; border-radius: 2px; background: rgba(255,255,255,.25); overflow: hidden; }
+.gallery .dots i.on::after { content: ''; display: block; height: 100%; background: var(--water-lit); animation: g-fill 6s linear both; }
+@keyframes g-fill { from { width: 0; } to { width: 100%; } }
+@media (prefers-reduced-motion: reduce) { .gallery .card, .gallery .img, .gallery .dots i.on::after { animation: none !important; } }
 .landing .find { margin-top: 26px; display: grid; gap: 10px; max-width: 470px; color: var(--ink); }
 .landing .find > small { color: #9fb0c4; font-size: 14px; }
 .lfield { height: 56px; border-radius: 14px; background: #fff; display: flex; align-items: center; gap: 10px; padding: 0 16px; }

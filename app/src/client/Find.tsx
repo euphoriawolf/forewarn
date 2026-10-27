@@ -9,12 +9,57 @@ import type { Place } from './types';
 // the satellite map (a large library) loads only when there is a pin to place
 const Pin = lazy(() => import('./Pin').then((m) => ({ default: m.Pin })));
 
-// The hero photo. public/hero-lagos.jpg is a Guardian Nigeria photo, credited and linked, and kept out of
-// the public repo (git-ignored). Until that file is in place, the Kampala photo from Wikimedia Commons shows.
+// The hero gallery: real floods in African cities, each shown no wider than it can hold sharply. The
+// front photo changes every 6 seconds, the next one revealed by water rising up the frame; two cards
+// float behind it with the photos to come. The Commons photos are linked from Wikimedia (free licences,
+// credited below). public/hero-lagos.jpg is The Guardian Nigeria's, credited and linked, and kept out of
+// the public repo (git-ignored); without the file the gallery starts at Kampala.
+const W = 'https://upload.wikimedia.org/wikipedia/commons/thumb/';
 const PHOTOS = [
-  { src: '/hero-lagos.jpg', pos: '62% 55%', alt: 'Women hold on to each other as they cross a flooded Lagos street between cars', credit: <>Top photo: Lagos, Nigeria, <a href="https://guardian.ng/news/nigeria/metro/lagos-residents-lament-as-flooding-cripples-transport-businesses/">The Guardian Nigeria</a>.</> },
-  { pos: '50% 55%', src: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/Moment_of_a_life_saver_at_the_right_time.jpg/1920px-Moment_of_a_life_saver_at_the_right_time.jpg', alt: 'A man pulls a motorbike rider out of fast floodwater on a city street while people watch', credit: <>Top photo: Kampala, Uganda, 25 October 2018, by <a href="https://commons.wikimedia.org/wiki/File:Moment_of_a_life_saver_at_the_right_time.jpg">Jameswasswa</a>, <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>.</> },
+  { src: '/hero-lagos.jpg', city: 'Lagos', where: 'Nigeria', credit: <>Lagos: <a href="https://guardian.ng/news/nigeria/metro/lagos-residents-lament-as-flooding-cripples-transport-businesses/">The Guardian Nigeria</a>.</> },
+  { src: W + '5/59/Moment_of_a_life_saver_at_the_right_time.jpg/1280px-Moment_of_a_life_saver_at_the_right_time.jpg', city: 'Kampala', where: 'Uganda, 2018', credit: <>Kampala: <a href="https://commons.wikimedia.org/wiki/File:Moment_of_a_life_saver_at_the_right_time.jpg">Jameswasswa</a>, CC BY-SA 4.0.</> },
+  { src: W + 'a/aa/Flooding_Accra_4.jpg/1280px-Flooding_Accra_4.jpg', city: 'Accra', where: 'Ghana, 2022', credit: <>Accra: <a href="https://commons.wikimedia.org/wiki/File:Flooding_Accra_4.jpg">Fquasie</a>, CC BY-SA 4.0.</> },
+  { src: W + '5/55/Floods_in_Kibra_slums.jpg/1280px-Floods_in_Kibra_slums.jpg', city: 'Kibra, Nairobi', where: 'Kenya, 2026', credit: <>Kibra: <a href="https://commons.wikimedia.org/wiki/File:Floods_in_Kibra_slums.jpg">Queen Asali</a>, CC BY-SA 4.0.</> },
+  { src: W + '8/8f/Maiduguri_flooding.jpg_07.jpg/1280px-Maiduguri_flooding.jpg_07.jpg', city: 'Maiduguri', where: 'Nigeria, 2024', credit: <>Maiduguri: <a href="https://commons.wikimedia.org/wiki/File:Maiduguri_flooding.jpg_07.jpg">Mr. Snatch</a>, CC0.</> },
+  { src: W + '1/16/The_strong_and_brave_ones_will_always_try_to_pass_through.jpg/1280px-The_strong_and_brave_ones_will_always_try_to_pass_through.jpg', city: 'Kampala', where: 'Uganda, 2018', credit: <>Kampala street: <a href="https://commons.wikimedia.org/wiki/File:The_strong_and_brave_ones_will_always_try_to_pass_through.jpg">Jameswasswa</a>, CC BY-SA 4.0.</> },
 ];
+
+function Gallery() {
+  // start once we know whether the Lagos photo is there (it is git-ignored, so a fresh checkout has none)
+  const [list, setList] = useState<typeof PHOTOS | null>(null);
+  useEffect(() => {
+    const im = new Image(), done = (ok: boolean) => setList((l) => l ?? (ok ? PHOTOS : PHOTOS.slice(1)));
+    im.onload = () => done(true); im.onerror = () => done(false); im.src = PHOTOS[0].src;
+    const t = setTimeout(() => done(false), 2500);
+    return () => clearTimeout(t);
+  }, []);
+  const [k, setK] = useState(0);
+  // each photo that has been shown stays under the next one, so the water reveals it over the last
+  const [layers, setLayers] = useState<{ n: number; id: number }[]>([{ n: 0, id: 0 }]);
+  const still = typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  useEffect(() => { for (const p of list ?? []) { const i = new Image(); i.src = p.src; } }, [list]); // load them all early
+  useEffect(() => {
+    if (!list) return;
+    const t = setInterval(() => setK((x) => (x + 1) % list.length), 6000);
+    return () => clearInterval(t);
+  }, [list]);
+  useEffect(() => { setLayers((l) => (l.at(-1)?.n === k ? l : [...l.slice(-1), { n: k, id: (l.at(-1)?.id ?? 0) + 1 }])); }, [k]);
+  if (!list) return <div className="gallery" />;
+  const at = (n: number) => list[n % list.length];
+  const cur = at(k);
+  return (
+    <div className="gallery" aria-label="Photos of floods in African cities">
+      <div className="card back1"><div className="img" style={{ backgroundImage: `url("${at(k + 1).src}")` }} /></div>
+      <div className="card back2"><div className="img" style={{ backgroundImage: `url("${at(k + 2).src}")` }} /></div>
+      <div className="card front">
+        {layers.map((l, i) => <div key={l.id} className={`img ${i > 0 && !still ? 'in' : ''}`} style={{ backgroundImage: `url("${at(l.n).src}")` }} />)}
+        {layers.length > 1 && !still && <div key={`line${layers.at(-1)!.id}`} className="line go" />}
+        <div className="tag" key={`tag${k}`}>{cur.city}<span>{cur.where}</span></div>
+      </div>
+      <div className="dots">{list.map((_, i) => <i key={i === k ? `on${k}` : i} className={i === k ? 'on' : ''} />)}</div>
+    </div>
+  );
+}
 
 function Search({ onPick, id }: { onPick: (p: Place) => void; id?: string }) {
   const [q, setQ] = useState('');
@@ -51,9 +96,6 @@ function Search({ onPick, id }: { onPick: (p: Place) => void; id?: string }) {
 
 export function Find({ onPlace }: { onPlace: (p: Place) => void }) {
   const [picked, setPicked] = useState<Place | null>(null);
-  // the Lagos photo when it is there, the Kampala photo until then
-  const [photo, setPhoto] = useState(1);
-  useEffect(() => { const im = new Image(); im.onload = () => setPhoto(0); im.src = PHOTOS[0].src; }, []);
   // the film plays only while it is on screen, and loads only when it comes near
   const film = useRef<HTMLVideoElement>(null);
   useEffect(() => {
@@ -63,20 +105,19 @@ export function Find({ onPlace }: { onPlace: (p: Place) => void }) {
   }, [picked]);
 
   if (picked) return <Suspense fallback={<div className="screen"><div className="skeleton" style={{ flex: 1 }} /></div>}><Pin place={picked} onBack={() => setPicked(null)} onDone={onPlace} /></Suspense>;
-  const p = PHOTOS[photo];
   return (
     <div className="landing">
-      <header className="hero">
-        <div className="photo" role="img" aria-label={p.alt} style={{ ['--photo' as string]: `url("${p.src}")`, ['--pos' as string]: p.pos }} />
-        <div className="wrap">
-          <div className="lbrand"><I.Logo />Forewarn</div>
+      <header className="hero"><div className="wrap">
+        <div className="lbrand"><I.Logo />Forewarn</div>
+        <div className="hero-grid">
           <div className="hero-text">
             <h1>For most people in Africa, the flood warning is the water itself.</h1>
             <p className="sub">Forewarn warns you days before a flood reaches your area: your street, your farm, your village.</p>
             <Search onPick={setPicked} id="find" />
           </div>
+          <Gallery />
         </div>
-      </header>
+      </div></header>
 
       <section className="night"><div className="wrap">
         <p className="wherewhen">Mathare, Nairobi. The night of Tuesday 23 April 2024.</p>
@@ -151,7 +192,7 @@ export function Find({ onPlace }: { onPlace: (p: Place) => void }) {
 
       <footer><div className="wrap">
         <p>Sources: <a href="https://www.aljazeera.com/news/2024/5/1/blame-the-government-kenyans-bemoan-lack-of-support-amid-record-flooding">Al Jazeera, 1 May 2024</a> (Mathare, the night of 23 April). <a href="https://wmo.int/news/media-centre/early-warnings-all-action-plan-africa-launched">WMO, Early Warnings for All Action Plan for Africa, 2023</a>. <a href="https://news.un.org/en/story/2025/10/1166151">UN News, October 2025</a>. WMO at the EUMETSAT user forum, 2024 (about 45%).</p>
-        <p>{p.credit}</p>
+        <p>Photos at the top: {PHOTOS.map((p, i) => <span key={i}>{p.credit} </span>)}</p>
         <p>Data: CHIRPS daily rain (Climate Hazards Center, UC Santa Barbara), 1991 to 2024. ECMWF forecasts through Open-Meteo. Street water from Flood Check, a model estimate. Imagery: Esri, EOX Sentinel-2.</p>
       </div></footer>
     </div>

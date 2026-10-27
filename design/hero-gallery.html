@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Forewarn: hero gallery</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,800&family=Public+Sans:wght@400;600&display=swap" rel="stylesheet" />
+<style>
+  /* The hero as a floating gallery of real urban floods. Each photo is shown no wider than it can hold
+     sharply. The front photo changes every few seconds: the next one is revealed by water rising up the
+     frame, with a moving wavy edge, the one idea Forewarn is about. Behind it, two cards float with the
+     next photos. All photos in grey, tinted night blue, so they sit with the brand. */
+  :root { --night: #0b1420; --water: #1d4ed8; --water-lit: #7fb2ff; --display: 'Bricolage Grotesque', system-ui, sans-serif; --text: 'Public Sans', system-ui, sans-serif; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--night); color: #fff; font: 17px/1.55 var(--text); -webkit-font-smoothing: antialiased; }
+  .hero { min-height: 100vh; max-width: 1240px; margin: 0 auto; padding: 0 20px; display: grid; grid-template-rows: auto 1fr; }
+  .brand { font: 800 20px/1 var(--display); letter-spacing: -0.02em; display: flex; gap: 8px; align-items: center; padding: 20px 0; }
+  .brand svg { width: 22px; height: 22px; color: var(--water-lit); }
+  .grid { display: grid; gap: 28px; align-items: center; }
+  @media (min-width: 960px) { .grid { grid-template-columns: 1fr 1.05fr; gap: 40px; } }
+  h1 { font: 800 clamp(36px, 5.4vw, 64px)/1.02 var(--display); letter-spacing: -0.03em; margin: 0; max-width: 16ch; }
+  .sub { font-size: clamp(18px, 2vw, 21px); color: #d6e0ec; max-width: 38ch; margin: 16px 0 0; }
+  .field { margin-top: 26px; height: 56px; max-width: 470px; border-radius: 14px; background: #fff; color: #5d6a63; display: flex; align-items: center; padding: 0 18px; }
+  .small { color: #9fb0c4; font-size: 14px; margin-top: 12px; }
+  @media (max-width: 959px) { .text { order: 2; padding-bottom: 40px; } }
+
+  /* the gallery */
+  .gallery { position: relative; height: clamp(320px, 52vw, 600px); }
+  .card { position: absolute; border-radius: 18px; overflow: hidden; background: #13202f; box-shadow: 0 24px 60px rgba(0,0,0,.45); }
+  .card .img { position: absolute; inset: 0; background-size: cover; background-position: center; filter: grayscale(1) contrast(1.08) brightness(.92); }
+  .card::after { content: ''; position: absolute; inset: 0; background: rgba(29,78,216,.16); mix-blend-mode: multiply; pointer-events: none; }
+  .back1 { width: 46%; aspect-ratio: 4 / 3; right: 0; top: 2%; transform: rotate(5deg); opacity: .55; animation: float1 9s ease-in-out infinite; }
+  .back2 { width: 42%; aspect-ratio: 4 / 3; left: 0; bottom: 4%; transform: rotate(-6deg); opacity: .5; animation: float2 11s ease-in-out infinite; }
+  .front { width: 78%; aspect-ratio: 3 / 2; left: 11%; top: 50%; transform: translateY(-50%) rotate(-1.5deg); animation: float3 13s ease-in-out infinite; z-index: 2; }
+  @keyframes float1 { 50% { transform: rotate(4deg) translateY(-12px); } }
+  @keyframes float2 { 50% { transform: rotate(-5deg) translateY(10px); } }
+  @keyframes float3 { 50% { transform: translateY(calc(-50% - 8px)) rotate(-1deg); } }
+  .back1 .img, .back2 .img { transition: opacity 1.2s ease; }
+
+  /* the current photo drifts slowly closer (a Ken Burns move) */
+  .front .img { animation: drift 7s linear both; }
+  @keyframes drift { from { transform: scale(1.02); } to { transform: scale(1.1); } }
+
+  /* the next photo comes in under rising water: a mask with a wavy edge moves from the bottom up,
+     and the wave itself slides sideways as it rises */
+  .front .img.in {
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 1000' preserveAspectRatio='none'%3E%3Cpath d='M0 500 Q50 470 100 500 T200 500 T300 500 T400 500 V1000 H0Z' fill='%23000'/%3E%3C/svg%3E");
+            mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 1000' preserveAspectRatio='none'%3E%3Cpath d='M0 500 Q50 470 100 500 T200 500 T300 500 T400 500 V1000 H0Z' fill='%23000'/%3E%3C/svg%3E");
+    -webkit-mask-size: 60% 260%; mask-size: 60% 260%; -webkit-mask-repeat: repeat-x; mask-repeat: repeat-x;
+    animation: rise 1.6s cubic-bezier(.45, .05, .25, 1) both, drift 7s linear both;
+  }
+  @keyframes rise { from { -webkit-mask-position: 0 0%; mask-position: 0 0%; } to { -webkit-mask-position: -240px 100%; mask-position: -240px 100%; } }
+  /* a thin line of light on the water's edge, rising with it */
+  .front .line { position: absolute; left: 0; right: 0; height: 3px; bottom: -6%; background: linear-gradient(90deg, transparent, rgba(127,178,255,.9), transparent); opacity: 0; pointer-events: none; z-index: 2; }
+  .front .line.go { animation: line 1.6s cubic-bezier(.45, .05, .25, 1) both; }
+  @keyframes line { 0% { bottom: -6%; opacity: 0; } 15% { opacity: 1; } 85% { opacity: 1; } 100% { bottom: 104%; opacity: 0; } }
+
+  .tag { position: absolute; left: 16px; bottom: 14px; z-index: 3; font: 600 13px/1.2 var(--text); background: rgba(11,20,32,.72); backdrop-filter: blur(6px); padding: 7px 11px; border-radius: 10px; transition: opacity .5s; }
+  .tag span { color: #9fb0c4; font-weight: 400; margin-left: 6px; }
+  .dots { position: absolute; left: 11%; right: 11%; bottom: -6px; display: flex; gap: 6px; justify-content: center; z-index: 3; }
+  .dots i { width: 22px; height: 3px; border-radius: 2px; background: rgba(255,255,255,.25); overflow: hidden; }
+  .dots i.on::after { content: ''; display: block; height: 100%; background: var(--water-lit); animation: fill 6s linear both; }
+  @keyframes fill { from { width: 0; } to { width: 100%; } }
+  @media (prefers-reduced-motion: reduce) { .card, .front .img, .front .img.in, .front .line.go, .dots i.on::after { animation: none !important; -webkit-mask: none; mask: none; } }
+  .note { max-width: 1240px; margin: 0 auto; padding: 10px 20px; font-size: 13px; color: #6b7c90; }
+</style>
+</head>
+<body>
+<div class="hero">
+  <div class="brand"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3C9 8 6 11 6 14.5a6 6 0 0 0 12 0C18 11 15 8 12 3z"/></svg>Forewarn</div>
+  <div class="grid">
+    <div class="text">
+      <h1>For most people in Africa, the flood warning is the water itself.</h1>
+      <p class="sub">Forewarn warns you days before a flood reaches your area: your street, your farm, your village.</p>
+      <div class="field">Find your area</div>
+      <p class="small">Free. Anywhere in Africa. No account needed.</p>
+    </div>
+    <div class="gallery" aria-label="Photos of floods in African cities">
+      <div class="card back1"><div class="img" id="b1"></div></div>
+      <div class="card back2"><div class="img" id="b2"></div></div>
+      <div class="card front" id="front"><div class="line" id="line"></div><div class="tag" id="tag"></div></div>
+      <div class="dots" id="dots"></div>
+    </div>
+  </div>
+</div>
+<p class="note">Mockup: the Wikimedia photos are linked from Commons here; the built page serves its own copies. Credits go in the sources at the bottom of the page.</p>
+<script>
+  const P = [
+    ['media/hero-lagos.jpg', 'Lagos', 'Nigeria'],
+    ['https://thumb.wikimedia.org/wikipedia/commons/thumb/5/59/Moment_of_a_life_saver_at_the_right_time.jpg/1280px-Moment_of_a_life_saver_at_the_right_time.jpg', 'Kampala', 'Uganda, 2018'],
+    ['https://thumb.wikimedia.org/wikipedia/commons/thumb/a/aa/Flooding_Accra_4.jpg/1280px-Flooding_Accra_4.jpg', 'Accra', 'Ghana, 2022'],
+    ['https://thumb.wikimedia.org/wikipedia/commons/thumb/5/55/Floods_in_Kibra_slums.jpg/1280px-Floods_in_Kibra_slums.jpg', 'Kibra, Nairobi', 'Kenya, 2026'],
+    ['https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8f/Maiduguri_flooding.jpg_07.jpg/1280px-Maiduguri_flooding.jpg_07.jpg', 'Maiduguri', 'Nigeria, 2024'],
+    ['https://thumb.wikimedia.org/wikipedia/commons/thumb/1/16/The_strong_and_brave_ones_will_always_try_to_pass_through.jpg/1280px-The_strong_and_brave_ones_will_always_try_to_pass_through.jpg', 'Kampala', 'Uganda, 2018'],
+  ];
+  P.forEach(([u]) => { const i = new Image(); i.src = u; }); // load them all early, so every change is instant
+  const front = document.getElementById('front'), tag = document.getElementById('tag'), line = document.getElementById('line'), dots = document.getElementById('dots');
+  dots.innerHTML = P.map(() => '<i></i>').join('');
+  let k = 0;
+  function show(n, first) {
+    const [u, city, where] = P[n];
+    const img = document.createElement('div'); img.className = 'img' + (first ? '' : ' in'); img.style.backgroundImage = `url("${u}")`;
+    front.insertBefore(img, line);
+    // keep only the photo underneath and the one coming in
+    const all = front.querySelectorAll('.img'); if (all.length > 2) all[0].remove();
+    if (!first) { line.classList.remove('go'); void line.offsetWidth; line.classList.add('go'); }
+    tag.style.opacity = 0; setTimeout(() => { tag.innerHTML = `${city}<span>${where}</span>`; tag.style.opacity = 1; }, first ? 0 : 700);
+    document.getElementById('b1').style.backgroundImage = `url("${P[(n + 1) % P.length][0]}")`;
+    document.getElementById('b2').style.backgroundImage = `url("${P[(n + 2) % P.length][0]}")`;
+    [...dots.children].forEach((d, i) => { d.className = ''; if (i === n) { void d.offsetWidth; d.className = 'on'; } });
+  }
+  show(0, true);
+  setInterval(() => { k = (k + 1) % P.length; show(k); }, 6000);
+</script>
+</body>
+</html>
