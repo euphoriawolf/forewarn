@@ -20,6 +20,7 @@ const STEP: Record<string, [string, string]> = {
   mark_day: ['Marking the day', 'Marked the day'],
   show_nearest_flood: ['Finding the nearest spot that flooded', 'Found the nearest spot that flooded'],
   last_flood: ['Checking the last flood here', 'Checked the last flood here'],
+  read_last_30_days: ['Reading the last 30 days of rain', 'Read the last 30 days of rain'],
 };
 const textOf = (m: { parts: { type: string; text?: string }[] }) => m.parts.map((p) => (p.type === 'text' ? p.text : '')).join('');
 
