@@ -28,24 +28,30 @@ export function Answer({ place, onChange }: { place: Place; onChange: () => void
     setNotes((n) => [...n, { id, text: 'Reading your photo with SAM 3.1 and Muse Spark', busy: true }]);
     const put = (x: Partial<Note>) => setNotes((n) => n.map((m) => (m.id === id ? { ...m, ...x, busy: false } : m)));
     try {
-      const { checkPhoto } = await import('./witness');
-      const r = await checkPhoto(file);
+      const [{ checkPhoto }, { photoFacts }] = await Promise.all([import('./witness'), import('./exif')]);
+      // what the photo says about itself (read before it is shrunk): when, and maybe where, it was taken
+      const facts = await photoFacts(file);
+      const [r, photoSpot] = await Promise.all([checkPhoto(file), facts.lat !== undefined && facts.lon !== undefined
+        ? fetch(`/api/where?lat=${facts.lat}&lon=${facts.lon}`).then((x) => x.json() as Promise<{ name: string; where: string }>).then((n) => ({ lat: facts.lat!, lon: facts.lon!, label: [n.name, n.where].filter(Boolean).join(', ') })).catch(() => ({ lat: facts.lat!, lon: facts.lon!, label: 'Where the photo was taken' }))
+        : Promise.resolve(null)]);
+      const days = facts.takenAt ? (Date.now() - Date.parse(facts.takenAt)) / 864e5 : 0;
+      const old = days > 2 ? ` This photo was taken on ${new Date(facts.takenAt!).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}, so it may show an older flood.` : '';
       // the words come from Muse Spark (what the water reaches, what it means), the numbers from SAM's masks
       const m = r.reading, flood = r.found && (m?.isFlood ?? true);
       const moving = m && m.moving !== 'unclear' && m.moving !== 'still' ? `, moving ${m.moving}` : '';
       const lines = flood
         ? [m?.reaches ? `The water reaches ${m.reaches}${moving}.` : '', m?.meaning ?? '', m?.advice ?? ''].filter(Boolean).map((x) => (/[.!?]$/.test(x.trim()) ? x.trim() : `${x.trim()}.`)).join(' ')
         : r.found ? `This looks like standing water, not a flood${m?.reaches ? `: it reaches ${m.reaches}` : ''}.` : 'No floodwater in this photo.';
-      const how = `SAM 3.1 marked the water${r.found ? ` (${r.waterPct}% of the photo)` : ''}${r.people ? ` and pixelated ${r.people === 1 ? '1 person' : `${r.people} people`}` : ''}. Only you can see this photo for now.`;
+      const how = `${old ? old.trim() + ' ' : ''}SAM 3.1 marked the water${r.found ? ` (${r.waterPct}% of the photo)` : ''}${r.people ? ` and pixelated ${r.people === 1 ? '1 person' : `${r.people} people`}` : ''}. Only you can see this photo for now.`;
       // Report this flood: it waits for a person to check it, then shows on maps nearby
       // Report this flood: first where the water is, then it waits for a person to check it
-      const send = async (spot: Spot) => {
+      const send = async (spot: Spot & { source: string }) => {
         put({ extra: undefined, action: undefined, small: `Sending your report for ${spot.label}` });
         let session = ''; try { session = localStorage.getItem('fw-session') ?? ''; } catch { /* private window */ }
-        const res = await fetch('/api/reports', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ image: r.image, lat: spot.lat, lon: spot.lon, place: spot.label, reaches: m?.reaches ?? '', moving: m?.moving ?? '', meaning: m?.meaning ?? '', waterPct: r.waterPct, people: r.people, session }) }).then((x) => x.json() as Promise<{ id?: string; error?: string }>).catch(() => ({ id: undefined, error: 'The report did not send. Check your connection and try again.' }));
+        const res = await fetch('/api/reports', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ image: r.image, lat: spot.lat, lon: spot.lon, place: spot.label, source: spot.source, takenAt: facts.takenAt ?? '', reaches: m?.reaches ?? '', moving: m?.moving ?? '', meaning: m?.meaning ?? '', waterPct: r.waterPct, people: r.people, session }) }).then((x) => x.json() as Promise<{ id?: string; error?: string }>).catch(() => ({ id: undefined, error: 'The report did not send. Check your connection and try again.' }));
         put(res.id ? { small: `Reported for ${spot.label}. A person checks every report; once approved, people within 5 km see it on their map for 48 hours.` } : { small: res.error, action: { label: 'Try again', run: report } });
       };
-      const report = () => put({ action: undefined, extra: <ReportPlace here={place} onSend={send} /> });
+      const report = () => put({ action: undefined, extra: <ReportPlace here={place} photo={photoSpot} onSend={send} /> });
       put({ img: r.image, text: lines, small: how, action: flood ? { label: 'Report this flood', run: report } : undefined });
       if (flood) stage.current?.run({ action: 'witness', text: m?.reaches ? `Your photo: water to ${m.reaches}` : 'Your photo: floodwater' });
       // the agent answers the photo with the forecast and the ground for this place

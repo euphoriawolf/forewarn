@@ -81,7 +81,7 @@ export default {
         if (lat === null || lon === null || !/^data:image\/jpeg;base64,/.test(image) || image.length > 1_500_000) return Response.json({ error: 'That report could not be read. Try again.' }, { status: 400 });
         let named = String(b.place ?? '');
         if (!named || /^your location/i.test(named)) { const n = await placeName(lat, lon).catch(() => null); named = n ? [n.name, n.where].filter(Boolean).join(', ') : `${lat.toFixed(4)}, ${lon.toFixed(4)}`; }
-        const r = await reportsOf(env.Reports).add({ session: String(b.session ?? '').slice(0, 60), lat, lon, place: named, reaches: String(b.reaches ?? ''), moving: String(b.moving ?? ''), meaning: String(b.meaning ?? ''), waterPct: Number(b.waterPct) || 0, people: Number(b.people) || 0, image });
+        const r = await reportsOf(env.Reports).add({ session: String(b.session ?? '').slice(0, 60), lat, lon, place: named, source: String(b.source ?? 'map').slice(0, 10), takenAt: String(b.takenAt ?? '').slice(0, 20), reaches: String(b.reaches ?? ''), moving: String(b.moving ?? ''), meaning: String(b.meaning ?? ''), waterPct: Number(b.waterPct) || 0, people: Number(b.people) || 0, image });
         return Response.json(r, { status: 'error' in r ? 429 : 200 });
       }
       if (url.pathname === '/api/reports') {
@@ -125,7 +125,7 @@ export default {
           if (!['localhost', '127.0.0.1'].includes(url.hostname)) return new Response('Not found', { status: 404 });
           const text = q.get('q');
           if (!text) return Response.json({ error: 'Add q with a question.' }, { status: 400 });
-          return Response.json(await answer(env, { name: q.get('name') ?? 'this place', where: '', lat, lon }, text));
+          return Response.json(await answer(env, { name: q.get('name') ?? 'this place', where: '', lat, lon }, text, (['meta', 'meta-min'].includes(q.get('model') ?? '') ? q.get('model') : 'open') as 'open' | 'meta' | 'meta-min'));
         }
         const line = floodLine(env.FLOOD_CHECK_API, lat, lon), pack = packFor(lat, lon);
         const [l, forecast, nearby] = await Promise.all([line, readForecast(lat, lon, line.then((x) => x.mm)), pack ? nearestFlood(env.ASSETS, pack).catch(() => null) : null]);

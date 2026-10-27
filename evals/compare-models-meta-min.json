@@ -1,0 +1,186 @@
+[
+ {
+  "which": "meta-min",
+  "place": "kibera",
+  "q": "How does my place look for the next 14 days?",
+  "ms": 54104,
+  "firstMs": 53848,
+  "words": 75,
+  "sentences": 3,
+  "firstChecked": true,
+  "checked": true,
+  "retried": false,
+  "toolsOk": true,
+  "tools": [
+   "read_forecast",
+   "read_last_30_days",
+   "flood_reports"
+  ],
+  "dash": false,
+  "outTokens": 515,
+  "text": "People near you reported floodwater about 2 hours ago less than 1 km away reaching to knees. The water is already there and flooding looks unlikely here for the next 14 days, with the riskiest day Wednesday 4 November with about 1 in 50 forecasts bringing more than 29.7 mm, more than the worst day of the March storm. The ground is not soaked with 46 mm in the last 30 days, close to normal."
+ },
+ {
+  "which": "meta-min",
+  "place": "kibera",
+  "q": "Which day is wettest?",
+  "ms": 21345,
+  "firstMs": 21314,
+  "words": 43,
+  "sentences": 3,
+  "firstChecked": true,
+  "checked": true,
+  "retried": false,
+  "toolsOk": true,
+  "tools": [
+   "read_forecast",
+   "mark_day"
+  ],
+  "dash": false,
+  "outTokens": 586,
+  "text": "Wednesday 4 November looks wettest, with middle rain of 3.8 mm and wettest run of 29.7 mm.\n\nFlooding looks unlikely that day, about 1 in 50 forecasts pass your flood line of 28.4 mm. The view now points at Wednesday on the screen."
+ },
+ {
+  "which": "meta-min",
+  "place": "kibera",
+  "q": "Show me the last flood here",
+  "ms": 301075,
+  "words": 0,
+  "sentences": 0,
+  "toolsOk": false,
+  "dash": false,
+  "error": "TypeError: fetch failed",
+  "text": ""
+ },
+ {
+  "which": "meta-min",
+  "place": "kibera",
+  "q": "Did Ngong Road flood in March?",
+  "ms": 18061,
+  "firstMs": 17776,
+  "words": 22,
+  "sentences": 2,
+  "firstChecked": true,
+  "checked": true,
+  "retried": false,
+  "toolsOk": true,
+  "tools": [
+   "read_forecast",
+   "last_flood",
+   "light_roads"
+  ],
+  "dash": false,
+  "outTokens": 329,
+  "text": "The model shows Ngong Road stayed dry in the March storm.\nThe view now lights Ngong Road green where it stayed dry."
+ },
+ {
+  "which": "meta-min",
+  "place": "kibera",
+  "q": "What floods near me?",
+  "ms": 16886,
+  "firstMs": 16839,
+  "words": 47,
+  "sentences": 3,
+  "firstChecked": true,
+  "checked": true,
+  "retried": false,
+  "toolsOk": true,
+  "tools": [
+   "read_forecast",
+   "show_nearest_flood"
+  ],
+  "dash": false,
+  "outTokens": 438,
+  "text": "Flooding looks unlikely here for the next 14 days. The riskiest day is Wednesday 4 November with about 1 in 50 forecasts over the flood line.\nThe view now shows the nearest flooded spot about 190 m south where water reached 40 cm in the March storm."
+ },
+ {
+  "which": "meta-min",
+  "place": "lekki",
+  "q": "Will my street flood this week?",
+  "ms": 9253,
+  "firstMs": 9214,
+  "words": 53,
+  "sentences": 4,
+  "firstChecked": true,
+  "checked": true,
+  "retried": false,
+  "toolsOk": true,
+  "tools": [
+   "read_forecast",
+   "read_last_30_days"
+  ],
+  "dash": false,
+  "outTokens": 306,
+  "text": "Flooding looks unlikely on your street this week.\n\nToday is the wettest: unlikely with about 1 in 50 forecasts bringing more than 38 mm. The ground is not soaked after 122 mm in the last 30 days, drier than normal.\n\nThis forecast is for the area around you, blended from 28 km squares."
+ },
+ {
+  "which": "meta-min",
+  "place": "lekki",
+  "q": "Is it safe to drive to Victoria Island on Friday?",
+  "ms": 11558,
+  "firstMs": 11515,
+  "words": 50,
+  "sentences": 3,
+  "firstChecked": true,
+  "checked": true,
+  "retried": false,
+  "toolsOk": true,
+  "tools": [
+   "read_forecast",
+   "read_last_30_days",
+   "light_roads"
+  ],
+  "dash": false,
+  "outTokens": 541,
+  "text": "Yes, driving to Victoria Island on Friday looks safe from flooding. Friday shows unlikely with none of 51 forecasts above the 38 mm flood line and the ground is not soaked. The view could not highlight Victoria Island as a single road so no red or green lights were added."
+ },
+ {
+  "which": "meta-min",
+  "place": "kitui",
+  "q": "Is my farm getting enough rain this season?",
+  "ms": 7560,
+  "firstMs": 7531,
+  "words": 47,
+  "sentences": 3,
+  "firstChecked": true,
+  "checked": true,
+  "retried": false,
+  "toolsOk": true,
+  "tools": [
+   "read_forecast",
+   "read_last_30_days"
+  ],
+  "dash": false,
+  "outTokens": 528,
+  "text": "Yes, your farm is getting enough rain so far this season. You had 60 mm in the last 30 days, wetter than the normal 45 mm, and the ground is not soaked. Showers continue in the next 14 days plus near normal rain in the weeks after."
+ },
+ {
+  "which": "meta-min",
+  "place": "kitui",
+  "q": "Show me my street in 3D",
+  "ms": 1584,
+  "firstMs": 1559,
+  "words": 18,
+  "sentences": 2,
+  "firstChecked": true,
+  "checked": true,
+  "retried": false,
+  "toolsOk": true,
+  "tools": [],
+  "dash": false,
+  "outTokens": 183,
+  "text": "There is no 3D view for your farm yet. Street level 3D covers Lagos and Nairobi for now."
+ },
+ {
+  "which": "meta-min",
+  "place": "kibera",
+  "q": "[from the page] The person added a photo of floodwater here.",
+  "ms": 301076,
+  "words": 0,
+  "sentences": 0,
+  "toolsOk": false,
+  "dash": false,
+  "error": "TypeError: fetch failed",
+  "text": ""
+ }
+]

@@ -1,13 +1,15 @@
-// "Where is this water?" Before a flood report is sent, the person says where the photo was taken: the
-// place they are looking at, where they are now (GPS, named by /api/where), or another place they search.
+// "Where is this water?" Before a flood report is sent, the person says where the photo was taken: where
+// the photo itself says (its EXIF location, when the phone kept it), the place they are looking at, where
+// they are now (GPS, named by /api/where), or another place they search.
 import { useEffect, useState } from 'react';
 import type { Place } from './types';
 
 export interface Spot { lat: number; lon: number; label: string }
 const label = (p: { name: string; where: string }) => [p.name, p.where].filter(Boolean).join(', ');
 
-export function ReportPlace({ here, onSend }: { here: Place; onSend: (s: Spot) => void }) {
-  const [pick, setPick] = useState<'here' | 'gps' | 'other'>('here');
+export function ReportPlace({ here, photo, onSend }: { here: Place; photo?: Spot | null; onSend: (s: Spot & { source: string }) => void }) {
+  // where the photo itself says it was taken comes first, when the phone kept it
+  const [pick, setPick] = useState<'photo' | 'here' | 'gps' | 'other'>(photo ? 'photo' : 'here');
   const [gps, setGps] = useState<Spot | null>(null);
   const [gpsNote, setGpsNote] = useState('');
   const [q, setQ] = useState('');
@@ -30,10 +32,11 @@ export function ReportPlace({ here, onSend }: { here: Place; onSend: (s: Spot) =
     return () => clearTimeout(t);
   }, [q, pick]);
 
-  const chosen: Spot | null = pick === 'here' ? { lat: here.lat, lon: here.lon, label: label(here) } : pick === 'gps' ? gps : other;
+  const chosen: Spot | null = pick === 'photo' ? photo ?? null : pick === 'here' ? { lat: here.lat, lon: here.lon, label: label(here) } : pick === 'gps' ? gps : other;
   return (
     <div className="where">
       <b>Where is this water?</b>
+      {photo && <label><input type="radio" name="where" checked={pick === 'photo'} onChange={() => setPick('photo')} /><span>{photo.label}<small>Where the photo was taken</small></span></label>}
       <label><input type="radio" name="where" checked={pick === 'here'} onChange={() => setPick('here')} /><span>{label(here)}<small>The place on your map</small></span></label>
       <label><input type="radio" name="where" checked={pick === 'gps'} onChange={useGps} /><span>Where I am now<small>{gpsNote || (gps ? gps.label : 'Uses your phone’s location')}</small></span></label>
       <label><input type="radio" name="where" checked={pick === 'other'} onChange={() => setPick('other')} /><span>Somewhere else<small>{other ? other.label : 'Search for the place'}</small></span></label>
@@ -43,7 +46,7 @@ export function ReportPlace({ here, onSend }: { here: Place; onSend: (s: Spot) =
           {hits.length > 0 && <div className="results">{hits.map((h, i) => <button key={i} type="button" onClick={() => { setOther({ lat: h.lat, lon: h.lon, label: label(h) }); setHits([]); setQ(h.name); }}><b>{h.name}</b><small>{h.where}</small></button>)}</div>}
         </div>
       )}
-      <button type="button" className="report" disabled={!chosen} onClick={() => chosen && onSend(chosen)}>Send report</button>
+      <button type="button" className="report" disabled={!chosen} onClick={() => chosen && onSend({ ...chosen, source: pick === 'here' ? 'map' : pick })}>Send report</button>
     </div>
   );
 }

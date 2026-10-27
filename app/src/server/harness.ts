@@ -18,7 +18,11 @@ import { reportsOf } from './reports';
 export interface Env { BASETEN_API_KEY: string; BASETEN_BASE_URL: string; BASETEN_MODEL: string; FLOOD_CHECK_API: string; AskAgent: DurableObjectNamespace; ASSETS: Fetcher; Logbook: DurableObjectNamespace; LOG_CHATS: string; LOGS_TOKEN: string; MODEL_API_KEY: string; Reports: DurableObjectNamespace; REVIEW_TOKEN: string }
 export interface Place { name: string; where: string; lat: number; lon: number }
 
-export function model(env: Env) {
+// The agent's model: Muse Spark Open on Baseten, or Muse Spark 1.3 on Meta's Model API (standard mode,
+// so Meta does not train on what we send). The test route can ask for either, to compare them.
+export type Which = 'open' | 'meta' | 'meta-min';
+export function model(env: Env, which: Which = 'open') {
+  if (which !== 'open') return createOpenAICompatible({ name: 'meta', baseURL: 'https://api.meta.ai/v1', apiKey: env.MODEL_API_KEY })('muse-spark-1.3');
   return createOpenAICompatible({ name: 'baseten', baseURL: env.BASETEN_BASE_URL, apiKey: env.BASETEN_API_KEY })(env.BASETEN_MODEL);
 }
 
@@ -135,7 +139,7 @@ export const noEmDash: StreamTextTransform<ToolSet> = () => new TransformStream<
   transform(chunk, ctl) { ctl.enqueue(chunk.type === 'text-delta' ? { ...chunk, text: chunk.text.replace(/\s*\u2014\s*/g, ', ').replace(/ [-\u2013] /g, ', ') } : chunk); },
 });
 
-export const loopOptions = { stopWhen: stepCountIs(4), maxOutputTokens: 3000, providerOptions: { baseten: { reasoningEffort: 'low' } } };
+export const loopOptions = { stopWhen: stepCountIs(4), maxOutputTokens: 3000, providerOptions: { baseten: { reasoningEffort: 'low' }, meta: { reasoningEffort: 'low' } } };
 
 // Follow-ups for the chips under the chat: two or three short questions that fit what was just said,
 // chosen only from what Forewarn can answer, so a chip never leads nowhere. The model writes the words.
@@ -160,12 +164,14 @@ Do not repeat a question they already asked. No numbers. One question per line, 
 }
 
 // One question about one place, answered with the tools and checked. Used by the test route.
-export async function answer(env: Env, place: Place, question: string) {
+export async function answer(env: Env, place: Place, question: string, which: Which = 'open') {
   const results: unknown[] = [];
-  const base = { model: model(env), system: system(place), tools: makeTools(env, place, results), ...loopOptions };
+  const base = { model: model(env, which), system: system(place), tools: makeTools(env, place, results), ...loopOptions, ...(which === 'meta-min' ? { providerOptions: { meta: { reasoningEffort: 'minimal' } } } : {}) };
   const t0 = Date.now();
   let r = await generateText({ ...base, prompt: question });
+  const firstMs = Date.now() - t0, tools = r.steps.flatMap((st) => st.toolCalls.map((c) => c.toolName)), usage = r.totalUsage;
   let bad = checkNumbers(r.text, results, question), retried = false;
+  const firstText = r.text, firstChecked = bad.length === 0;
   if (bad.length) {
     retried = true;
     r = await generateText({ ...base, messages: [
@@ -175,5 +181,5 @@ export async function answer(env: Env, place: Place, question: string) {
     ] });
     bad = checkNumbers(r.text, results, question);
   }
-  return { text: r.text.replace(/\s*\u2014\s*/g, ', '), ms: Date.now() - t0, toolCalls: results.length, checked: bad.length === 0, badNumbers: bad, retried };
+  return { text: r.text.replace(/\s*\u2014\s*/g, ', '), ms: Date.now() - t0, firstMs, firstText, firstChecked, tools, usage, toolCalls: results.length, checked: bad.length === 0, badNumbers: bad, retried };
 }

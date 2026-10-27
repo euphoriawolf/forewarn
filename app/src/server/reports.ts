@@ -4,7 +4,7 @@
 // Approved reports from the last 48 hours show on the map of anyone nearby, and the agent can mention them.
 import { DurableObject } from 'cloudflare:workers';
 
-export interface ReportIn { session: string; lat: number; lon: number; place: string; reaches: string; moving: string; meaning: string; waterPct: number; people: number; image: string }
+export interface ReportIn { session: string; lat: number; lon: number; place: string; source: string; takenAt: string; reaches: string; moving: string; meaning: string; waterPct: number; people: number; image: string }
 export interface Report extends Omit<ReportIn, 'image' | 'session'> { id: string; at: string; status: 'pending' | 'approved' | 'rejected' }
 
 const PER_DAY = 5; // reports one visitor can send in a day
@@ -19,11 +19,14 @@ export class Reports extends DurableObject {
     if (this.ready) return;
     this.ctx.storage.sql.exec(`CREATE TABLE IF NOT EXISTS reports (id TEXT PRIMARY KEY, at TEXT, session TEXT, lat REAL, lon REAL, place TEXT,
       reaches TEXT, moving TEXT, meaning TEXT, water_pct INTEGER, people INTEGER, image TEXT, status TEXT)`);
+    // added 27 Oct: where the location came from (photo, map, gps, other) and when the photo says it was taken
+    for (const col of ['source TEXT', 'taken_at TEXT']) { try { this.ctx.storage.sql.exec(`ALTER TABLE reports ADD COLUMN ${col}`); } catch { /* already there */ } }
     this.ready = true;
   }
   private row = (r: Record<string, SqlStorageValue>): Report => ({
     id: String(r.id), at: String(r.at), lat: Number(r.lat), lon: Number(r.lon), place: String(r.place), reaches: String(r.reaches),
     moving: String(r.moving), meaning: String(r.meaning), waterPct: Number(r.water_pct), people: Number(r.people), status: String(r.status) as Report['status'],
+    source: String(r.source ?? 'map'), takenAt: String(r.taken_at ?? ''),
   });
 
   add(r: ReportIn): { id: string } | { error: string } {
@@ -32,8 +35,8 @@ export class Reports extends DurableObject {
     const n = Number(this.ctx.storage.sql.exec('SELECT COUNT(*) AS n FROM reports WHERE session = ? AND at > ?', r.session, since).one().n);
     if (n >= PER_DAY) return { error: `You have sent ${PER_DAY} reports today. Thank you: that is the most one person can send in a day.` };
     const id = crypto.randomUUID();
-    this.ctx.storage.sql.exec('INSERT INTO reports VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', id, new Date().toISOString(), r.session, r.lat, r.lon,
-      r.place.slice(0, 120), r.reaches.slice(0, 120), r.moving.slice(0, 20), r.meaning.slice(0, 300), Math.round(r.waterPct), Math.round(r.people), r.image, 'pending');
+    this.ctx.storage.sql.exec('INSERT INTO reports (id, at, session, lat, lon, place, reaches, moving, meaning, water_pct, people, image, status, source, taken_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', id, new Date().toISOString(), r.session, r.lat, r.lon,
+      r.place.slice(0, 120), r.reaches.slice(0, 120), r.moving.slice(0, 20), r.meaning.slice(0, 300), Math.round(r.waterPct), Math.round(r.people), r.image, 'pending', r.source, r.takenAt);
     return { id };
   }
   pending(): Report[] { this.init(); return this.ctx.storage.sql.exec("SELECT * FROM reports WHERE status = 'pending' ORDER BY at DESC LIMIT 100").toArray().map(this.row); }
