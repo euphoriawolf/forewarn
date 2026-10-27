@@ -1,0 +1,12 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "forewarn",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-10-20",
+  "compatibility_flags": ["nodejs_compat"],
+  // One agent per place: its memory, followers and schedule live in its own SQLite.
+  "durable_objects": { "bindings": [{ "name": "PlaceAgent", "class_name": "PlaceAgent" }] },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["PlaceAgent"] }],
+  // BASETEN_API_KEY is a secret: .dev.vars locally, `wrangler secret put` in production.
+  "vars": { "BASETEN_BASE_URL": "https://inference.baseten.co/v1", "BASETEN_MODEL": "meta-models/muse-spark-open-1026" }
+}
