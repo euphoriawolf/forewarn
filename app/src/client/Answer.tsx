@@ -10,8 +10,11 @@ const Stage = lazy(() => import('./Stage').then((m) => ({ default: m.Stage })));
 // the chat library is large too
 const Chat = lazy(() => import('./Chat').then((m) => ({ default: m.Chat })));
 import { Safe } from './Safe';
+import { ReportPlace, type Spot } from './ReportPlace';
 import type { Answer as A, Place } from './types';
 import type { Note } from './Chat';
+// the same words as FROM_PAGE in Chat.tsx (Chat loads on its own, so it is not imported from there)
+const FROM_PAGE = '[from the page]';
 
 export function Answer({ place, onChange }: { place: Place; onChange: () => void }) {
   const [a, setA] = useState<A | null>(null);
@@ -35,16 +38,18 @@ export function Answer({ place, onChange }: { place: Place; onChange: () => void
         : r.found ? `This looks like standing water, not a flood${m?.reaches ? `: it reaches ${m.reaches}` : ''}.` : 'No floodwater in this photo.';
       const how = `SAM 3.1 marked the water${r.found ? ` (${r.waterPct}% of the photo)` : ''}${r.people ? ` and pixelated ${r.people === 1 ? '1 person' : `${r.people} people`}` : ''}. Only you can see this photo for now.`;
       // Report this flood: it waits for a person to check it, then shows on maps nearby
-      const report = async () => {
-        put({ action: undefined, small: 'Sending your report' });
+      // Report this flood: first where the water is, then it waits for a person to check it
+      const send = async (spot: Spot) => {
+        put({ extra: undefined, action: undefined, small: `Sending your report for ${spot.label}` });
         let session = ''; try { session = localStorage.getItem('fw-session') ?? ''; } catch { /* private window */ }
-        const res = await fetch('/api/reports', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ image: r.image, lat: place.lat, lon: place.lon, place: [place.name, place.where].filter(Boolean).join(', '), reaches: m?.reaches ?? '', moving: m?.moving ?? '', meaning: m?.meaning ?? '', waterPct: r.waterPct, people: r.people, session }) }).then((x) => x.json() as Promise<{ id?: string; error?: string }>).catch(() => ({ id: undefined, error: 'The report did not send. Check your connection and try again.' }));
-        put(res.id ? { small: 'Reported. A person checks every report; once approved, people within 5 km see it on their map for 48 hours.' } : { small: res.error, action: { label: 'Try again', run: report } });
+        const res = await fetch('/api/reports', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ image: r.image, lat: spot.lat, lon: spot.lon, place: spot.label, reaches: m?.reaches ?? '', moving: m?.moving ?? '', meaning: m?.meaning ?? '', waterPct: r.waterPct, people: r.people, session }) }).then((x) => x.json() as Promise<{ id?: string; error?: string }>).catch(() => ({ id: undefined, error: 'The report did not send. Check your connection and try again.' }));
+        put(res.id ? { small: `Reported for ${spot.label}. A person checks every report; once approved, people within 5 km see it on their map for 48 hours.` } : { small: res.error, action: { label: 'Try again', run: report } });
       };
+      const report = () => put({ action: undefined, extra: <ReportPlace here={place} onSend={send} /> });
       put({ img: r.image, text: lines, small: how, action: flood ? { label: 'Report this flood', run: report } : undefined });
       if (flood) stage.current?.run({ action: 'witness', text: m?.reaches ? `Your photo: water to ${m.reaches}` : 'Your photo: floodwater' });
       // the agent answers the photo with the forecast and the ground for this place
-      if (flood) setSay({ id, text: `I added a photo of floodwater here.${m?.reaches ? ` The water reaches ${m.reaches}${moving}.` : ''}` });
+      if (flood) setSay({ id, text: `${FROM_PAGE} The person added a photo of floodwater here.${m?.reaches ? ` Muse Spark read it: the water reaches ${m.reaches}${moving}.` : ''}` });
     } catch (e) { put({ text: e instanceof Error ? e.message : 'The photo check failed. Try again.' }); }
   };
   // Phone: the chat is a sheet over the map with three stops (peek, half, full), dragged by its handle.

@@ -25,6 +25,9 @@ export function model(env: Env) {
 // The page asks this for the person when a place opens (the same words in src/client/Chat.tsx), so
 // the agent's first message is the answer.
 export const OPENING = 'How does my place look for the next 14 days?';
+// A message that starts with this comes from the page, not from the person (after a photo, for example).
+// The page hides it; the agent answers it as a reply to what the person did.
+export const FROM_PAGE = '[from the page]';
 
 export const system = (p: Place | null) => `You are Forewarn. You tell people in Africa what the weather will do to their place: a street, a farm or a village.
 ${p ? `The person's place is ${p.name}${p.where ? `, ${p.where}` : ''}. Every tool already knows it.` : 'The person has not picked a place yet. Ask them to search for it first.'}
@@ -37,7 +40,7 @@ ${p ? `The person's place is ${p.name}${p.where ? `, ${p.where}` : ''}. Every to
 - Name days with the "when" field of each day ("today", "Thursday", or "Wednesday 4 November" beyond a week), never as 2026-10-29. Do not name the levels by colour.
 ${p && packFor(p.lat, p.lon) ? `- The screen shows the place in 3D. Change it with tools: show_last_flood when they ask how bad it was or what it looks like; show_nearest_flood when they ask what floods near them or where it flooded; light_roads when they ask about a road or a route; show_street_view or show_overview to move the camera; mark_day to point at a day. Say in one short sentence what the view now shows.` : '- There is no 3D view for this place yet. If they ask to see it, say that street-level 3D covers Lagos and Nairobi for now.'}
 - When the question is "${OPENING}", it opens the conversation: call read_forecast, read_last_30_days and flood_reports, and do not move the 3D. If flood_reports has any, say first that people near them reported floodwater, using its when and distance words. Then do not call flooding unlikely: say the water is already there, and what the forecast and the ground add to it. Answer in three or four short sentences, in this shape (the numbers here are only an example): "Flooding looks unlikely here for the next 14 days. The ground is not soaked: the last 30 days brought 46 mm, close to the normal 37 mm for this time of year. The riskiest day is Thursday: about 1 in 20 forecasts bring more than 28.4 mm, more rain than the worst day of the March storm, which did not flood your spot. Further out, the weeks to 30 November look near normal. This is for the area around you, not one street." Take every number, day and the meaning of the flood line from the tool result.
-- When the person says they added a photo of floodwater, believe them. Call read_forecast and read_last_30_days, then say in two or three sentences whether more rain is coming in the next days and whether the ground is soaked, and what that means for the water they see. Tell them they can report it with the button under their photo, so people nearby can see it once a person has checked it.
+- A message starting with "${FROM_PAGE}" is the page telling you what the person just did; they did not write it. When it says they added a photo of floodwater, take it as fact and never say you believe them or question it. Call read_forecast and read_last_30_days, then in two or three sentences: what the water in their photo means for them right now, whether more rain is coming in the next days, and whether the ground is soaked. End by telling them they can report it with the button under their photo, so people nearby can see it once a person has checked it.
 - Plain English, short sentences, three or four at most. No em dashes.`;
 
 // Tools for one answer about one place. `results` collects every tool output for the checker.
@@ -129,7 +132,7 @@ export function checkNumbers(text: string, results: unknown[], question: string)
 
 // The house style bans em dashes. The prompt asks; this makes sure, as the words stream.
 export const noEmDash: StreamTextTransform<ToolSet> = () => new TransformStream<TextStreamPart<ToolSet>, TextStreamPart<ToolSet>>({
-  transform(chunk, ctl) { ctl.enqueue(chunk.type === 'text-delta' ? { ...chunk, text: chunk.text.replace(/\s*\u2014\s*/g, ', ') } : chunk); },
+  transform(chunk, ctl) { ctl.enqueue(chunk.type === 'text-delta' ? { ...chunk, text: chunk.text.replace(/\s*\u2014\s*/g, ', ').replace(/ [-\u2013] /g, ', ') } : chunk); },
 });
 
 export const loopOptions = { stopWhen: stepCountIs(4), maxOutputTokens: 3000, providerOptions: { baseten: { reasoningEffort: 'low' } } };

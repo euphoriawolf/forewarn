@@ -9,9 +9,9 @@
 import { routeAgentRequest } from 'agents';
 import { AIChatAgent } from '@cloudflare/ai-chat';
 import { streamText, convertToModelMessages } from 'ai';
-import { model, system, makeTools, checkNumbers, answer, loopOptions, noEmDash, followUps, OPENING, type Env, type Place } from './harness';
+import { model, system, makeTools, checkNumbers, answer, loopOptions, noEmDash, followUps, OPENING, FROM_PAGE, type Env, type Place } from './harness';
 import { readForecast, outlookWeeks } from './forecast';
-import { floodLine, search } from './place';
+import { floodLine, search, placeName } from './place';
 import { packFor, nearestFlood } from './packs';
 import { Logbook, stepsOf, bookOf } from './logbook';
 import { witness } from './witness';
@@ -44,7 +44,7 @@ export class AskAgent extends AIChatAgent<Env, { place: Place | null; suggestion
         }
         await onFinish(event as never);
         // the chips under the chat: follow-ups that fit this answer (the page shows them when they arrive)
-        const asked = this.messages.filter((m) => m.role === 'user').map((m) => m.parts?.map((p) => ('text' in p ? p.text : '')).join(' ') ?? '').filter((q) => q && q !== OPENING);
+        const asked = this.messages.filter((m) => m.role === 'user').map((m) => m.parts?.map((p) => ('text' in p ? p.text : '')).join(' ') ?? '').filter((q) => q && q !== OPENING && !q.startsWith(FROM_PAGE));
         this.setState({ ...this.state, suggestions: [] });
         followUps(this.env, place, asked, event.text).then((suggestions) => this.setState({ ...this.state, suggestions })).catch((e: unknown) => console.error('follow-ups:', e instanceof Error ? e.message : e));
       },
@@ -79,7 +79,9 @@ export default {
         const b = (await req.json()) as Record<string, unknown>;
         const lat = num(String(b.lat)), lon = num(String(b.lon)), image = String(b.image ?? '');
         if (lat === null || lon === null || !/^data:image\/jpeg;base64,/.test(image) || image.length > 1_500_000) return Response.json({ error: 'That report could not be read. Try again.' }, { status: 400 });
-        const r = await reportsOf(env.Reports).add({ session: String(b.session ?? '').slice(0, 60), lat, lon, place: String(b.place ?? ''), reaches: String(b.reaches ?? ''), moving: String(b.moving ?? ''), meaning: String(b.meaning ?? ''), waterPct: Number(b.waterPct) || 0, people: Number(b.people) || 0, image });
+        let named = String(b.place ?? '');
+        if (!named || /^your location/i.test(named)) { const n = await placeName(lat, lon).catch(() => null); named = n ? [n.name, n.where].filter(Boolean).join(', ') : `${lat.toFixed(4)}, ${lon.toFixed(4)}`; }
+        const r = await reportsOf(env.Reports).add({ session: String(b.session ?? '').slice(0, 60), lat, lon, place: named, reaches: String(b.reaches ?? ''), moving: String(b.moving ?? ''), meaning: String(b.meaning ?? ''), waterPct: Number(b.waterPct) || 0, people: Number(b.people) || 0, image });
         return Response.json(r, { status: 'error' in r ? 429 : 200 });
       }
       if (url.pathname === '/api/reports') {
@@ -105,6 +107,11 @@ export default {
           return Response.redirect(`${url.origin}/review?token=${encodeURIComponent(token)}`, 303);
         }
         return new Response(reviewPage(await reportsOf(env.Reports).pending(), token), { headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' } });
+      }
+      if (url.pathname === '/api/where') {
+        const lat = num(q.get('lat')), lon = num(q.get('lon'));
+        if (lat === null || lon === null) return Response.json({ error: 'Add lat and lon.' }, { status: 400 });
+        return Response.json((await placeName(lat, lon)) ?? { name: 'Your location', where: '' });
       }
       if (url.pathname === '/api/search') {
         const text = (q.get('q') ?? '').trim();

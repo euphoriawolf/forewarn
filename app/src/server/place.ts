@@ -41,6 +41,20 @@ export async function floodLine(api: string, lat: number, lon: number): Promise<
 }
 
 // Place search across Africa, from OpenStreetMap through Photon.
+// The name of the place at a point (the street, then the area), for a place found by GPS or a report.
+export async function placeName(lat: number, lon: number): Promise<{ name: string; where: string } | null> {
+  const tidy = (name: string, parts: (string | undefined)[]) => ({ name, where: parts.filter((x, i, a) => x && x !== name && a.indexOf(x) === i).join(', ') });
+  // Photon first (the same service as search); OpenStreetMap's Nominatim when Photon does not answer
+  const r = await fetch(`https://photon.komoot.io/reverse?lat=${lat}&lon=${lon}&limit=1`, { headers: { 'User-Agent': 'Forewarn (hackathon prototype)' } }).catch(() => null);
+  const p = r?.ok ? ((await r.json()) as { features: { properties: Record<string, string> }[] }).features[0]?.properties : undefined;
+  if (p) return tidy(p.name ?? p.street ?? p.locality ?? p.district ?? p.city ?? 'Unnamed place', [p.locality ?? p.district, p.city ?? p.county, p.country]);
+  const n = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=17&lat=${lat}&lon=${lon}`, { headers: { 'User-Agent': 'Forewarn/0.1 (https://forewarn.dawnstackai.com)', 'Accept-Language': 'en' } }).catch(() => null);
+  if (!n?.ok) return null;
+  const a = ((await n.json()) as { address?: Record<string, string> }).address;
+  if (!a) return null;
+  return tidy(a.road ?? a.neighbourhood ?? a.suburb ?? a.city ?? 'Unnamed place', [a.suburb ?? a.neighbourhood, a.city ?? a.town ?? a.county, a.country]);
+}
+
 export async function search(q: string) {
   const r = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(q)}&limit=6&bbox=-26,-35,52,38`, { headers: { 'User-Agent': 'Forewarn (hackathon prototype)' } });
   const d = (await r.json()) as { features: { geometry: { coordinates: [number, number] }; properties: Record<string, string> }[] };

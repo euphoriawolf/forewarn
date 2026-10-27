@@ -75,7 +75,11 @@ function Search({ onPick, id }: { onPick: (p: Place) => void; id?: string }) {
     return () => clearTimeout(t);
   }, [q]);
   const locate = () => navigator.geolocation?.getCurrentPosition(
-    (p) => onPick({ name: 'Your location', where: '', lat: p.coords.latitude, lon: p.coords.longitude }),
+    async (p) => {
+      const lat = p.coords.latitude, lon = p.coords.longitude;
+      const n = await fetch(`/api/where?lat=${lat}&lon=${lon}`).then((r) => r.json() as Promise<{ name: string; where: string }>).catch(() => null);
+      onPick({ name: n?.name ?? 'Your location', where: n?.where ?? '', lat, lon });
+    },
     () => setError('Location is off. Search for your area instead.'),
     { enableHighAccuracy: true, timeout: 10000 },
   );

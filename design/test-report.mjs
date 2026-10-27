@@ -1,0 +1,22 @@
+// Adds a flood photo, taps Report this flood, picks "Somewhere else" (Mathare) and sends; shoots the card.
+import { chromium } from 'playwright-core';
+const b = await chromium.launch({ channel: 'chrome', headless: true });
+const p = await b.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2 });
+p.on('pageerror', (e) => console.log('pageerror', e.message));
+await p.goto('http://[::1]:8843/?lat=-1.3133&lon=36.7876&name=Kibera&where=Nairobi%2C%20Kenya', { waitUntil: 'commit', timeout: 60000 });
+await p.waitForSelector('.ask .cam', { timeout: 60000 });
+await p.setInputFiles('.askbar input[type=file]', '../app/public/hero-lagos.jpg');
+await p.waitForSelector('.note .report', { timeout: 90000 });
+await p.click('.note .report');
+await p.waitForSelector('.where');
+await (await p.$('.note.photo')).screenshot({ path: 'shots/witness-where.png' });
+await p.click('text=Somewhere else');
+await p.fill('.where-find input', 'Mathare');
+await p.waitForSelector('.where-find .results button', { timeout: 30000 });
+await p.click('.where-find .results button');
+console.log('chosen:', await p.$eval('.where label:nth-of-type(3) small', (e) => e.textContent));
+await p.click('.where .report');
+await p.waitForFunction(() => /Reported for|could not|did not/.test(document.querySelector('.note.photo')?.textContent ?? ''), null, { timeout: 60000 });
+console.log(await p.$eval('.note.photo small', (e) => e.textContent));
+await (await p.$('.note.photo')).screenshot({ path: 'shots/witness-sent.png' });
+await b.close();

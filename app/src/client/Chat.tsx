@@ -2,7 +2,7 @@
 // with the answer: the page asks the opening question for the person, and that question is not
 // shown. Each step the agent takes shows as it happens, its 3D actions go to the map, and the
 // lines from the map buttons sit in the conversation where they happened.
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useAgent } from 'agents/react';
 import { useAgentChat } from '@cloudflare/ai-chat/react';
 import * as I from './icons';
@@ -10,6 +10,9 @@ import type { Place } from './types';
 
 // the same words as OPENING in src/server/harness.ts, which tells the agent how to answer it
 const OPENING = 'How does my place look for the next 14 days?';
+// the same as FROM_PAGE in harness.ts: a message the page sends for the person, never shown as theirs
+export const FROM_PAGE = '[from the page]';
+const hidden = (t: string) => t === OPENING || t.startsWith(FROM_PAGE);
 
 const STEP: Record<string, [string, string]> = {
   read_forecast: ['Reading 51 forecasts for the next 14 days', 'Read 51 forecasts for the next 14 days'],
@@ -23,7 +26,7 @@ const STEP: Record<string, [string, string]> = {
   read_last_30_days: ['Reading the last 30 days of rain', 'Read the last 30 days of rain'],
 };
 // a line in the chat from the page itself (a map button, a photo check), not from the agent
-export interface Note { id: number; text: string; small?: string; img?: string; busy?: boolean; action?: { label: string; run: () => void } }
+export interface Note { id: number; text: string; small?: string; img?: string; busy?: boolean; action?: { label: string; run: () => void }; extra?: ReactNode }
 const textOf = (m: { parts: { type: string; text?: string }[] }) => m.parts.map((p) => (p.type === 'text' ? p.text : '')).join('');
 
 export function Chat({ place, onAction, notes, onPhoto, say, logging }: { place: Place; onAction: (a: Record<string, unknown>) => void; notes: Note[]; onPhoto: (f: File) => void; say?: { id: number; text: string } | null; logging: boolean }) {
@@ -77,11 +80,12 @@ export function Chat({ place, onAction, notes, onPhoto, say, logging }: { place:
   useEffect(() => { if (say && say.id !== said.current && !busy) { said.current = say.id; setSuggestions([]); sendMessage({ text: say.text }); } }, [say, busy]);
   // a chip about a photo opens the camera instead of asking
   const tapChip = (q: string) => (/photo|picture/i.test(q) ? file.current?.click() : ask(q));
-  const asked = messages.some((m) => m.role === 'user' && textOf(m) !== OPENING);
+  const asked = messages.some((m) => m.role === 'user' && !hidden(textOf(m)));
   const noteAt = (k: number) => notes.map((n, i) => (at.current[i] === k ? (
     <div key={n.id} className={`note ${n.img ? 'photo' : ''}`}>
       {n.img && <img src={n.img} alt="Your photo, with the floodwater in blue and people pixelated" />}
       <div>{n.busy ? <span className="spin" /> : n.img ? <I.Camera /> : <I.Play />}<span>{n.text}{n.small && <small>{n.small}</small>}</span></div>
+      {n.extra}
       {n.action && <button type="button" className="report" onClick={n.action.run}>{n.action.label}</button>}
     </div>
   ) : null));
@@ -93,7 +97,7 @@ export function Chat({ place, onAction, notes, onPhoto, say, logging }: { place:
           <div key={m.id} className="turn">
             {noteAt(k)}
             {m.role === 'user'
-              ? (textOf(m) === OPENING ? null : <div className="me">{textOf(m)}</div>)
+              ? (hidden(textOf(m)) ? null : <div className="me">{textOf(m)}</div>)
               : (
                 <>
                   <div className="steps">

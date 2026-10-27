@@ -293,3 +293,15 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--water); out
 
 .note small { display: block; font-size: 12px; color: var(--muted); margin-top: 4px; }
 .note .report { align-self: flex-start; border: 0; border-radius: 16px; padding: 8px 14px; background: var(--water); color: #fff; font-weight: 600; font-size: 14px; }
+
+/* "Where is this water?" before a report is sent */
+.note > .where { display: grid; gap: 8px; min-width: 0; align-self: stretch; background: #fff; border-radius: 10px; padding: 10px; }
+.where label { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; cursor: pointer; }
+.where input[type=radio] { margin-top: 3px; accent-color: var(--water); }
+.where small { display: block; color: var(--muted); font-size: 12px; }
+.where-find { display: grid; gap: 6px; }
+.where-find > input { height: 44px; border: 1.5px solid var(--line); border-radius: 10px; padding: 0 12px; font: inherit; }
+.note .report:disabled { opacity: .5; }
+.sheet { overflow: hidden; }
+.chat { overflow-x: hidden; }
+.note { min-width: 0; max-width: 100%; }
