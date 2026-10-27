@@ -30,7 +30,8 @@ export class AskAgent extends AIChatAgent<Env, { place: Place | null; suggestion
     const result = streamText({
       model: model(this.env), system: system(place), tools: makeTools(this.env, place, results), ...loopOptions,
       messages: await convertToModelMessages(this.messages),
-      abortSignal: options?.abortSignal,
+      // a whole answer has a time limit too, so a slow model cannot hang the chat
+      abortSignal: AbortSignal.any([AbortSignal.timeout(90000), ...(options?.abortSignal ? [options.abortSignal] : [])]),
       experimental_transform: noEmDash,
       onError: ({ error }) => console.error('agent stream error:', error instanceof Error ? error.message : error),
       onStepFinish: (st) => console.log('agent step:', st.finishReason, st.toolCalls.map((c) => c.toolName).join(','), st.text.length),

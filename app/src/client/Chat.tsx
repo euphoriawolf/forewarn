@@ -41,7 +41,7 @@ export function Chat({ place, onAction, notes, onPhoto, say, logging }: { place:
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const agent = useAgent<{ place: Place | null; suggestions?: string[] }>({ agent: 'AskAgent', name: session, onStateUpdate: (st) => setSuggestions(st?.suggestions ?? []) });
   // no old history: each visit starts fresh, and the page never waits on loading it
-  const { messages, sendMessage, status, clearHistory } = useAgentChat({ agent, getInitialMessages: null });
+  const { messages, sendMessage, status, clearHistory, error } = useAgentChat({ agent, getInitialMessages: null });
   // a new place starts a new conversation, and the agent opens it (once per place, also in dev's double effects)
   const opened = useRef('');
   useEffect(() => {
@@ -118,6 +118,7 @@ export function Chat({ place, onAction, notes, onPhoto, say, logging }: { place:
           </div>
         ))}
         {noteAt(messages.length)}
+        {status === 'error' && <div className="note"><div><span>{error?.message?.match(/time|abort/i) ? 'That answer took too long and was stopped. Ask again in a moment.' : 'Something went wrong with that answer. Ask again.'}</span></div></div>}
         {status === 'submitted' && <div className="steps"><div><span className="spin" />{asked ? 'Thinking' : 'Checking your place'}</div></div>}
         {!busy && messages.at(-1)?.role === 'assistant' && !!textOf(messages.at(-1)!) && (
           <div className="suggest">

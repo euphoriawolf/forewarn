@@ -3,6 +3,7 @@
 // and pixelate the people; Muse Spark 1.3 says in words what the water reaches, how it moves, what it
 // means and what to do. Muse Spark gives no numbers (any field with a digit is dropped); the share of the
 // photo that is water is computed here, from SAM's masks. Nothing is kept: the photo goes out and back.
+import { fetchIn } from './net';
 import { parseImageStream, recordsOfKind, decodeMaskToRaster } from '@meta-sam/parser';
 import type { Env } from './harness';
 
@@ -15,7 +16,7 @@ const SCHEMA = { type: 'object', additionalProperties: false, required: ['isFloo
 
 // Muse Spark 1.3 (standard mode: Meta does not train on it) reads the water in words
 async function read(env: Env, image: string): Promise<Reading | null> {
-  const r = await fetch('https://api.meta.ai/v1/chat/completions', {
+  const r = await fetchIn('https://api.meta.ai/v1/chat/completions', 30000, 'Muse Spark', {
     method: 'POST', headers: { Authorization: `Bearer ${env.MODEL_API_KEY}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
       model: 'muse-spark-1.3', reasoning_effort: 'low', max_completion_tokens: 1500,
@@ -40,7 +41,7 @@ async function read(env: Env, image: string): Promise<Reading | null> {
 const MAX_BYTES = 3_000_000; // a phone photo after the page shrinks it to 1280 px is far smaller
 
 async function* events(env: Env, prompt: string, image: string) {
-  const r = await fetch('https://api.meta.ai/v1/responses', {
+  const r = await fetchIn('https://api.meta.ai/v1/responses', 30000, 'SAM 3.1', {
     method: 'POST',
     headers: { Authorization: `Bearer ${env.MODEL_API_KEY}`, 'Content-Type': 'application/json', Accept: 'text/event-stream' },
     body: JSON.stringify({ model: 'sam-3.1', stream: true, metadata: { mask_encoding: 'one_bit' }, input: [{ type: 'message', role: 'user', content: [{ type: 'input_text', text: prompt }, { type: 'input_image', image_url: image }] }] }),

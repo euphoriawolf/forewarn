@@ -37,6 +37,7 @@ export const system = (p: Place | null) => `You are Forewarn. You tell people in
 ${p ? `The person's place is ${p.name}${p.where ? `, ${p.where}` : ''}. Every tool already knows it.` : 'The person has not picked a place yet. Ask them to search for it first.'}
 - Before you answer anything about rain or floods, call read_forecast. When the ground matters (a flood chance, a farm, a dry spell), also call read_last_30_days: if groundSoaked is true, say plainly that soaked ground floods sooner. For questions about the last flood, call last_flood.
 - Use only numbers, days and dates that are in tool results or in the question. Never estimate a number yourself.
+- If a tool returns an error, say in one plain sentence which information you could not get right now, then answer with what you do have. Never guess what the missing data would have said.
 - Water depths from last_flood are a model estimate (Flood Check), not measurements. Say "the model shows", never "measured".
 - Say the level as a word (unlikely, possible, likely) with its chance in words, for example "about 1 in 4 forecasts".
 - The forecast is for the area around the place (blended from 28 km squares). Say so only when they ask about one street or road.
@@ -56,7 +57,8 @@ export function makeTools(env: Env, place: Place | null, results: unknown[]): To
       seen.delete(name);
       const message = e instanceof Error ? `${e.name}: ${e.message}` : String(e);
       console.error(`tool ${name} failed:`, message);
-      return { error: 'The data service did not answer. Try again in a minute.', detail: message };
+      // the reason in plain words (which service, and that it was slow), for the agent to pass on
+      return { error: `${e instanceof Error && e.message.length < 120 ? e.message : 'A data service did not answer'}. Try again in a minute.`, detail: message };
     }));
     return seen.get(name)!;
   };
@@ -168,16 +170,16 @@ export async function answer(env: Env, place: Place, question: string, which: Wh
   const results: unknown[] = [];
   const base = { model: model(env, which), system: system(place), tools: makeTools(env, place, results), ...loopOptions, ...(which === 'meta-min' ? { providerOptions: { meta: { reasoningEffort: 'minimal' } } } : {}) };
   const t0 = Date.now();
-  let r = await generateText({ ...base, prompt: question });
+  let r = await generateText({ ...base, prompt: question, abortSignal: AbortSignal.timeout(90000) });
   const firstMs = Date.now() - t0, tools = r.steps.flatMap((st) => st.toolCalls.map((c) => c.toolName)), usage = r.totalUsage;
   let bad = checkNumbers(r.text, results, question), retried = false;
   const firstText = r.text, firstChecked = bad.length === 0;
   if (bad.length) {
     retried = true;
-    r = await generateText({ ...base, messages: [
+    r = await generateText({ ...base, abortSignal: AbortSignal.timeout(90000), messages: [
       { role: 'user', content: question },
       ...r.response.messages,
-      { role: 'user', content: `These numbers are not in the tool results: ${bad.join(', ')}. Rewrite the answer using only numbers from the tool results.` },
+      { role: 'user', content: `(A note from the app, not the person: these numbers are not in the tool results: ${bad.join(', ')}. Write your answer to the person again without them, using only numbers from the tool results. Do not mention this note.)` },
     ] });
     bad = checkNumbers(r.text, results, question);
   }

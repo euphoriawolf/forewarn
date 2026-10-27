@@ -5,6 +5,7 @@
 // square would get one square's rain only, so we read the four squares around it and blend them
 // by distance (bilinear), run by run and day by day. The level of each day comes from how many of
 // the 51 blended runs reach the place's flood line.
+import { fetchIn } from './net';
 
 export type Level = 'green' | 'amber' | 'red';
 export interface Day { day: string; weekday: string; when: string; runsOverLine: number; runs: number; middleMm: number; wettestMm: number; level: Level; chance: string }
@@ -33,7 +34,7 @@ export async function readForecast(lat: number, lon: number, floodLineMm: number
   ].map((s) => ({ lat: +s.lat.toFixed(3), lon: +s.lon.toFixed(3), weight: +s.weight.toFixed(3) }));
   const url = 'https://ensemble-api.open-meteo.com/v1/ensemble?daily=precipitation_sum&models=ecmwf_ifs025&forecast_days=14&timezone=auto'
     + `&latitude=${squares.map((s) => s.lat).join(',')}&longitude=${squares.map((s) => s.lon).join(',')}`;
-  const [res, line] = await Promise.all([fetch(url), floodLineMm]);
+  const [res, line] = await Promise.all([fetchIn(url, 15000, 'The forecast service'), floodLineMm]);
   floodLineMm = line;
   if (!res.ok) throw new Error(`forecast service answered ${res.status}`);
   const all = (await res.json()) as { daily: Record<string, (number | null)[]> & { time: string[] } }[];
@@ -55,7 +56,7 @@ export async function readForecast(lat: number, lon: number, floodLineMm: number
 // runs above normal. 50% means no signal either way.
 export interface Week { start: string; aboveNormalPct: number; meanMm: number; word: 'wetter than normal' | 'near normal' | 'drier than normal' }
 export async function outlookWeeks(lat: number, lon: number, after: string): Promise<Week[]> {
-  const r = await fetch(`https://seasonal-api.open-meteo.com/v1/seasonal?latitude=${lat}&longitude=${lon}&weekly=precipitation_anomaly_gt0,precipitation_mean&models=ecmwf_seasonal_ensemble_mean_seamless&forecast_days=46`);
+  const r = await fetchIn(`https://seasonal-api.open-meteo.com/v1/seasonal?latitude=${lat}&longitude=${lon}&weekly=precipitation_anomaly_gt0,precipitation_mean&models=ecmwf_seasonal_ensemble_mean_seamless&forecast_days=46`, 12000, 'The weekly outlook service');
   if (!r.ok) return [];
   const d = (await r.json()) as { weekly: { time: string[]; precipitation_anomaly_gt0: (number | null)[]; precipitation_mean: (number | null)[] } };
   const end = new Date(Date.parse(after + 'T00:00:00Z') + 31 * 86400e3).toISOString().slice(0, 10);
