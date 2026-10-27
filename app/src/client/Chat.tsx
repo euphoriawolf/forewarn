@@ -24,6 +24,7 @@ const STEP: Record<string, [string, string]> = {
   show_nearest_flood: ['Finding the nearest spot that flooded', 'Found the nearest spot that flooded'],
   last_flood: ['Checking the last flood here', 'Checked the last flood here'],
   read_last_30_days: ['Reading the last 30 days of rain', 'Read the last 30 days of rain'],
+  flood_reports: ['Checking reports from people nearby', 'Checked reports from people nearby'],
 };
 // a line in the chat from the page itself (a map button, a photo check), not from the agent
 export interface Note { id: number; text: string; small?: string; img?: string; busy?: boolean; action?: { label: string; run: () => void }; extra?: ReactNode }
@@ -93,6 +94,8 @@ export function Chat({ place, onAction, notes, onPhoto, say, logging }: { place:
   return (
     <div className="talk">
       <div className="chat" ref={box}>
+        {/* before the chat has connected, and while the model thinks before its first step, say so */}
+        {messages.length === 0 && <div className="steps"><div><span className="spin" />Checking your place</div></div>}
         {messages.map((m, k) => (
           <div key={m.id} className="turn">
             {noteAt(k)}
@@ -106,6 +109,9 @@ export function Chat({ place, onAction, notes, onPhoto, say, logging }: { place:
                       return <div key={i}>{ok ? <I.Tick /> : <span className="spin" />}{ok ? past : now}</div>;
                     })}
                   </div>
+                  {busy && k === messages.length - 1 && !textOf(m) && !m.parts.some((p) => p.type.startsWith('tool-') && !('state' in p && p.state === 'output-available')) && (
+                    <div className="steps"><div><span className="spin" />{m.parts.some((p) => p.type.startsWith('tool-')) ? 'Writing the answer' : asked ? 'Thinking' : 'Checking your place'}</div></div>
+                  )}
                   {textOf(m) && <p className="bot">{textOf(m)}</p>}
                 </>
               )}
@@ -113,7 +119,7 @@ export function Chat({ place, onAction, notes, onPhoto, say, logging }: { place:
         ))}
         {noteAt(messages.length)}
         {status === 'submitted' && <div className="steps"><div><span className="spin" />{asked ? 'Thinking' : 'Checking your place'}</div></div>}
-        {!busy && messages.length > 1 && (
+        {!busy && messages.at(-1)?.role === 'assistant' && !!textOf(messages.at(-1)!) && (
           <div className="suggest">
             {(suggestions.length ? suggestions : asked ? [] : ['What floods near me?', 'Which day is wettest?', 'Show me the last flood here']).map((q) => <button key={q} className="chip" type="button" onClick={() => tapChip(q)}>{q}</button>)}
           </div>
