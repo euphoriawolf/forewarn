@@ -11,12 +11,26 @@ const Stage = lazy(() => import('./Stage').then((m) => ({ default: m.Stage })));
 const Chat = lazy(() => import('./Chat').then((m) => ({ default: m.Chat })));
 import { Safe } from './Safe';
 import type { Answer as A, Place } from './types';
+import type { Note } from './Chat';
 
 export function Answer({ place, onChange }: { place: Place; onChange: () => void }) {
   const [a, setA] = useState<A | null>(null);
   const [error, setError] = useState('');
   const stage = useRef<StageApi>(null);
-  const [notes, setNotes] = useState<string[]>([]);
+  const [notes, setNotes] = useState<Note[]>([]);
+  // Witness: a photo through SAM 3.1, shown as a card in the chat and tagged on the map
+  const photo = async (file: File) => {
+    const id = Date.now();
+    setNotes((n) => [...n, { id, text: 'Checking your photo with SAM 3.1', busy: true }]);
+    const put = (x: Partial<Note>) => setNotes((n) => n.map((m) => (m.id === id ? { ...m, ...x, busy: false } : m)));
+    try {
+      const { checkPhoto } = await import('./witness');
+      const r = await checkPhoto(file);
+      const who = r.people ? ` and pixelated ${r.people === 1 ? 'the 1 person' : `all ${r.people} people`} in it, so nobody can be recognised` : '';
+      put({ img: r.image, text: r.found ? `SAM 3.1 found floodwater across ${r.waterPct}% of your photo${who}. Only you can see this photo for now.` : `SAM 3.1 found no floodwater in this photo${who}.` });
+      if (r.found) stage.current?.run({ action: 'witness', text: `Your photo: water in ${r.waterPct}% of it` });
+    } catch (e) { put({ text: e instanceof Error ? e.message : 'The photo check failed. Try again.' }); }
+  };
   const act = (x: Record<string, unknown>) => stage.current?.run(x);
   // ?replay in the address plays the last flood straight away (for demos and recordings)
   useEffect(() => { if (a?.pack && new URLSearchParams(location.search).has('replay')) stage.current?.run({ action: 'play_last_flood' }); }, [a]);
@@ -31,9 +45,9 @@ export function Answer({ place, onChange }: { place: Place; onChange: () => void
         {!a && !error && <div className="stage"><div className="load"><span>Loading your place</span></div></div>}
         {error && <div className="stage none"><p>{error}</p></div>}
         {a && !a.pack && <div className="stage none"><p>Street-level 3D covers Lagos and Nairobi for now. The agent can still read the forecast for your place.</p></div>}
-        {a?.pack && <Safe note="The 3D view could not load on this connection. The chat still works."><Suspense fallback={<div className="stage"><div className="load"><span>Loading the 3D</span></div></div>}><Stage ref={stage} pack={a.pack} nearby={a.nearby} onNote={(t) => setNotes((n) => [...n, t])} /></Suspense></Safe>}
+        {a?.pack && <Safe note="The 3D view could not load on this connection. The chat still works."><Suspense fallback={<div className="stage"><div className="load"><span>Loading the 3D</span></div></div>}><Stage ref={stage} pack={a.pack} nearby={a.nearby} onNote={(t) => setNotes((n) => [...n, { id: Date.now(), text: t }])} /></Suspense></Safe>}
       </div>
-      <Safe note="The chat could not connect. Check your connection and reload the page."><Suspense fallback={<div className="talk" />}><Chat place={place} onAction={act} notes={notes} logging={a?.logging ?? false} /></Suspense></Safe>
+      <Safe note="The chat could not connect. Check your connection and reload the page."><Suspense fallback={<div className="talk" />}><Chat place={place} onAction={act} notes={notes} onPhoto={photo} logging={a?.logging ?? false} /></Suspense></Safe>
     </div>
   );
 }

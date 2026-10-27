@@ -22,9 +22,12 @@ const STEP: Record<string, [string, string]> = {
   last_flood: ['Checking the last flood here', 'Checked the last flood here'],
   read_last_30_days: ['Reading the last 30 days of rain', 'Read the last 30 days of rain'],
 };
+// a line in the chat from the page itself (a map button, a photo check), not from the agent
+export interface Note { id: number; text: string; img?: string; busy?: boolean }
 const textOf = (m: { parts: { type: string; text?: string }[] }) => m.parts.map((p) => (p.type === 'text' ? p.text : '')).join('');
 
-export function Chat({ place, onAction, notes, logging }: { place: Place; onAction: (a: Record<string, unknown>) => void; notes: string[]; logging: boolean }) {
+export function Chat({ place, onAction, notes, onPhoto, logging }: { place: Place; onAction: (a: Record<string, unknown>) => void; notes: Note[]; onPhoto: (f: File) => void; logging: boolean }) {
+  const file = useRef<HTMLInputElement>(null);
   // one chat per visitor: a random id kept on this phone
   const session = useMemo(() => {
     try { let id = localStorage.getItem('fw-session'); if (!id) { id = crypto.randomUUID(); localStorage.setItem('fw-session', id); } return id; }
@@ -68,7 +71,12 @@ export function Chat({ place, onAction, notes, logging }: { place: Place; onActi
   const busy = status === 'submitted' || status === 'streaming';
   const ask = (q: string) => { if (!q.trim() || busy) return; sendMessage({ text: q.trim() }); setText(''); };
   const asked = messages.some((m) => m.role === 'user' && textOf(m) !== OPENING);
-  const noteAt = (k: number) => notes.map((n, i) => (at.current[i] === k ? <div key={`n${i}`} className="note"><I.Play />{n}</div> : null));
+  const noteAt = (k: number) => notes.map((n, i) => (at.current[i] === k ? (
+    <div key={n.id} className={`note ${n.img ? 'photo' : ''}`}>
+      {n.img && <img src={n.img} alt="Your photo, with the floodwater in blue and people pixelated" />}
+      <div>{n.busy ? <span className="spin" /> : n.img ? <I.Camera /> : <I.Play />}{n.text}</div>
+    </div>
+  ) : null));
 
   return (
     <div className="talk">
@@ -100,7 +108,9 @@ export function Chat({ place, onAction, notes, logging }: { place: Place; onActi
         )}
       </div>
       <div className="askbar">
+        <input ref={file} type="file" accept="image/*" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) onPhoto(f); e.target.value = ''; }} />
         <form className="ask" onSubmit={(e) => { e.preventDefault(); ask(text); }}>
+          <button type="button" className="cam" aria-label="Add a photo of a flood" title="Add a photo of a flood" onClick={() => file.current?.click()}><I.Camera /></button>
           <input value={text} onChange={(e) => setText(e.target.value)} placeholder="Ask about your place" aria-label="Ask about your place" disabled={busy} />
           <button type="submit" aria-label="Send" disabled={busy}><I.Send /></button>
         </form>

@@ -14,7 +14,7 @@ import { floodLine, type FloodLine } from './place';
 import { packFor, roadsCheck, nearestFlood } from './packs';
 import { rainLast30 } from './rain30';
 
-export interface Env { BASETEN_API_KEY: string; BASETEN_BASE_URL: string; BASETEN_MODEL: string; FLOOD_CHECK_API: string; AskAgent: DurableObjectNamespace; ASSETS: Fetcher; Logbook: DurableObjectNamespace; LOG_CHATS: string; LOGS_TOKEN: string }
+export interface Env { BASETEN_API_KEY: string; BASETEN_BASE_URL: string; BASETEN_MODEL: string; FLOOD_CHECK_API: string; AskAgent: DurableObjectNamespace; ASSETS: Fetcher; Logbook: DurableObjectNamespace; LOG_CHATS: string; LOGS_TOKEN: string; MODEL_API_KEY: string }
 export interface Place { name: string; where: string; lat: number; lon: number }
 
 export function model(env: Env) {

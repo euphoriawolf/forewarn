@@ -7,3 +7,5 @@ node_modules
 .wrangler
 dist
 design/media/hero-lagos.jpg
+design/film/
+design/film-gallery/

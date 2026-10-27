@@ -99,6 +99,10 @@ export const Stage = forwardRef<StageApi, { pack: PackPin; nearby?: Nearby | nul
       };
       s.onFrame((t) => { if (t - last < 350) return; last = t; show(h); if (h >= end) s.onFrame(null); else h++; });
     }
+    if (a.action === 'witness') {
+      // a person's photo of water: tagged where the map is looking
+      const c = s.camera(); roadTags.current.push(s.tag(String(a.text), c.tx, c.tz, 'blue', 6));
+    }
     if (a.action === 'show_spot') {
       clear(); setLegend('water'); setOn('show_spot');
       const x = Number(a.x), z = Number(a.z);

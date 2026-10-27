@@ -153,26 +153,54 @@ export function Find({ onPlace }: { onPlace: (p: Place) => void }) {
         </div>
       </div></section>
 
-      <section><div className="wrap pair">
+      <section><div className="wrap">
         <div>
           <h2>A disaster warning for every area, not only every country.</h2>
           <p className="lead">Forecasts and warnings exist. Most go to governments and cover whole regions. Forewarn starts at the other end: the area where you live, down to your own street.</p>
-          <div className="does">
-            <div><i /><p><b>Days ahead, in plain words.</b> It reads 51 runs of the world’s leading forecast for your spot and tells you the chance, like “about 1 in 4”.</p></div>
-            <div><i /><p><b>It knows how wet the ground already is.</b> The month before matters as much as the day. On a farm, the same reading shows a season running dry.</p></div>
-            <div><i /><p><b>See it where you live.</b> In Lagos and Nairobi, watch the last flood come back street by street.</p></div>
-            <div><i /><p><b>Ask it anything.</b> An agent built on Meta’s Muse Spark answers, and it never makes up a number.</p></div>
-          </div>
         </div>
-        <figure className="phone">
-          <div className="pbar"><b>Kibera</b><span>Nairobi, Kenya</span></div>
-          <div className="pmap" />
-          <div className="msg">
-            <div className="psteps"><div>Read 51 forecasts for the next 14 days</div><div>Read the last 30 days of rain</div></div>
-            <p><b>Flooding looks unlikely in Kibera for the next 14 days.</b> The ground is not soaked: the last 30 days brought 46 mm, close to the normal 43 mm for this time of year.</p>
-          </div>
-          <figcaption>An answer for Kibera on 27 October 2026.</figcaption>
-        </figure>
+      </div></section>
+
+      <section className="runs"><div className="wrap">
+        <h2>What Forewarn does, and what runs it</h2>
+        <p className="lead">Each part is built on public data or an open model you can check. Meta’s models do the reading and the seeing; code does the maths.</p>
+        <div className="feats">
+          <article className="feat wide">
+            <div>
+              <span className="model meta">Meta Muse Spark Open</span>
+              <h3>An agent you can ask</h3>
+              <p>Ask about your area in plain words. The agent reads the forecasts and the rain, moves the 3D map to show you, and answers in a few short sentences. A checker compares every number in its answer with the data before you see it.</p>
+              <p className="how">Runs on Baseten, with the Cloudflare Agents SDK and the Vercel AI SDK.</p>
+            </div>
+            <figure className="phone mini">
+              <div className="msg"><div className="psteps"><div>Read 51 forecasts for the next 14 days</div><div>Read the last 30 days of rain</div></div>
+              <p><b>Flooding looks unlikely in Kibera for the next 14 days.</b> The ground is not soaked: the last 30 days brought 46 mm, close to the normal 43 mm for this time of year.</p></div>
+            </figure>
+          </article>
+          <article className="feat wide">
+            <div>
+              <span className="model meta">Meta SAM 3.1</span>
+              <h3>Witness: your photo, read for water</h3>
+              <p>Add a photo of a flood where you are. Segment Anything finds the floodwater and marks it in blue, and finds every person in the frame so the page can pixelate them. Nobody in a report can be recognised.</p>
+              <p className="how">One photo takes about 3 seconds.</p>
+            </div>
+            <img className="wit" src="/witness-lagos.jpg" alt="A flooded Lagos street: the water marked in blue, the people pixelated" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+          </article>
+          <article className="feat">
+            <span className="model">ECMWF ensemble</span>
+            <h3>The next 14 days</h3>
+            <p>51 runs of the European forecast, blended for your spot from the four nearest 28 km squares. The chance comes out in words, like “about 1 in 4”.</p>
+          </article>
+          <article className="feat">
+            <span className="model">CHIRPS, 1991 to 2020</span>
+            <h3>How wet the ground is</h3>
+            <p>The last 30 days of rain against 30 years of normal for the time of year. Soaked ground floods sooner; on a farm, a low number shows a dry season.</p>
+          </article>
+          <article className="feat">
+            <span className="model">Flood Check model</span>
+            <h3>Your street in 3D</h3>
+            <p>In Lagos and Nairobi, the last big storm comes back hour by hour: real buildings, trees and roads, and the water the model shows at each door.</p>
+          </article>
+        </div>
       </div></section>
 
       <section className="trust"><div className="wrap">

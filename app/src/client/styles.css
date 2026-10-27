@@ -242,3 +242,25 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--water); out
 .cta svg { width: 18px; height: 18px; }
 .landing footer { padding: 28px 0 44px; font-size: 13px; color: var(--muted); }
 .landing footer p + p { margin-top: 8px; }
+
+/* Witness: the camera in the ask bar, and a photo card in the chat */
+.ask .cam { width: 36px; height: 36px; margin-left: -10px; background: transparent; flex: none; }
+.ask .cam svg { color: #eef1ec; width: 20px; height: 20px; }
+.note.photo { flex-direction: column; padding: 8px; }
+.note.photo img { width: 100%; border-radius: 9px; display: block; }
+.note > div { display: flex; gap: 8px; align-items: flex-start; }
+.note > div > svg, .note > div > .spin { width: 14px; height: 14px; flex: none; margin-top: 3px; color: var(--water); }
+
+/* the features, each with the model or data behind it */
+.runs { background: #eef1ec; }
+.feats { display: grid; gap: 14px; margin-top: 28px; }
+@media (min-width: 860px) { .feats { grid-template-columns: repeat(3, 1fr); } .feat.wide { grid-column: 1 / -1; grid-template-columns: 1.1fr 1fr; } }
+.feat { background: #fff; border: 1px solid var(--line); border-radius: 20px; padding: 22px; display: grid; gap: 10px; align-content: start; }
+.feat.wide { gap: 24px; align-items: center; }
+.feat h3 { font: 800 24px/1.15 var(--display); letter-spacing: -0.01em; color: var(--ink); margin: 6px 0 2px; }
+.feat p { font-size: 16px; color: #2c3a33; }
+.feat .how { font-size: 14px; color: var(--muted); margin-top: 8px; }
+.model { justify-self: start; display: inline-block; font: 600 13px/1 var(--text); padding: 7px 10px; border-radius: 8px; background: #eef1ec; color: var(--ink); }
+.model.meta { background: var(--water); color: #fff; }
+.feat .wit { width: 100%; border-radius: 14px; display: block; }
+.phone.mini { box-shadow: 0 10px 28px rgba(22,32,27,.12); }

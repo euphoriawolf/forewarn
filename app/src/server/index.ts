@@ -2,6 +2,7 @@
 //   /api/search?q=        places across Africa
 //   /api/place?lat&lon    the answer for a place, computed in code: flood line, 7 days, levels
 //   /api/ask?lat&lon&q=   one checked agent answer (local testing only)
+//   /api/witness (POST)   a flood photo through SAM 3.1: the water and the people in it
 //   /agents/ask-agent/<session>   the chat, over WebSocket
 // Everything else is the page.
 import { routeAgentRequest } from 'agents';
@@ -12,6 +13,7 @@ import { readForecast, outlookWeeks } from './forecast';
 import { floodLine, search } from './place';
 import { packFor, nearestFlood } from './packs';
 import { Logbook, stepsOf, bookOf } from './logbook';
+import { witness } from './witness';
 export { Logbook };
 
 // One chat agent per visitor session. The page sets the place in its state before the first question.
@@ -55,6 +57,14 @@ export default {
         const token = req.headers.get('Authorization')?.replace(/^Bearer /, '') ?? q.get('token');
         if (!env.LOGS_TOKEN || token !== env.LOGS_TOKEN) return new Response('Not found', { status: 404 });
         return Response.json(await bookOf(env.Logbook).list(Math.min(200, Number(q.get('limit') ?? 50)), q.get('session') ?? undefined));
+      }
+      if (url.pathname === '/api/witness' && req.method === 'POST') {
+        // a photo from the page itself only: SAM calls cost money
+        const origin = req.headers.get('Origin');
+        if (origin && new URL(origin).host !== url.host) return new Response('Not found', { status: 404 });
+        const body = (await req.json()) as { image?: string; width?: number; height?: number };
+        try { return Response.json(await witness(env, String(body.image ?? ''), Number(body.width), Number(body.height))); }
+        catch (e) { return Response.json({ error: e instanceof Error ? e.message : 'The photo check failed. Try again.' }, { status: 400 }); }
       }
       if (url.pathname === '/api/search') {
         const text = (q.get('q') ?? '').trim();

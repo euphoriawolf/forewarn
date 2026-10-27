@@ -23,3 +23,4 @@ export const Plus = () => <svg viewBox="0 0 24 24" {...s} strokeWidth={2.4}><pat
 export const Minus = () => <svg viewBox="0 0 24 24" {...s} strokeWidth={2.4}><path d="M5 12h14" /></svg>;
 // a compass needle: the red half points north
 export const North = () => <svg viewBox="0 0 24 24"><path d="M12 3l4 9h-8z" fill="#b42318" /><path d="M12 21l-4-9h8z" fill="#9aa59f" /></svg>;
+export const Camera = () => <svg viewBox="0 0 24 24" {...s} strokeWidth={2.1}><path d="M4 8h3l2-3h6l2 3h3v11H4z" /><circle cx="12" cy="13" r="3.5" /></svg>;
