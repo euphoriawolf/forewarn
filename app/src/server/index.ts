@@ -8,9 +8,9 @@ import { routeAgentRequest } from 'agents';
 import { AIChatAgent } from '@cloudflare/ai-chat';
 import { streamText, convertToModelMessages } from 'ai';
 import { model, system, makeTools, checkNumbers, answer, loopOptions, noEmDash, type Env, type Place } from './harness';
-import { readForecast } from './forecast';
+import { readForecast, outlookWeeks } from './forecast';
 import { floodLine, search } from './place';
-import { packFor } from './packs';
+import { packFor, nearestFlood } from './packs';
 import { Logbook, stepsOf, bookOf } from './logbook';
 export { Logbook };
 
@@ -70,9 +70,10 @@ export default {
           if (!text) return Response.json({ error: 'Add q with a question.' }, { status: 400 });
           return Response.json(await answer(env, { name: q.get('name') ?? 'this place', where: '', lat, lon }, text));
         }
-        const line = floodLine(env.FLOOD_CHECK_API, lat, lon);
-        const [l, forecast] = await Promise.all([line, readForecast(lat, lon, line.then((x) => x.mm))]);
-        return Response.json({ floodLine: l, forecast, pack: packFor(lat, lon), logging: env.LOG_CHATS === '1' }, { headers: { 'Cache-Control': 'public, max-age=600' } });
+        const line = floodLine(env.FLOOD_CHECK_API, lat, lon), pack = packFor(lat, lon);
+        const [l, forecast, nearby] = await Promise.all([line, readForecast(lat, lon, line.then((x) => x.mm)), pack ? nearestFlood(env.ASSETS, pack).catch(() => null) : null]);
+        const outlook = await outlookWeeks(lat, lon, forecast.days.at(-1)!.day).catch(() => []);
+        return Response.json({ floodLine: l, forecast, outlook, pack, nearby, logging: env.LOG_CHATS === '1' }, { headers: { 'Cache-Control': 'public, max-age=600' } });
       }
     } catch (e) {
       return Response.json({ error: 'Something went wrong while reading the forecast. Try again in a minute.', detail: String(e) }, { status: 502 });

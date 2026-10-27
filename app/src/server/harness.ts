@@ -9,9 +9,9 @@
 import { generateText, tool, stepCountIs, type ToolSet, type StreamTextTransform, type TextStreamPart } from 'ai';
 import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 import { z } from 'zod';
-import { readForecast } from './forecast';
+import { readForecast, outlookWeeks } from './forecast';
 import { floodLine, type FloodLine } from './place';
-import { packFor, roadsCheck } from './packs';
+import { packFor, roadsCheck, nearestFlood } from './packs';
 
 export interface Env { BASETEN_API_KEY: string; BASETEN_BASE_URL: string; BASETEN_MODEL: string; FLOOD_CHECK_API: string; AskAgent: DurableObjectNamespace; ASSETS: Fetcher; Logbook: DurableObjectNamespace; LOG_CHATS: string; LOGS_TOKEN: string }
 export interface Place { name: string; where: string; lat: number; lon: number }
@@ -27,8 +27,9 @@ ${p ? `The person's place is ${p.name}${p.where ? `, ${p.where}` : ''}. Every to
 - Water depths from last_flood are a model estimate (Flood Check), not measurements. Say "the model shows", never "measured".
 - Say the level as a word (unlikely, possible, likely) with its chance in words, for example "about 1 in 4 forecasts".
 - The forecast is for the area around the place (blended from 28 km squares), not for one street. Say so when it matters.
-- Name days by their weekday ("Thursday"), never as a date like 2026-10-29. Do not name the levels by colour.
-${p && packFor(p.lat, p.lon) ? `- The screen shows the place in 3D. Change it with tools: show_last_flood when they ask how bad it was, what it looks like or where it flooded; light_roads when they ask about a road or a route; show_street_view or show_overview to move the camera; mark_day to point at a day. Say in one short sentence what the view now shows.` : '- There is no 3D view for this place yet. If they ask to see it, say that street-level 3D covers Lagos and Nairobi for now.'}
+- Beyond 14 days only the weekly outlook exists: say wetter, near or drier than normal, never that it will or will not flood.
+- Name days with the "when" field of each day ("today", "Thursday", or "Wednesday 4 November" beyond a week), never as 2026-10-29. Do not name the levels by colour.
+${p && packFor(p.lat, p.lon) ? `- The screen shows the place in 3D. Change it with tools: show_last_flood when they ask how bad it was or what it looks like; show_nearest_flood when they ask what floods near them or where it flooded; light_roads when they ask about a road or a route; show_street_view or show_overview to move the camera; mark_day to point at a day. Say in one short sentence what the view now shows.` : '- There is no 3D view for this place yet. If they ask to see it, say that street-level 3D covers Lagos and Nairobi for now.'}
 - Plain English, short sentences, three or four at most. No em dashes.`;
 
 // Tools for one answer about one place. `results` collects every tool output for the checker.
@@ -50,9 +51,12 @@ export function makeTools(env: Env, place: Place | null, results: unknown[]): To
   const pack = place ? packFor(place.lat, place.lon) : null;
   return {
     read_forecast: tool({
-      description: "Read the 51-run ECMWF rain forecast for the next 7 days at the person's place, blended from the four nearest 28 km squares. Per day: how many runs reach the place's flood line, the middle and the wettest run in mm, the level and the chance in words.",
+      description: "Read the 51-run ECMWF rain forecast for the next 14 days at the person's place, plus a weekly outlook to about a month (only wetter or drier than normal, never a flood chance), blended from the four nearest 28 km squares. Per day: how many runs reach the place's flood line, the middle and the wettest run in mm, the level and the chance in words.",
       inputSchema: z.object({}),
-      execute: () => (place ? once('read_forecast', async () => { const l = await lineOf(); return { floodLine: l, ...(await readForecast(place.lat, place.lon, l.mm)) }; }) : Promise.resolve(none)),
+      execute: () => (place ? once('read_forecast', async () => {
+        const l = await lineOf(), f = await readForecast(place.lat, place.lon, l.mm);
+        return { floodLine: l, ...f, outlookBeyond14Days: await outlookWeeks(place.lat, place.lon, f.days.at(-1)!.day).catch(() => []) };
+      }) : Promise.resolve(none)),
     }),
     show_last_flood: tool({
       description: "Play the last big storm's water on the 3D view of the person's place, hour by hour, and stop at its highest. Use for: how bad was it, what does it look like, where did it flood.",
@@ -66,6 +70,11 @@ export function makeTools(env: Env, place: Place | null, results: unknown[]): To
         if (!pack) return { shown: false, reason: 'No 3D view for this place yet.' };
         return once(`light_roads:${[...names].sort().join('|').toLowerCase()}`, async () => ({ action: 'light_roads', roads: await roadsCheck(env.ASSETS, pack, names) }));
       },
+    }),
+    show_nearest_flood: tool({
+      description: 'Find the nearest spot to the pin where the last storm brought 10 cm of water or more, and point the 3D view at it. Use when the person asks what floods near them, or when their own spot stayed dry.',
+      inputSchema: z.object({}),
+      execute: () => (pack ? once('nearest', async () => { const n = await nearestFlood(env.ASSETS, pack); return n ? { action: 'show_spot', ...n } : { found: false, reason: 'No spot in this area reached 10 cm in the last storm.' }; }) : Promise.resolve({ shown: false, reason: 'No 3D view for this place yet.' })),
     }),
     show_street_view: tool({ description: 'Move the 3D camera down to street level at the pin.', inputSchema: z.object({}), execute: async () => (pack ? { action: 'street_view' } : { shown: false }) }),
     show_overview: tool({ description: 'Move the 3D camera up to see the whole area.', inputSchema: z.object({}), execute: async () => (pack ? { action: 'overview' } : { shown: false }) }),

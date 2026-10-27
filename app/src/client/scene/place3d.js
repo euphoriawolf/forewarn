@@ -182,7 +182,7 @@ export async function placeScene({ stage, canvas, source, view = 'street', weath
   // ---- stage 2: buildings and roads
   say(0.4, 'Loading buildings and roads');
   const C = await source.city();
-  const bld = buildBuildings(C.buildings, gy);
+  const bld = buildBuildings(C.buildings, gy, photo, HALF);
   scene.add(bld.mesh);
 
   const roadLayer = new THREE.Group(); scene.add(roadLayer);
@@ -265,7 +265,9 @@ export async function placeScene({ stage, canvas, source, view = 'street', weath
 // ---- buildings: walls to the eaves, hip roofs on houses, flat roofs with a parapet on the rest.
 // Walls carry storey lines and windows in the shader, from the height above the wall's foot
 // (aRel) and the distance along the wall (aU). aKind: 0 wall, 1 pitched roof, 2 flat roof.
-function buildBuildings(list, gy) {
+// Roofs take their colour from the satellite photo straight above them (the photo only sees roofs),
+// mixed with a little of the palette so a roof still reads as a roof where the photo is blurred.
+function buildBuildings(list, gy, photo, HALF) {
   const pos = [], col = [], rel = [], wu = [], idx = [], kind = [], centres = [], roofRanges = [];
   let seed = 11; const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
   const hex = (h) => new THREE.Color(h), cw = WALLS.map(hex), crp = ROOFS_PITCHED.map(hex), crf = ROOFS_FLAT.map(hex);
@@ -319,16 +321,17 @@ function buildBuildings(list, gy) {
   geo.setAttribute('aRel', new THREE.Float32BufferAttribute(rel, 1));
   geo.setAttribute('aU', new THREE.Float32BufferAttribute(wu, 1));
   geo.setAttribute('aKind', new THREE.Float32BufferAttribute(kind, 1));
+  const wetA = new THREE.Float32BufferAttribute(new Float32Array(kind.length), 1); geo.setAttribute('aWet', wetA);
   geo.setIndex(idx); geo.computeVertexNormals();
-  const orig = Float32Array.from(col);
   const mat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.88, metalness: 0, envMapIntensity: 0.45 });
   mat.onBeforeCompile = (sh) => {
+    sh.uniforms.uPhoto = { value: photo }; sh.uniforms.uHalf = { value: HALF };
     sh.vertexShader = sh.vertexShader
-      .replace('#include <common>', '#include <common>\nattribute float aRel, aU, aKind; varying float vRel, vU, vKind; varying vec3 vWpos;')
-      .replace('#include <begin_vertex>', '#include <begin_vertex>\nvRel = aRel; vU = aU; vKind = aKind; vWpos = (modelMatrix * vec4(position, 1.0)).xyz;');
+      .replace('#include <common>', '#include <common>\nattribute float aRel, aU, aKind, aWet; varying float vRel, vU, vKind, vWet; varying vec3 vWpos;')
+      .replace('#include <begin_vertex>', '#include <begin_vertex>\nvRel = aRel; vU = aU; vKind = aKind; vWet = aWet; vWpos = (modelMatrix * vec4(position, 1.0)).xyz;');
     sh.fragmentShader = sh.fragmentShader
       .replace('#include <common>', `#include <common>
-        varying float vRel, vU, vKind; varying vec3 vWpos;
+        varying float vRel, vU, vKind, vWet; varying vec3 vWpos; uniform sampler2D uPhoto; uniform float uHalf;
         float h12(vec2 p) { vec3 p3 = fract(vec3(p.xyx) * 0.1031); p3 += dot(p3, p3.yzx + 33.33); return fract((p3.x + p3.y) * p3.z); }`)
       .replace('#include <color_fragment>', `#include <color_fragment>
         float winMask = 0.0;
@@ -343,13 +346,18 @@ function buildBuildings(list, gy) {
           vec2 e = smoothstep(vec2(0.3) - fw, vec2(0.3) + fw, cell) * (1.0 - smoothstep(vec2(0.72, 0.8) - fw, vec2(0.72, 0.8) + fw, cell));
           winMask = e.x * e.y * step(1.0, wc.y) * step(0.15, h12(floor(wc) + floor(vWpos.xz * 0.05))) * detail;
           diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.08, 0.1, 0.12), winMask * 0.75);
-        } else if (vKind < 1.5) {
+        } else {
+          // roofs: the photo above, decoded from sRGB, then amber where water reached the door
+          vec3 seen = pow(texture2D(uPhoto, vec2((vWpos.x + uHalf) / (2.0 * uHalf), (uHalf - vWpos.z) / (2.0 * uHalf))).rgb, vec3(2.2));
+          diffuseColor.rgb = mix(mix(diffuseColor.rgb, seen * 1.15, 0.8), vec3(0.93, 0.38, 0.03), vWet);
+        }
+        if (vKind > 0.5 && vKind < 1.5) {
           // pitched mabati: corrugation down the slope, fading out before it can shimmer
           vec3 nn = normalize(cross(dFdx(vWpos), dFdy(vWpos)));
           vec2 across = normalize(vec2(-nn.z, nn.x) + 1e-5);
           float c = dot(vWpos.xz, across) / 0.75, fc = fwidth(c);
           diffuseColor.rgb *= 1.0 - 0.1 * (0.5 + 0.5 * cos(c * 6.2832)) * (1.0 - smoothstep(0.2, 0.5, fc));
-        } else {
+        } else if (vKind > 1.5) {
           // flat concrete: soft stains
           diffuseColor.rgb *= 0.92 + 0.12 * h12(floor(vWpos.xz * 0.5));
         }`)
@@ -358,15 +366,13 @@ function buildBuildings(list, gy) {
   };
   const mesh = new THREE.Mesh(geo, mat); mesh.castShadow = true; mesh.receiveShadow = true;
   // amber roofs mark buildings with 10 cm of water or more at the door, as on Flood Check
-  const amber = new THREE.Color('#f0a12e'), kindA = geo.attributes.aKind.array;
+  const kindA = geo.attributes.aKind.array;
   function mark(wetAt) {
     roofRanges.forEach(([a, b2], k) => {
       const wet = wetAt && wetAt(...centres[k]);
-      for (let i = a; i < b2; i++) if (kindA[i] > 0.5) {
-        if (wet) colA.setXYZ(i, amber.r, amber.g, amber.b); else colA.setXYZ(i, orig[i * 3], orig[i * 3 + 1], orig[i * 3 + 2]);
-      }
+      for (let i = a; i < b2; i++) if (kindA[i] > 0.5) wetA.setX(i, wet ? 1 : 0);
     });
-    colA.needsUpdate = true;
+    wetA.needsUpdate = true;
   }
   return { mesh, mark };
 }

@@ -9,7 +9,7 @@ import * as I from './icons';
 import type { Answer as A, Day, FloodLine, Level, Place } from './types';
 
 const WORD: Record<Level, string> = { green: 'Unlikely', amber: 'Possible', red: 'Likely' };
-const short = (d: Day, i: number) => (i === 0 ? 'Today' : d.weekday.slice(0, 3));
+const short = (d: Day, i: number) => (i === 0 ? 'Today' : `${d.weekday.slice(0, 3)} ${Number(d.day.slice(8))}`);
 const icon = (d: Day) => (d.middleMm < 1 ? <I.Sun /> : d.middleMm < 10 ? <I.Rain /> : <I.Storm />);
 const month = (event?: string) => event?.match(/January|February|March|April|May|June|July|August|September|October|November|December/)?.[0] ?? 'last';
 
@@ -28,11 +28,12 @@ function lineWords(l: FloodLine) {
 }
 
 // "today" when the day is today, otherwise its weekday
-export const dayName = (a: A, d: Day) => (a.forecast.days[0]?.day === d.day ? 'today' : d.weekday);
+export const dayName = (_a: A, d: Day) => d.when ?? d.weekday;
 
 function Verdict({ a }: { a: A }) {
   const w = a.forecast.worst, lv = w.level, l = a.floodLine, when = dayName(a, w);
-  const head = lv === 'green' ? 'Unlikely to flood' : `${WORD[lv]} flood ${when}`;
+  // beyond a week the heading shows a short date ("Wed 4 Nov"): weekdays repeat in 14 days
+  const head = lv === 'green' ? 'Unlikely to flood' : `${WORD[lv]} flood ${when.includes(' ') ? new Date(w.day + 'T12:00:00Z').toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' }) : when}`;
   const Chance = w.chance[0].toUpperCase() + w.chance.slice(1);
   const f = fraction(w.runsOverLine, w.runs);
   const text = w.runsOverLine === 0
@@ -70,6 +71,7 @@ const STEP: Record<string, [string, string]> = {
   show_street_view: ['Moving to your street', 'Moved to your street'],
   show_overview: ['Moving up to see the area', 'Moved up to see the area'],
   mark_day: ['Marking the day', 'Marked the day'],
+  show_nearest_flood: ['Finding the nearest spot that flooded', 'Found the nearest spot that flooded'],
   last_flood: ['Checking the last flood here', 'Checked the last flood here'],
 };
 
@@ -146,14 +148,23 @@ export function Answer({ place, onChange }: { place: Place; onChange: () => void
   }, [place]);
   return (
     <div className="screen">
-      <div className="top"><div><b>{place.name}</b><small>{place.where ? `${place.where}, next 7 days` : 'Next 7 days'}</small></div><button className="chip" type="button" onClick={onChange}>Change place</button></div>
+      <div className="top"><div><b>{place.name}</b><small>{place.where ? `${place.where}, next 14 days` : 'Next 14 days'}</small></div><button className="chip" type="button" onClick={onChange}>Change place</button></div>
       {error && <div className="error">{error}</div>}
       {!a && !error && <><div className="skeleton" style={{ height: 150 }} /><div className="skeleton" style={{ height: 56 }} /></>}
       {a?.pack && <Safe note="The 3D view could not load on this connection. The answer below is not affected."><Stage ref={stage} pack={a.pack} /></Safe>}
       {a && (
         <>
           <Verdict a={a} />
+          {a.nearby && !a.nearby.here && (
+            <div className="near"><div><b>Nearest spot that flooded in the {month(a.floodLine.lastFlood?.event ?? (a.pack?.start.startsWith('2026-03') ? 'March' : 'June'))} storm</b><span>{a.nearby.distanceM} m {a.nearby.direction}, {a.nearby.peakCm} cm deep (model)</span></div>{a.pack && <button className="chip" type="button" onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); stage.current?.run({ action: 'show_spot', ...a.nearby }); }}>Show it</button>}</div>
+          )}
           <div className="days">{a.forecast.days.map((d, i) => <div key={d.day} className={`day ${d.level} ${marked && d.weekday.toLowerCase() === marked.toLowerCase() ? 'sel' : ''}`}>{icon(d)}<b>{short(d, i)}</b><span>{WORD[d.level]}</span></div>)}</div>
+          {a.outlook && a.outlook.length > 0 && (
+            <div className="outlook"><h3>Further ahead: rain against normal</h3>
+              <div className="weeks">{a.outlook.map((w) => <div key={w.start} className={`week ${w.word.split(' ')[0]}`}><b>From {new Date(w.start + 'T12:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' })}</b><span>{w.word[0].toUpperCase() + w.word.slice(1)}</span><small>about {w.meanMm} mm that week</small></div>)}</div>
+              <p className="fine">A weekly outlook from ECMWF. It says if rain is likely above or below normal, not whether your place will flood.</p>
+            </div>
+          )}
           <ToDo level={a.forecast.worst.level} day={dayName(a, a.forecast.worst)} />
           <div className="area"><i /><div><b>Rain forecast for your area</b><span className="muted">Blended from the four nearest 28 km forecast squares. Storms can be smaller than that.</span></div></div>
           {a.logging && <p className="fine">Test version: your questions and Forewarn's answers are saved so we can check and improve it.</p>}

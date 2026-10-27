@@ -7,6 +7,8 @@ page.on('pageerror', (e) => console.log('ERR', e.message));
 await page.goto(base + qs, { waitUntil: 'domcontentloaded', timeout: 60000 });
 await page.waitForTimeout(+wait);
 await page.screenshot({ path: `shots/app-${name}.png` });
+await page.evaluate(() => window.scrollTo(0, 520)); await page.waitForTimeout(800);
+await page.screenshot({ path: `shots/app-${name}-scrolled.png` });
 const info = await page.evaluate(() => ({ clock: document.querySelector('.stage .clock')?.textContent, tags: [...document.querySelectorAll('.stage .tag')].map((t) => t.textContent), wide: document.documentElement.scrollWidth }));
 console.log(JSON.stringify(info));
 await browser.close();

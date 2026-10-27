@@ -91,6 +91,13 @@ export const Stage = forwardRef<StageApi, { pack: PackPin }>(function Stage({ pa
       };
       s.onFrame((t) => { if (t - last < 350) return; last = t; show(h); if (h >= end) s.onFrame(null); else h++; });
     }
+    if (a.action === 'show_spot') {
+      clear(); setLegend('water');
+      const x = Number(a.x), z = Number(a.z);
+      s.setWater(s.peak);
+      roadTags.current.push(s.tag(`${a.peakCm} cm in the last storm`, x, z, 'blue', 6));
+      s.view('street', { tx: x, tz: z, dist: 380, pitch: 0.5 });
+    }
     if (a.action === 'light_roads') {
       clear(); setLegend('roads');
       const found = ((a.roads as { found: boolean; name?: string }[]) ?? []).filter((r) => r.found).map((r) => r.name!);
