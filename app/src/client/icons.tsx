@@ -16,3 +16,10 @@ export const Papers = () => <svg viewBox="0 0 24 24" {...s} strokeWidth={2}><pat
 export const Route = () => <svg viewBox="0 0 24 24" {...s} strokeWidth={2}><circle cx="6" cy="18" r="2" /><circle cx="18" cy="6" r="2" /><path d="M8 18h6a4 4 0 0 0 0-8h-4a4 4 0 0 1 0-8h6" /></svg>;
 export const Car = () => <svg viewBox="0 0 24 24" {...s} strokeWidth={2}><path d="M5 16h14v-4l-2-5H7l-2 5z" /><circle cx="8" cy="16" r="1.5" /><circle cx="16" cy="16" r="1.5" /></svg>;
 export const Bell = () => <svg viewBox="0 0 24 24" {...s} strokeWidth={2}><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4z" /><path d="M10 21h4" /></svg>;
+export const Play = () => <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>;
+export const Eye = () => <svg viewBox="0 0 24 24" {...s} strokeWidth={2.2}><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z" /><circle cx="12" cy="12" r="3" /></svg>;
+export const Up = () => <svg viewBox="0 0 24 24" {...s} strokeWidth={2.2}><path d="M4 18l8-12 8 12z" /></svg>;
+export const Plus = () => <svg viewBox="0 0 24 24" {...s} strokeWidth={2.4}><path d="M12 5v14M5 12h14" /></svg>;
+export const Minus = () => <svg viewBox="0 0 24 24" {...s} strokeWidth={2.4}><path d="M5 12h14" /></svg>;
+// a compass needle: the red half points north
+export const North = () => <svg viewBox="0 0 24 24"><path d="M12 3l4 9h-8z" fill="#b42318" /><path d="M12 21l-4-9h8z" fill="#9aa59f" /></svg>;

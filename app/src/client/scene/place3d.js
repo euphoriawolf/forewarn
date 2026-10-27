@@ -36,7 +36,7 @@ const ROOFS_PITCHED = ['#6e6a66', '#5a5856', '#7a7470', '#6b5d55', '#4e5257', '#
 const ROOFS_FLAT = ['#8a8781', '#96928a', '#7e7b75', '#a09b92'];
 
 // source: { ground(), photo(), city(), life() }, each a promise (see tiles.ts)
-export async function placeScene({ stage, canvas, source, view = 'street', weather = 'clear', hour = 16.3, day = 300, quality = 'high', progress, onSettle, start: startView }) {
+export async function placeScene({ stage, canvas, source, view = 'street', weather = 'clear', hour = 16.3, day = 300, quality = 'high', progress, onSettle, onView, start: startView }) {
   const low = quality === 'low';
   const say = progress ?? (() => {});
   say(0.08, 'Loading the ground');
@@ -98,43 +98,119 @@ export async function placeScene({ stage, canvas, source, view = 'street', weath
     overview: { yaw: 2.6, pitch: 0.6, dist: 1150, tx: 0, tz: 40 },
     roads: { yaw: 2.9, pitch: 0.9, dist: 1050, tx: -120, tz: 120 },
   };
-  let V = { ...views[view], ...(startView ?? {}) }, idle = !startView, prev = 0;
-  // Touch and mouse: one finger (or left button) turns; two fingers pinch to zoom and drag to pan;
-  // right button or shift-drag pans; the wheel zooms. Panning stops at the edge of what is loaded,
-  // and onSettle(x, z) reports where the view came to rest, so the page can load the next tiles.
-  const pts = new Map(); let gesture = null, settle = null;
+  let V = { ...views[view], ...(startView ?? {}) }, prev = 0;
+  // Controls work like Google Maps. Touch: one finger drags the ground, two fingers pinch to zoom and
+  // twist to turn around the point between them, two fingers moved up or down together tilt, a
+  // double tap zooms in. Mouse: drag moves, right drag or Ctrl/Shift drag turns and tilts, the wheel
+  // (or a trackpad pinch) zooms on the pointer, a double click zooms in. A drag that is let go while
+  // moving glides to a stop. Moving stops at the edge of what is loaded, and onSettle(x, z) reports
+  // where the view came to rest, so the page can load the next tiles.
   const limit = HALF - 150;
-  const panBy = (dxs, dys) => {
-    // screen drag to ground metres, along the camera's heading
-    const k = V.dist / Math.max(200, stage.clientHeight) * 1.2, sy = Math.sin(V.yaw), cy = Math.cos(V.yaw);
-    V.tx = Math.max(-limit, Math.min(limit, V.tx - (dxs * cy - dys * sy) * k));
-    V.tz = Math.max(-limit, Math.min(limit, V.tz - (-dxs * sy - dys * cy) * k));
+  const clampV = () => {
+    V.tx = Math.max(-limit, Math.min(limit, V.tx)); V.tz = Math.max(-limit, Math.min(limit, V.tz));
+    V.dist = Math.max(60, Math.min(2200, V.dist)); V.pitch = Math.max(0.12, Math.min(1.45, V.pitch));
   };
-  const start = () => {
+  const place = () => {
+    target.set(V.tx, gy(V.tx, V.tz) + 2, V.tz);
+    camera.position.set(target.x + Math.sin(V.yaw) * Math.cos(V.pitch) * V.dist, target.y + Math.sin(V.pitch) * V.dist + 6, target.z + Math.cos(V.yaw) * Math.cos(V.pitch) * V.dist);
+    camera.lookAt(target); camera.updateMatrixWorld();
+  };
+  // the point on the ground (a level plane at height h) under a screen point, or null near the horizon
+  const ray = new THREE.Raycaster(), plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0), ndc = new THREE.Vector2();
+  const groundAt = (sx, sy, h) => {
+    const r = stage.getBoundingClientRect();
+    ndc.set(((sx - r.left) / r.width) * 2 - 1, -((sy - r.top) / r.height) * 2 + 1);
+    ray.setFromCamera(ndc, camera); plane.constant = -h;
+    const hit = ray.ray.intersectPlane(plane, new THREE.Vector3());
+    return hit && hit.distanceTo(camera.position) < 7000 ? hit : null;
+  };
+  // keep the ground point `anchor` under the screen point (sx, sy)
+  const pin = (anchor, sx, sy) => {
+    place(); const hit = anchor && groundAt(sx, sy, anchor.y);
+    if (hit) { V.tx += anchor.x - hit.x; V.tz += anchor.z - hit.z; clampV(); }
+    place();
+  };
+  const zoomAt = (sx, sy, f) => { place(); const a = groundAt(sx, sy, target.y); V.dist *= f; clampV(); pin(a, sx, sy); };
+
+  // every listener goes when the scene is disposed, so a reloaded scene does not answer twice
+  const off = new AbortController(), on = { signal: off.signal };
+  const pts = new Map(); let gesture = null, settle = null, glide = null, fly = null, zoomAnim = null, lastTap = null;
+  const stop = () => { glide = null; fly = null; zoomAnim = null; clearTimeout(settle); };
+  const settled = () => { clearTimeout(settle); settle = setTimeout(() => onSettle?.(V.tx, V.tz), 400); };
+  const midOf = (p) => ({ x: (p[0].x + p[1].x) / 2, y: (p[0].y + p[1].y) / 2 });
+  const begin = () => {
     const p = [...pts.values()];
-    if (p.length === 1) gesture = { kind: p[0].pan ? 'pan' : 'turn', x: p[0].x, y: p[0].y, yaw: V.yaw, pitch: V.pitch };
-    else if (p.length >= 2) gesture = { kind: 'pinch', d: Math.hypot(p[0].x - p[1].x, p[0].y - p[1].y), mx: (p[0].x + p[1].x) / 2, my: (p[0].y + p[1].y) / 2, dist: V.dist };
+    place();
+    if (p.length === 1) {
+      gesture = p[0].turn
+        ? { kind: 'turn', x: p[0].x, y: p[0].y, yaw: V.yaw, pitch: V.pitch }
+        : { kind: 'drag', anchor: groundAt(p[0].x, p[0].y, target.y), trail: [] };
+    } else if (p.length >= 2) {
+      const m = midOf(p);
+      gesture = { kind: 'two', mode: null, p0: p.slice(0, 2).map((q) => ({ ...q })), d: Math.hypot(p[0].x - p[1].x, p[0].y - p[1].y), a: Math.atan2(p[1].y - p[0].y, p[1].x - p[0].x), m, dist: V.dist, yaw: V.yaw, pitch: V.pitch, anchor: groundAt(m.x, m.y, target.y) };
+    } else gesture = null;
   };
-  stage.addEventListener('pointerdown', (e) => { pts.set(e.pointerId, { x: e.clientX, y: e.clientY, pan: e.button === 2 || e.shiftKey }); idle = false; stage.setPointerCapture(e.pointerId); start(); });
+  stage.addEventListener('pointerdown', (e) => {
+    if (e.target !== canvas) return; // buttons on the map keep their own clicks
+    stop();
+    pts.set(e.pointerId, { x: e.clientX, y: e.clientY, x0: e.clientX, y0: e.clientY, t0: performance.now(), turn: e.button === 2 || e.ctrlKey || e.shiftKey || e.metaKey });
+    try { stage.setPointerCapture(e.pointerId); } catch { /* a pointer the browser no longer tracks */ }
+    begin();
+  }, on);
   stage.addEventListener('pointermove', (e) => {
-    if (!pts.has(e.pointerId) || !gesture) return;
-    pts.get(e.pointerId).x = e.clientX; pts.get(e.pointerId).y = e.clientY;
+    const q = pts.get(e.pointerId); if (!q || !gesture) return;
+    q.x = e.clientX; q.y = e.clientY;
     const p = [...pts.values()];
-    if (gesture.kind === 'turn') { V.yaw = gesture.yaw - (p[0].x - gesture.x) * 0.006; V.pitch = Math.max(0.05, Math.min(1.4, gesture.pitch + (p[0].y - gesture.y) * 0.004)); }
-    else if (gesture.kind === 'pan') { panBy(p[0].x - gesture.x, p[0].y - gesture.y); gesture.x = p[0].x; gesture.y = p[0].y; }
-    else if (p.length >= 2) {
-      const d = Math.hypot(p[0].x - p[1].x, p[0].y - p[1].y), mx = (p[0].x + p[1].x) / 2, my = (p[0].y + p[1].y) / 2;
-      V.dist = Math.max(60, Math.min(2200, gesture.dist * (gesture.d / Math.max(20, d))));
-      panBy(mx - gesture.mx, my - gesture.my); gesture.mx = mx; gesture.my = my;
+    if (gesture.kind === 'drag') {
+      pin(gesture.anchor, q.x, q.y);
+      gesture.trail.push({ t: performance.now(), x: V.tx, z: V.tz }); if (gesture.trail.length > 6) gesture.trail.shift();
+    } else if (gesture.kind === 'turn') {
+      V.yaw = gesture.yaw - (q.x - gesture.x) * 0.006; V.pitch = gesture.pitch + (q.y - gesture.y) * 0.004; clampV(); place();
+    } else if (p.length >= 2) {
+      const [a0, b0] = gesture.p0, dya = p[0].y - a0.y, dyb = p[1].y - b0.y, dxa = p[0].x - a0.x, dxb = p[1].x - b0.x;
+      const d = Math.hypot(p[0].x - p[1].x, p[0].y - p[1].y), ang = Math.atan2(p[1].y - p[0].y, p[1].x - p[0].x), m = midOf(p);
+      // decide once per gesture: both fingers going up or down together is a tilt, anything else moves the map
+      if (!gesture.mode && Math.max(Math.abs(dya), Math.abs(dyb), Math.abs(dxa), Math.abs(dxb), Math.abs(d - gesture.d)) > 10) {
+        const together = Math.sign(dya) === Math.sign(dyb) && Math.abs(dya) > 6 && Math.abs(dyb) > 6;
+        gesture.mode = together && Math.abs(dya) > 2 * Math.abs(dxa) && Math.abs(dyb) > 2 * Math.abs(dxb) && Math.abs(d - gesture.d) < 30 ? 'tilt' : 'map';
+      }
+      if (gesture.mode === 'tilt') { V.pitch = gesture.pitch + (m.y - gesture.m.y) * 0.005; clampV(); pin(gesture.anchor, gesture.m.x, gesture.m.y); }
+      else if (gesture.mode === 'map') {
+        V.dist = gesture.dist * (gesture.d / Math.max(20, d));
+        let da = ang - gesture.a; da = Math.atan2(Math.sin(da), Math.cos(da));
+        V.yaw = gesture.yaw + da; clampV();
+        pin(gesture.anchor, m.x, m.y);
+      }
     }
-  });
+  }, on);
   const end = (e) => {
-    pts.delete(e.pointerId); start();
-    if (!pts.size) { gesture = null; clearTimeout(settle); settle = setTimeout(() => onSettle?.(V.tx, V.tz), 400); }
+    const q = pts.get(e.pointerId); if (!q) return;
+    const g0 = gesture, now = performance.now();
+    pts.delete(e.pointerId);
+    // let go while moving: glide on with the speed of the last 100 ms
+    if (g0?.kind === 'drag' && !pts.size) {
+      const tr = g0.trail.filter((s) => now - s.t < 100);
+      if (tr.length >= 2) { const a = tr[0], b = tr.at(-1), dt = Math.max(16, b.t - a.t); glide = { vx: (b.x - a.x) / dt, vz: (b.z - a.z) / dt }; }
+    }
+    // a double tap zooms in on the spot
+    const tap = Math.hypot(q.x - q.x0, q.y - q.y0) < 8 && now - q.t0 < 300;
+    if (tap && e.pointerType === 'touch') {
+      if (lastTap && now - lastTap.t < 320 && Math.hypot(q.x - lastTap.x, q.y - lastTap.y) < 30) { zoomAnim = { x: q.x, y: q.y, f: 0.5, t0: now, done: 0 }; lastTap = null; }
+      else lastTap = { t: now, x: q.x, y: q.y };
+    }
+    begin();
+    if (!pts.size) { gesture = null; if (!glide && !zoomAnim) settled(); }
   };
-  stage.addEventListener('pointerup', end); stage.addEventListener('pointercancel', end);
-  stage.addEventListener('contextmenu', (e) => e.preventDefault());
-  stage.addEventListener('wheel', (e) => { e.preventDefault(); idle = false; V.dist = Math.max(60, Math.min(2200, V.dist * (1 + e.deltaY * 0.001))); }, { passive: false });
+  stage.addEventListener('pointerup', end, on); stage.addEventListener('pointercancel', end, on);
+  stage.addEventListener('contextmenu', (e) => e.preventDefault(), on);
+  stage.addEventListener('dblclick', (e) => { if (e.target !== canvas) return; stop(); zoomAnim = { x: e.clientX, y: e.clientY, f: e.shiftKey ? 2 : 0.5, t0: performance.now(), done: 0 }; }, on);
+  stage.addEventListener('wheel', (e) => {
+    e.preventDefault(); stop();
+    const dy = e.deltaY * (e.deltaMode === 1 ? 16 : 1);
+    zoomAt(e.clientX, e.clientY, Math.exp(dy * (e.ctrlKey ? 0.01 : 0.0015))); settled();
+  }, { passive: false, signal: off.signal });
+  // the buttons on the map: zoom on the centre, and point north again
+  const centre = () => { const r = stage.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; };
 
   const composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(1, 1, { type: THREE.HalfFloatType, samples: low ? 0 : 4 }));
   composer.addPass(new RenderPass(scene, camera));
@@ -158,10 +234,28 @@ export async function placeScene({ stage, canvas, source, view = 'street', weath
   let alive = true;
   function frame(t) {
     if (!alive) return;
-    if (idle && !still) V.yaw += (t - prev) * 0.00001; prev = t;
-    target.set(V.tx, gy(V.tx, V.tz) + 2, V.tz);
-    camera.position.set(target.x + Math.sin(V.yaw) * Math.cos(V.pitch) * V.dist, target.y + Math.sin(V.pitch) * V.dist + 6, target.z + Math.cos(V.yaw) * Math.cos(V.pitch) * V.dist);
-    camera.lookAt(target);
+    const dt = Math.min(64, t - (prev || t)); prev = t;
+    if (glide) {
+      V.tx += glide.vx * dt; V.tz += glide.vz * dt; clampV();
+      const k = Math.exp(-dt / 320); glide.vx *= k; glide.vz *= k;
+      if (Math.hypot(glide.vx, glide.vz) < 0.005) { glide = null; settled(); }
+    }
+    if (zoomAnim) {
+      const f = Math.min(1, (t - zoomAnim.t0) / 260), e2 = 1 - (1 - f) ** 3;
+      zoomAt(zoomAnim.x, zoomAnim.y, Math.pow(zoomAnim.f, e2 - zoomAnim.done)); zoomAnim.done = e2;
+      if (f >= 1) { zoomAnim = null; settled(); }
+    }
+    if (fly) {
+      // fly to a view the page asked for, easing every part of the camera together
+      const k = 1 - Math.exp(-dt / 170); let near = true;
+      for (const key of ['tx', 'tz', 'dist', 'pitch', 'yaw']) {
+        let d = fly[key] - V[key]; if (key === 'yaw') d = Math.atan2(Math.sin(d), Math.cos(d));
+        V[key] += d * k; if (Math.abs(d) > (key === 'dist' || key === 'tx' || key === 'tz' ? 0.5 : 0.002)) near = false;
+      }
+      if (near) { Object.assign(V, fly); fly = null; settled(); }
+    }
+    place();
+    onView?.(V.yaw);
     // the shadow box follows what you look at, sized to the view, so shadows stay sharp
     const r = Math.min(1600, Math.max(250, V.dist * 0.9));
     Object.assign(sun.shadow.camera, { left: -r, right: r, top: r, bottom: -r, near: 1, far: 6000 }); sun.shadow.camera.updateProjectionMatrix();
@@ -255,9 +349,11 @@ export async function placeScene({ stage, canvas, source, view = 'street', weath
     setWater, lightRoads, hours: L.cm.length, cmAt: (h) => L.cm[h], peak, start: L.start, roads: C.roads,
     depthAt: (cm, x, z) => Math.round(cell(cm, x, z)),
     tag(text, x, z, cls = '', lift = 4) { const el = document.createElement('div'); el.className = 'tag ' + cls; el.textContent = text; stage.append(el); tags.push({ el, p: new THREE.Vector3(x, gy(x, z) + lift, z) }); return el; },
-    view(name, o = {}) { V = { ...views[name], ...o }; idle = true; },
+    view(name, o = {}) { stop(); fly = { ...views[name], ...o }; },
+    zoom(f) { stop(); const c = centre(); zoomAnim = { x: c.x, y: c.y, f, t0: performance.now(), done: 0 }; },
+    north() { stop(); fly = { ...V, yaw: 0 }; },
     camera: () => ({ ...V }),
-    dispose() { alive = false; renderer.dispose(); },
+    dispose() { alive = false; off.abort(); clearTimeout(settle); for (const t of tags) t.el.remove(); renderer.dispose(); },
     onFrame: (fn) => (onFrame = fn),
   };
 }
