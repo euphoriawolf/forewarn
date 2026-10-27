@@ -21,7 +21,9 @@ export function chanceWords(k: number, n: number): string {
   return `${k} in ${n}`;
 }
 
-export async function readForecast(lat: number, lon: number, floodLineMm: number): Promise<Forecast> {
+// Read the four squares (slow part, a network call) separately from counting against a line, so
+// the caller can fetch the forecast and the flood line at the same time.
+export async function readForecast(lat: number, lon: number, floodLineMm: number | Promise<number>): Promise<Forecast> {
   const la0 = Math.floor(lat / STEP) * STEP, lo0 = Math.floor(lon / STEP) * STEP;
   const fy = (lat - la0) / STEP, fx = (lon - lo0) / STEP;
   const squares = [
@@ -30,16 +32,17 @@ export async function readForecast(lat: number, lon: number, floodLineMm: number
   ].map((s) => ({ lat: +s.lat.toFixed(3), lon: +s.lon.toFixed(3), weight: +s.weight.toFixed(3) }));
   const url = 'https://ensemble-api.open-meteo.com/v1/ensemble?daily=precipitation_sum&models=ecmwf_ifs025&forecast_days=7&timezone=auto'
     + `&latitude=${squares.map((s) => s.lat).join(',')}&longitude=${squares.map((s) => s.lon).join(',')}`;
-  const res = await fetch(url);
+  const [res, line] = await Promise.all([fetch(url), floodLineMm]);
+  floodLineMm = line;
   if (!res.ok) throw new Error(`forecast service answered ${res.status}`);
   const all = (await res.json()) as { daily: Record<string, (number | null)[]> & { time: string[] } }[];
   const keys = Object.keys(all[0].daily).filter((k) => k.startsWith('precipitation_sum'));
   const days: Day[] = all[0].daily.time.map((day, j) => {
     const runs = keys.map((k) => all.reduce((sum, p, i) => sum + squares[i].weight * (p.daily[k]?.[j] ?? 0), 0)).sort((a, b) => a - b);
-    const over = runs.filter((x) => x >= floodLineMm).length;
+    const over = runs.filter((x) => x >= line).length;
     const weekday = new Date(day + 'T12:00:00Z').toLocaleDateString('en-GB', { weekday: 'long', timeZone: 'UTC' });
     return { day, weekday, runs: runs.length, runsOverLine: over, middleMm: +runs[Math.floor(runs.length / 2)].toFixed(1), wettestMm: +runs[runs.length - 1].toFixed(1), level: levelOf(over / runs.length), chance: chanceWords(over, runs.length) };
   });
   const worst = days.reduce((a, b) => (b.runsOverLine > a.runsOverLine ? b : a));
-  return { lat, lon, floodLineMm, issued: new Date().toISOString(), squares, days, worst };
+  return { lat, lon, floodLineMm: line, issued: new Date().toISOString(), squares, days, worst };
 }

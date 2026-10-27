@@ -1,12 +1,16 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "forewarn",
-  "main": "src/index.ts",
+  "main": "src/server/index.ts",
   "compatibility_date": "2026-10-20",
   "compatibility_flags": ["nodejs_compat"],
-  // One agent per place: its memory, followers and schedule live in its own SQLite.
-  "durable_objects": { "bindings": [{ "name": "PlaceAgent", "class_name": "PlaceAgent" }] },
-  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["PlaceAgent"] }],
+  // The test address. *.workers.dev stalls on large files from Kenyan connections, so we serve from our own domain.
+  // Waiting for Derrick's OK (a DNS change): "routes": [{ "pattern": "forewarn-test.dawnstackai.com", "custom_domain": true }],
+  // The page and its files; the Worker answers /api/* and /agents/* first.
+  "assets": { "not_found_handling": "single-page-application", "run_worker_first": ["/api/*", "/agents/*"] },
+  // One chat agent per visitor session: its messages and the place it is about live in its own SQLite.
+  "durable_objects": { "bindings": [{ "name": "AskAgent", "class_name": "AskAgent" }] },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["AskAgent"] }],
   // BASETEN_API_KEY is a secret: .dev.vars locally, `wrangler secret put` in production.
-  "vars": { "BASETEN_BASE_URL": "https://inference.baseten.co/v1", "BASETEN_MODEL": "meta-models/muse-spark-open-1026" }
+  "vars": { "BASETEN_BASE_URL": "https://inference.baseten.co/v1", "BASETEN_MODEL": "meta-models/muse-spark-open-1026", "FLOOD_CHECK_API": "https://flood-check.dawnstackai.com/api/v1" }
 }

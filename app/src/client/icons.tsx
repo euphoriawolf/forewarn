@@ -1,0 +1,18 @@
+// The few icons the screens use, drawn inline so nothing loads from elsewhere.
+const s = { fill: 'none', stroke: 'currentColor', strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
+
+export const Logo = () => <svg viewBox="0 0 24 24" {...s} strokeWidth={2.2}><path d="M3 18c2 0 2-1.5 4.5-1.5S10 18 12 18s2-1.5 4.5-1.5S19 18 21 18" /><path d="M12 3v9M8.5 8.5L12 12l3.5-3.5" /></svg>;
+export const Search = () => <svg viewBox="0 0 24 24" {...s} strokeWidth={2}><circle cx="11" cy="11" r="7" /><path d="M20 20l-4-4" /></svg>;
+export const Locate = () => <svg viewBox="0 0 24 24" {...s} strokeWidth={2}><circle cx="12" cy="12" r="4" /><path d="M12 2v3M12 19v3M2 12h3M19 12h3" /></svg>;
+export const Drop = () => <svg viewBox="0 0 13 16"><path d="M6.5 1C4 5 1.5 7.6 1.5 10.3a5 5 0 0 0 10 0C11.5 7.6 9 5 6.5 1z" fill="currentColor" /></svg>;
+export const Ok = () => <svg viewBox="0 0 24 24" {...s} strokeWidth={2.4}><circle cx="12" cy="12" r="10" /><path d="M7.5 12.5l3 3 6-6.5" /></svg>;
+export const Warn = () => <svg viewBox="0 0 24 24" {...s} strokeWidth={2.4}><path d="M12 3l10 18H2z" /><path d="M12 10v5M12 18v.2" /></svg>;
+export const Tick = () => <svg viewBox="0 0 24 24" {...s} strokeWidth={3}><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>;
+export const Send = () => <svg viewBox="0 0 24 24" {...s} strokeWidth={2.2}><path d="M5 12h13M13 6l6 6-6 6" /></svg>;
+export const Sun = () => <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.5" fill="currentColor" /></svg>;
+export const Rain = () => <svg viewBox="0 0 24 24"><path d="M7 13h9.5a3.5 3.5 0 0 0 .3-7A5 5 0 0 0 7.3 7.5 3 3 0 0 0 7 13z" fill="none" stroke="currentColor" strokeWidth="1.8" /><path d="M9 16l-1 2.5M13 16l-1 2.5M17 16l-1 2.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" /></svg>;
+export const Storm = () => <svg viewBox="0 0 24 24"><path d="M7 12h9.5a3.5 3.5 0 0 0 .3-7A5 5 0 0 0 7.3 6.5 3 3 0 0 0 7 12z" fill="currentColor" /><path d="M8 15l-1.5 4M12 15l-1.5 4M16 15l-1.5 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>;
+export const Papers = () => <svg viewBox="0 0 24 24" {...s} strokeWidth={2}><path d="M6 3h9l4 4v14H6z" /><path d="M12 17V10M9 13l3-3 3 3" /></svg>;
+export const Route = () => <svg viewBox="0 0 24 24" {...s} strokeWidth={2}><circle cx="6" cy="18" r="2" /><circle cx="18" cy="6" r="2" /><path d="M8 18h6a4 4 0 0 0 0-8h-4a4 4 0 0 1 0-8h6" /></svg>;
+export const Car = () => <svg viewBox="0 0 24 24" {...s} strokeWidth={2}><path d="M5 16h14v-4l-2-5H7l-2 5z" /><circle cx="8" cy="16" r="1.5" /><circle cx="16" cy="16" r="1.5" /></svg>;
+export const Bell = () => <svg viewBox="0 0 24 24" {...s} strokeWidth={2}><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4z" /><path d="M10 21h4" /></svg>;
