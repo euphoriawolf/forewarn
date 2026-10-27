@@ -1,10 +1,13 @@
 // The answer for a place, then the chat. The level, the chance and the days come from /api/place,
 // computed in code. The agent answers questions below it and shows each step as it works.
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Stage, type StageApi } from './Stage';
+import { lazy, Suspense } from 'react';
+import type { StageApi } from './Stage';
+// the 3D engine is large: it loads on its own, after the answer, so a slow phone gets the answer first
+const Stage = lazy(() => import('./Stage').then((m) => ({ default: m.Stage })));
+// the chat library is large too: it loads after the answer
+const Chat = lazy(() => import('./Chat').then((m) => ({ default: m.Chat })));
 import { Safe } from './Safe';
-import { useAgent } from 'agents/react';
-import { useAgentChat } from '@cloudflare/ai-chat/react';
 import * as I from './icons';
 import type { Answer as A, Day, FloodLine, Level, Place } from './types';
 
@@ -64,76 +67,6 @@ function ToDo({ level, day }: { level: Level; day: string }) {
   );
 }
 
-const STEP: Record<string, [string, string]> = {
-  read_forecast: ['Reading 51 forecasts for the next 7 days', 'Read 51 forecasts for the next 7 days'],
-  show_last_flood: ['Playing the last flood on your street', 'Played the last flood on your street'],
-  light_roads: ['Checking the roads against the last flood', 'Lit the roads by the last flood'],
-  show_street_view: ['Moving to your street', 'Moved to your street'],
-  show_overview: ['Moving up to see the area', 'Moved up to see the area'],
-  mark_day: ['Marking the day', 'Marked the day'],
-  show_nearest_flood: ['Finding the nearest spot that flooded', 'Found the nearest spot that flooded'],
-  last_flood: ['Checking the last flood here', 'Checked the last flood here'],
-};
-
-function Chat({ place, onAction }: { place: Place; onAction: (a: Record<string, unknown>) => void }) {
-  // one chat per visitor: a random id kept on this phone
-  const session = useMemo(() => {
-    try { let id = localStorage.getItem('fw-session'); if (!id) { id = crypto.randomUUID(); localStorage.setItem('fw-session', id); } return id; }
-    catch { return crypto.randomUUID(); }
-  }, []);
-  const agent = useAgent<{ place: Place | null }>({ agent: 'AskAgent', name: session });
-  useEffect(() => { agent.setState({ place }); }, [agent, place]);
-  // no old history: each visit starts fresh, and the page never waits on loading it
-  const { messages, sendMessage, status, clearHistory } = useAgentChat({ agent, getInitialMessages: null });
-  useEffect(() => { clearHistory(); }, [place.lat, place.lon]); // a new place starts a new conversation
-  const [text, setText] = useState('');
-  // follow the newest words down, once the person has asked something
-  // follow the newest words down while an answer is arriving (not when old history loads)
-  useEffect(() => { if (status === 'submitted' || status === 'streaming') requestAnimationFrame(() => window.scrollTo(0, document.documentElement.scrollHeight)); }, [messages, status]);
-  // the agent's 3D tools return actions: run each one once, when its result arrives
-  const done = useRef(new Set<string>());
-  useEffect(() => {
-    for (const m of messages) for (const p of m.parts) {
-      if (!p.type.startsWith('tool-') || !('state' in p) || p.state !== 'output-available') continue;
-      const id = (p as { toolCallId: string }).toolCallId, out = (p as { output?: Record<string, unknown> }).output;
-      if (done.current.has(id)) continue;
-      done.current.add(id);
-      if (out && typeof out.action === 'string') onAction(out);
-    }
-  }, [messages]);
-  const busy = status === 'submitted' || status === 'streaming';
-  const ask = (q: string) => { if (!q.trim() || busy) return; sendMessage({ text: q.trim() }); setText(''); };
-  return (
-    <>
-      <div className="chat">
-        {messages.length === 0 && (
-          <div className="suggest">
-            {['Will my street flood this week?', 'Show me the last flood here', 'Which day is wettest?'].map((q) => <button key={q} className="chip" type="button" onClick={() => ask(q)}>{q}</button>)}
-          </div>
-        )}
-        {messages.map((m) => m.role === 'user'
-          ? <div key={m.id} className="me">{m.parts.map((p) => (p.type === 'text' ? p.text : '')).join('')}</div>
-          : (
-            <div key={m.id}>
-              <div className="steps">
-                {m.parts.filter((p) => p.type.startsWith('tool-')).map((p, i) => {
-                  const name = p.type.slice(5), done = 'state' in p && p.state === 'output-available', [now, past] = STEP[name] ?? [name, name];
-                  return <div key={i}>{done ? <I.Tick /> : <span className="spin" />}{done ? past : now}</div>;
-                })}
-              </div>
-              <p className="bot">{m.parts.map((p) => (p.type === 'text' ? p.text : '')).join('')}</p>
-            </div>
-          ))}
-        {status === 'submitted' && <div className="steps"><div><span className="spin" />Thinking</div></div>}
-      </div>
-      <div className="askbar"><form className="ask" onSubmit={(e) => { e.preventDefault(); ask(text); }}>
-        <input value={text} onChange={(e) => setText(e.target.value)} placeholder="Ask about your place" aria-label="Ask about your place" disabled={busy} />
-        <button type="submit" aria-label="Send" disabled={busy}><I.Send /></button>
-      </form></div>
-    </>
-  );
-}
-
 export function Answer({ place, onChange }: { place: Place; onChange: () => void }) {
   const [a, setA] = useState<A | null>(null);
   const [error, setError] = useState('');
@@ -151,7 +84,7 @@ export function Answer({ place, onChange }: { place: Place; onChange: () => void
       <div className="top"><div><b>{place.name}</b><small>{place.where ? `${place.where}, next 14 days` : 'Next 14 days'}</small></div><button className="chip" type="button" onClick={onChange}>Change place</button></div>
       {error && <div className="error">{error}</div>}
       {!a && !error && <><div className="skeleton" style={{ height: 150 }} /><div className="skeleton" style={{ height: 56 }} /></>}
-      {a?.pack && <Safe note="The 3D view could not load on this connection. The answer below is not affected."><Stage ref={stage} pack={a.pack} /></Safe>}
+      {a?.pack && <Safe note="The 3D view could not load on this connection. The answer below is not affected."><Suspense fallback={<div className="stage"><div className="load"><span>Loading the 3D</span></div></div>}><Stage ref={stage} pack={a.pack} /></Suspense></Safe>}
       {a && (
         <>
           <Verdict a={a} />
@@ -171,7 +104,7 @@ export function Answer({ place, onChange }: { place: Place; onChange: () => void
           <p className="fine">{a.floodLine.note} ECMWF 51-run forecast through Open-Meteo.{a.floodLine.source === 'last-flood' ? ' Last flood from Flood Check, a model estimate.' : ''}</p>
         </>
       )}
-      <Safe note="The chat could not connect. Check your connection and reload the page."><Chat place={place} onAction={act} /></Safe>
+      <Safe note="The chat could not connect. Check your connection and reload the page."><Suspense fallback={null}><Chat place={place} onAction={act} /></Suspense></Safe>
     </div>
   );
 }

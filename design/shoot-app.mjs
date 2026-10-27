@@ -1,7 +1,7 @@
 // Phone-sized shots of the app (local by default). Usage: node shoot-app.mjs <name> "<query>" [wait ms] [base]
 import { chromium } from 'playwright-core';
 const [name, qs, wait = '20000', base = 'http://[::1]:8840/'] = process.argv.slice(2);
-const browser = await chromium.launch({ channel: 'chrome', headless: true, args: ['--use-angle=metal', '--ignore-gpu-blocklist'] });
+const browser = await chromium.launch({ channel: 'chrome', headless: true, args: ['--use-angle=metal', '--ignore-gpu-blocklist', ...(process.env.NOQUIC ? ['--disable-quic'] : [])] });
 const page = await browser.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true });
 page.on('pageerror', (e) => console.log('ERR', e.message));
 await page.goto(base + qs, { waitUntil: 'domcontentloaded', timeout: 60000 });
