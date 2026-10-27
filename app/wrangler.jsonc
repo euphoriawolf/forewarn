@@ -9,8 +9,10 @@
   // The page and its files; the Worker answers /api/* and /agents/* first.
   "assets": { "binding": "ASSETS", "not_found_handling": "single-page-application", "run_worker_first": ["/api/*", "/agents/*"] },
   // One chat agent per visitor session: its messages and the place it is about live in its own SQLite.
-  "durable_objects": { "bindings": [{ "name": "AskAgent", "class_name": "AskAgent" }] },
-  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["AskAgent"] }],
+  "durable_objects": { "bindings": [{ "name": "AskAgent", "class_name": "AskAgent" }, { "name": "Logbook", "class_name": "Logbook" }] },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["AskAgent"] }, { "tag": "v2", "new_sqlite_classes": ["Logbook"] }],
   // BASETEN_API_KEY is a secret: .dev.vars locally, `wrangler secret put` in production.
-  "vars": { "BASETEN_BASE_URL": "https://inference.baseten.co/v1", "BASETEN_MODEL": "meta-models/muse-spark-open-1026", "FLOOD_CHECK_API": "https://flood-check.dawnstackai.com/api/v1" }
+  "vars": { "BASETEN_BASE_URL": "https://inference.baseten.co/v1", "BASETEN_MODEL": "meta-models/muse-spark-open-1026", "FLOOD_CHECK_API": "https://flood-check.dawnstackai.com/api/v1",
+    // the private test log of chats and model reasoning (src/server/logbook.ts). Set to "0" before launch.
+    "LOG_CHATS": "1" }
 }

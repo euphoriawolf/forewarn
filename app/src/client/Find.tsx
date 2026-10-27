@@ -9,11 +9,13 @@ import type { Place } from './types';
 // Vite moves MapLibre's files, so tell it where its background worker is.
 maplibregl.setWorkerUrl(workerUrl);
 
-// Sentinel-2 cloudless 2024 by EOX: free for non-commercial use, attribution required.
+// Esri World Imagery: sharp enough to find your own roof (about 0.5 m in Lagos and Nairobi).
+// Free for non-commercial use with the credit shown; a paid launch needs an Esri account or
+// another source. (Sentinel-2 from EOX, used in the 3D, is 10 m: too soft for placing a pin.)
 const SATELLITE: maplibregl.StyleSpecification = {
   version: 8,
-  sources: { s2: { type: 'raster', tileSize: 256, maxzoom: 15, attribution: 'Sentinel-2 cloudless 2024 by EOX IT Services (contains modified Copernicus Sentinel data)', tiles: ['https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2024_3857/default/g/{z}/{y}/{x}.jpg'] } },
-  layers: [{ id: 's2', type: 'raster', source: 's2' }],
+  sources: { img: { type: 'raster', tileSize: 256, maxzoom: 19, attribution: 'Imagery: Esri, Maxar, Earthstar Geographics', tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'] } },
+  layers: [{ id: 'img', type: 'raster', source: 'img' }],
 };
 
 export function Find({ onPlace }: { onPlace: (p: Place) => void }) {
@@ -60,7 +62,7 @@ export function Find({ onPlace }: { onPlace: (p: Place) => void }) {
 function Pin({ place, onBack, onDone }: { place: Place; onBack: () => void; onDone: (p: Place) => void }) {
   const box = useRef<HTMLDivElement>(null), map = useRef<maplibregl.Map | null>(null);
   useEffect(() => {
-    map.current = new maplibregl.Map({ container: box.current!, style: SATELLITE, center: [place.lon, place.lat], zoom: 14.3, maxZoom: 17, attributionControl: { compact: true } });
+    map.current = new maplibregl.Map({ container: box.current!, style: SATELLITE, center: [place.lon, place.lat], zoom: 16.5, maxZoom: 19, attributionControl: { compact: true } });
     return () => map.current?.remove();
   }, [place]);
   const done = () => { const c = map.current!.getCenter(); onDone({ ...place, lat: +c.lat.toFixed(5), lon: +c.lng.toFixed(5) }); };

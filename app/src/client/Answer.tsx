@@ -151,6 +151,7 @@ export function Answer({ place, onChange }: { place: Place; onChange: () => void
           <div className="days">{a.forecast.days.map((d, i) => <div key={d.day} className={`day ${d.level} ${marked && d.weekday.toLowerCase() === marked.toLowerCase() ? 'sel' : ''}`}>{icon(d)}<b>{short(d, i)}</b><span>{WORD[d.level]}</span></div>)}</div>
           <ToDo level={a.forecast.worst.level} day={dayName(a, a.forecast.worst)} />
           <div className="area"><i /><div><b>Rain forecast for your area</b><span className="muted">Blended from the four nearest 28 km forecast squares. Storms can be smaller than that.</span></div></div>
+          {a.logging && <p className="fine">Test version: your questions and Forewarn's answers are saved so we can check and improve it.</p>}
           <p className="fine">{a.floodLine.note} ECMWF 51-run forecast through Open-Meteo.{a.floodLine.source === 'last-flood' ? ' Last flood from Flood Check, a model estimate.' : ''}</p>
         </>
       )}

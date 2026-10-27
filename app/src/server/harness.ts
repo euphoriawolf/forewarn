@@ -13,7 +13,7 @@ import { readForecast } from './forecast';
 import { floodLine, type FloodLine } from './place';
 import { packFor, roadsCheck } from './packs';
 
-export interface Env { BASETEN_API_KEY: string; BASETEN_BASE_URL: string; BASETEN_MODEL: string; FLOOD_CHECK_API: string; AskAgent: DurableObjectNamespace; ASSETS: Fetcher }
+export interface Env { BASETEN_API_KEY: string; BASETEN_BASE_URL: string; BASETEN_MODEL: string; FLOOD_CHECK_API: string; AskAgent: DurableObjectNamespace; ASSETS: Fetcher; Logbook: DurableObjectNamespace; LOG_CHATS: string; LOGS_TOKEN: string }
 export interface Place { name: string; where: string; lat: number; lon: number }
 
 export function model(env: Env) {
@@ -34,8 +34,14 @@ ${p && packFor(p.lat, p.lon) ? `- The screen shows the place in 3D. Change it wi
 // Tools for one answer about one place. `results` collects every tool output for the checker.
 export function makeTools(env: Env, place: Place | null, results: unknown[]): ToolSet {
   const seen = new Map<string, Promise<unknown>>();
+  // a failed call is not kept, so the next call tries again; its message goes to the log and the model
   const once = (name: string, run: () => Promise<unknown>) => {
-    if (!seen.has(name)) seen.set(name, run().then((out) => { results.push(out); return out; }));
+    if (!seen.has(name)) seen.set(name, run().then((out) => { results.push(out); return out; }, (e: unknown) => {
+      seen.delete(name);
+      const message = e instanceof Error ? `${e.name}: ${e.message}` : String(e);
+      console.error(`tool ${name} failed:`, message);
+      return { error: 'The data service did not answer. Try again in a minute.', detail: message };
+    }));
     return seen.get(name)!;
   };
   let line: Promise<FloodLine> | null = null;

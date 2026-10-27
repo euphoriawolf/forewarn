@@ -11,13 +11,15 @@ import { model, system, makeTools, checkNumbers, answer, loopOptions, noEmDash, 
 import { readForecast } from './forecast';
 import { floodLine, search } from './place';
 import { packFor } from './packs';
+import { Logbook, stepsOf, bookOf } from './logbook';
+export { Logbook };
 
 // One chat agent per visitor session. The page sets the place in its state before the first question.
 export class AskAgent extends AIChatAgent<Env, { place: Place | null }> {
   initialState = { place: null };
 
   async onChatMessage(onFinish: Parameters<AIChatAgent<Env>['onChatMessage']>[0], options?: Parameters<AIChatAgent<Env>['onChatMessage']>[1]) {
-    const place = this.state.place, results: unknown[] = [];
+    const place = this.state.place, results: unknown[] = [], t0 = Date.now();
     const last = this.messages.at(-1);
     const question = last?.parts?.map((p) => ('text' in p ? p.text : '')).join(' ') ?? '';
     const result = streamText({
@@ -32,6 +34,9 @@ export class AskAgent extends AIChatAgent<Env, { place: Place | null }> {
         // until it passes is on the plan for after Day 2.
         const bad = checkNumbers(event.text, results, question);
         if (bad.length) console.warn('checker: numbers not in tool results', bad);
+        if (this.env.LOG_CHATS === '1') {
+          await bookOf(this.env.Logbook).add({ at: new Date().toISOString(), session: this.name, place, question, answer: event.text, ms: Date.now() - t0, checked: bad.length === 0, badNumbers: bad, steps: stepsOf(event.steps as never) }).catch((e: unknown) => console.error('logbook:', e));
+        }
         await onFinish(event as never);
       },
     });
@@ -45,6 +50,12 @@ export default {
   async fetch(req: Request, env: Env): Promise<Response> {
     const url = new URL(req.url), q = url.searchParams;
     try {
+      if (url.pathname === '/api/logs') {
+        // the private test log: needs the LOGS_TOKEN secret, as a Bearer header or ?token=
+        const token = req.headers.get('Authorization')?.replace(/^Bearer /, '') ?? q.get('token');
+        if (!env.LOGS_TOKEN || token !== env.LOGS_TOKEN) return new Response('Not found', { status: 404 });
+        return Response.json(await bookOf(env.Logbook).list(Math.min(200, Number(q.get('limit') ?? 50)), q.get('session') ?? undefined));
+      }
       if (url.pathname === '/api/search') {
         const text = (q.get('q') ?? '').trim();
         return Response.json(text.length < 2 ? [] : await search(text));
@@ -61,7 +72,7 @@ export default {
         }
         const line = floodLine(env.FLOOD_CHECK_API, lat, lon);
         const [l, forecast] = await Promise.all([line, readForecast(lat, lon, line.then((x) => x.mm))]);
-        return Response.json({ floodLine: l, forecast, pack: packFor(lat, lon) }, { headers: { 'Cache-Control': 'public, max-age=600' } });
+        return Response.json({ floodLine: l, forecast, pack: packFor(lat, lon), logging: env.LOG_CHATS === '1' }, { headers: { 'Cache-Control': 'public, max-age=600' } });
       }
     } catch (e) {
       return Response.json({ error: 'Something went wrong while reading the forecast. Try again in a minute.', detail: String(e) }, { status: 502 });
