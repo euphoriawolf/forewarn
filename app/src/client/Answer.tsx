@@ -84,7 +84,8 @@ function Chat({ place, onAction }: { place: Place; onAction: (a: Record<string, 
   useEffect(() => { clearHistory(); }, [place.lat, place.lon]); // a new place starts a new conversation
   const [text, setText] = useState('');
   // follow the newest words down, once the person has asked something
-  useEffect(() => { if (messages.length) requestAnimationFrame(() => window.scrollTo(0, document.documentElement.scrollHeight)); }, [messages]);
+  // follow the newest words down while an answer is arriving (not when old history loads)
+  useEffect(() => { if (status === 'submitted' || status === 'streaming') requestAnimationFrame(() => window.scrollTo(0, document.documentElement.scrollHeight)); }, [messages, status]);
   // the agent's 3D tools return actions: run each one once, when its result arrives
   const done = useRef(new Set<string>());
   useEffect(() => {

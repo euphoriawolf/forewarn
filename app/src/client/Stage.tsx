@@ -3,7 +3,8 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { placeScene } from './scene/place3d.js';
 
-export interface PackPin { id: string; name: string; start: string; dx: number; dz: number }
+import { tileSource, type PinInPack } from './scene/tiles';
+export type PackPin = PinInPack;
 export interface StageApi { run: (action: Record<string, unknown>) => void }
 interface Scene {
   setWater(cm: ArrayLike<number> | null): void; lightRoads(names: string[] | null): void; hours: number; cmAt(h: number): number[]; peak: Float32Array;
@@ -25,13 +26,14 @@ const when = (start: string, h: number) => {
 export const Stage = forwardRef<StageApi, { pack: PackPin }>(function Stage({ pack }, ref) {
   const box = useRef<HTMLDivElement>(null), canvas = useRef<HTMLCanvasElement>(null), scene = useRef<Scene | null>(null), pin = useRef<HTMLElement | null>(null), roadTags = useRef<HTMLElement[]>([]);
   const queued = useRef<Record<string, unknown>[]>([]);
+  const key = `${pack.region}:${pack.cx}:${pack.cz}:${pack.dx}:${pack.dz}`;
   const [load, setLoad] = useState({ f: 0, text: 'Loading the ground' });
   const [clock, setClock] = useState('');
   const [legend, setLegend] = useState<'' | 'water' | 'roads'>('');
 
   useEffect(() => {
     let gone = false;
-    placeScene({ stage: box.current, canvas: canvas.current, base: `/packs/${pack.id}`, view: 'overview', quality: lowEnd() ? 'low' : 'high', progress: (f: number, text: string) => !gone && setLoad({ f, text }) })
+    placeScene({ stage: box.current, canvas: canvas.current, source: tileSource(pack), view: 'overview', quality: lowEnd() ? 'low' : 'high', progress: (f: number, text: string) => !gone && setLoad({ f, text }) })
       .then((s: Scene) => {
         if (gone) return s.dispose();
         scene.current = s;
@@ -41,7 +43,7 @@ export const Stage = forwardRef<StageApi, { pack: PackPin }>(function Stage({ pa
       })
       .catch(() => setLoad({ f: 1, text: 'The 3D could not load. Your answer above is not affected.' }));
     return () => { gone = true; scene.current?.dispose(); scene.current = null; };
-  }, [pack.id]);
+  }, [key]);
 
   const clear = () => {
     const s = scene.current!;
@@ -88,7 +90,7 @@ export const Stage = forwardRef<StageApi, { pack: PackPin }>(function Stage({ pa
       }
     }
   }
-  useImperativeHandle(ref, () => ({ run }), [pack.id]);
+  useImperativeHandle(ref, () => ({ run }), [key]);
 
   return (
     <div className="stage" ref={box}>

@@ -35,11 +35,13 @@ const WALLS = ['#9b9893', '#a8a39a', '#b3aea4', '#8c8a86', '#a59d90', '#bab4a9',
 const ROOFS_PITCHED = ['#6e6a66', '#5a5856', '#7a7470', '#6b5d55', '#4e5257', '#625a52'];
 const ROOFS_FLAT = ['#8a8781', '#96928a', '#7e7b75', '#a09b92'];
 
-export async function placeScene({ stage, canvas, base, view = 'street', weather = 'clear', hour = 16.3, day = 300, quality = 'high', progress }) {
+// source: { ground(), photo(), city(), life() }, each a promise (see tiles.ts)
+export async function placeScene({ stage, canvas, source, view = 'street', weather = 'clear', hour = 16.3, day = 300, quality = 'high', progress }) {
   const low = quality === 'low';
   const say = progress ?? (() => {});
   say(0.08, 'Loading the ground');
-  const [G, photo] = await Promise.all([fetch(`${base}/ground.json`).then((r) => r.json()), new THREE.TextureLoader().loadAsync(`${base}/photo.jpg`)]);
+  const [G, photoCanvas] = await Promise.all([source.ground(), source.photo()]);
+  const photo = new THREE.CanvasTexture(photoCanvas);
   photo.colorSpace = THREE.SRGBColorSpace; photo.anisotropy = 8;
   const { grid: g, half: HALF } = G, G0 = G.ground0;
   const bil = (arr, x, z) => {
@@ -147,7 +149,7 @@ export async function placeScene({ stage, canvas, base, view = 'street', weather
 
   // ---- stage 2: buildings and roads
   say(0.4, 'Loading buildings and roads');
-  const C = await fetch(`${base}/city.json`).then((r) => r.json());
+  const C = await source.city();
   const bld = buildBuildings(C.buildings, gy);
   scene.add(bld.mesh);
 
@@ -175,7 +177,7 @@ export async function placeScene({ stage, canvas, base, view = 'street', weather
 
   // ---- stage 3: trees and water
   say(0.72, 'Loading trees and the March water');
-  const L = await fetch(`${base}/life.json`).then((r) => r.json());
+  const L = await source.life();
   scene.add(buildTrees(L.trees, gy));
 
   const n = 300, wgeo = new THREE.PlaneGeometry(HALF * 2, HALF * 2, n, n); wgeo.rotateX(-Math.PI / 2);
