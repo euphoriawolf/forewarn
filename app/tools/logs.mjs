@@ -5,7 +5,7 @@ import { readFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 
 const args = process.argv.slice(2);
-const base = args.includes('--local') ? 'http://localhost:8840' : 'https://forewarn.euphoriawolf.workers.dev';
+const base = args.includes('--local') ? 'http://localhost:8840' : 'https://forewarn.dawnstackai.com';
 const limit = Number(args.find((a) => /^\d+$/.test(a)) ?? 10);
 const s = args.indexOf('--session'), session = s >= 0 ? args[s + 1] : '';
 const token = readFileSync(`${homedir()}/.config/forewarn/logs.token`, 'utf8').trim();

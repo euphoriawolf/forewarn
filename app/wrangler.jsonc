@@ -4,8 +4,8 @@
   "main": "src/server/index.ts",
   "compatibility_date": "2026-10-20",
   "compatibility_flags": ["nodejs_compat"],
-  // The test address. *.workers.dev stalls on large files from Kenyan connections, so we serve from our own domain.
-  // Waiting for Derrick's OK (a DNS change): "routes": [{ "pattern": "forewarn-test.dawnstackai.com", "custom_domain": true }],
+  // Our own domain (approved by Derrick, 27 Oct): *.workers.dev crawls on Kenyan connections.
+  "routes": [{ "pattern": "forewarn.dawnstackai.com", "custom_domain": true }],
   // The page and its files; the Worker answers /api/* and /agents/* first.
   "assets": { "binding": "ASSETS", "not_found_handling": "single-page-application", "run_worker_first": ["/api/*", "/agents/*"] },
   // One chat agent per visitor session: its messages and the place it is about live in its own SQLite.
