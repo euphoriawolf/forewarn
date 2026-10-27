@@ -41,6 +41,7 @@ export function Find({ onPlace }: { onPlace: (p: Place) => void }) {
   if (picked) return <Pin place={picked} onBack={() => setPicked(null)} onDone={onPlace} />;
   return (
     <div className="screen">
+      <div className="hero"><img src="/hero.jpg" alt="Eastleigh, Nairobi, in the March 2026 storm, from the Forewarn 3D view" /><span>Eastleigh, Nairobi. March 2026 storm</span></div>
       <div className="brand"><I.Logo />Forewarn</div>
       <p className="h1">Know what the weather will do to your place, before it happens.</p>
       <label className="field"><I.Search /><input autoFocus value={q} onChange={(e) => setQ(e.target.value)} placeholder="Your street, farm or village" aria-label="Search for your place" /></label>

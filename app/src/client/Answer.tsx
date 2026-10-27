@@ -1,6 +1,7 @@
 // The answer for a place, then the chat. The level, the chance and the days come from /api/place,
 // computed in code. The agent answers questions below it and shows each step as it works.
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Stage, type StageApi } from './Stage';
 import { useAgent } from 'agents/react';
 import { useAgentChat } from '@cloudflare/ai-chat/react';
 import * as I from './icons';
@@ -63,10 +64,15 @@ function ToDo({ level, day }: { level: Level; day: string }) {
 
 const STEP: Record<string, [string, string]> = {
   read_forecast: ['Reading 51 forecasts for the next 7 days', 'Read 51 forecasts for the next 7 days'],
+  show_last_flood: ['Playing the last flood on your street', 'Played the last flood on your street'],
+  light_roads: ['Checking the roads against the last flood', 'Lit the roads by the last flood'],
+  show_street_view: ['Moving to your street', 'Moved to your street'],
+  show_overview: ['Moving up to see the area', 'Moved up to see the area'],
+  mark_day: ['Marking the day', 'Marked the day'],
   last_flood: ['Checking the last flood here', 'Checked the last flood here'],
 };
 
-function Chat({ place }: { place: Place }) {
+function Chat({ place, onAction }: { place: Place; onAction: (a: Record<string, unknown>) => void }) {
   // one chat per visitor: a random id kept on this phone
   const session = useMemo(() => {
     try { let id = localStorage.getItem('fw-session'); if (!id) { id = crypto.randomUUID(); localStorage.setItem('fw-session', id); } return id; }
@@ -79,6 +85,17 @@ function Chat({ place }: { place: Place }) {
   const [text, setText] = useState('');
   // follow the newest words down, once the person has asked something
   useEffect(() => { if (messages.length) requestAnimationFrame(() => window.scrollTo(0, document.documentElement.scrollHeight)); }, [messages]);
+  // the agent's 3D tools return actions: run each one once, when its result arrives
+  const done = useRef(new Set<string>());
+  useEffect(() => {
+    for (const m of messages) for (const p of m.parts) {
+      if (!p.type.startsWith('tool-') || !('state' in p) || p.state !== 'output-available') continue;
+      const id = (p as { toolCallId: string }).toolCallId, out = (p as { output?: Record<string, unknown> }).output;
+      if (done.current.has(id)) continue;
+      done.current.add(id);
+      if (out && typeof out.action === 'string') onAction(out);
+    }
+  }, [messages]);
   const busy = status === 'submitted' || status === 'streaming';
   const ask = (q: string) => { if (!q.trim() || busy) return; sendMessage({ text: q.trim() }); setText(''); };
   return (
@@ -86,7 +103,7 @@ function Chat({ place }: { place: Place }) {
       <div className="chat">
         {messages.length === 0 && (
           <div className="suggest">
-            {['Will my street flood this week?', 'Which day is wettest?', 'How bad was the last flood here?'].map((q) => <button key={q} className="chip" type="button" onClick={() => ask(q)}>{q}</button>)}
+            {['Will my street flood this week?', 'Show me the last flood here', 'Which day is wettest?'].map((q) => <button key={q} className="chip" type="button" onClick={() => ask(q)}>{q}</button>)}
           </div>
         )}
         {messages.map((m) => m.role === 'user'
@@ -115,8 +132,11 @@ function Chat({ place }: { place: Place }) {
 export function Answer({ place, onChange }: { place: Place; onChange: () => void }) {
   const [a, setA] = useState<A | null>(null);
   const [error, setError] = useState('');
+  const stage = useRef<StageApi>(null);
+  const [marked, setMarked] = useState('');
+  const act = (x: Record<string, unknown>) => { if (x.action === 'mark_day') setMarked(String(x.weekday)); else stage.current?.run(x); };
   useEffect(() => {
-    setA(null); setError('');
+    setA(null); setError(''); setMarked('');
     fetch(`/api/place?lat=${place.lat}&lon=${place.lon}`).then((r) => r.json() as Promise<A>).then((d) => (d.error ? setError(d.error) : setA(d))).catch(() => setError('The forecast is not answering. Check your connection and try again.'));
   }, [place]);
   return (
@@ -124,16 +144,17 @@ export function Answer({ place, onChange }: { place: Place; onChange: () => void
       <div className="top"><div><b>{place.name}</b><small>{place.where ? `${place.where}, next 7 days` : 'Next 7 days'}</small></div><button className="chip" type="button" onClick={onChange}>Change place</button></div>
       {error && <div className="error">{error}</div>}
       {!a && !error && <><div className="skeleton" style={{ height: 150 }} /><div className="skeleton" style={{ height: 56 }} /></>}
+      {a?.pack && <Stage ref={stage} pack={a.pack} />}
       {a && (
         <>
           <Verdict a={a} />
-          <div className="days">{a.forecast.days.map((d, i) => <div key={d.day} className={`day ${d.level}`}>{icon(d)}<b>{short(d, i)}</b><span>{WORD[d.level]}</span></div>)}</div>
+          <div className="days">{a.forecast.days.map((d, i) => <div key={d.day} className={`day ${d.level} ${marked && d.weekday.toLowerCase() === marked.toLowerCase() ? 'sel' : ''}`}>{icon(d)}<b>{short(d, i)}</b><span>{WORD[d.level]}</span></div>)}</div>
           <ToDo level={a.forecast.worst.level} day={dayName(a, a.forecast.worst)} />
           <div className="area"><i /><div><b>Rain forecast for your area</b><span className="muted">Blended from the four nearest 28 km forecast squares. Storms can be smaller than that.</span></div></div>
           <p className="fine">{a.floodLine.note} ECMWF 51-run forecast through Open-Meteo.{a.floodLine.source === 'last-flood' ? ' Last flood from Flood Check, a model estimate.' : ''}</p>
         </>
       )}
-      <Chat place={place} />
+      <Chat place={place} onAction={act} />
     </div>
   );
 }

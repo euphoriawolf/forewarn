@@ -1,0 +1,65 @@
+{
+ "note": "Place packs cut from Flood Check data (pre-existing). See tools/make-pack.py.",
+ "packs": [
+  {
+   "id": "eastleigh",
+   "region": "nairobi",
+   "name": "Eastleigh",
+   "where": "Nairobi, Kenya",
+   "lat": -1.2847,
+   "lon": 36.8608,
+   "half": 1500,
+   "start": "2026-03-05T00:00"
+  },
+  {
+   "id": "silanga",
+   "region": "nairobi",
+   "name": "Silanga, Kibera",
+   "where": "Nairobi, Kenya",
+   "lat": -1.31793,
+   "lon": 36.79555,
+   "half": 1500,
+   "start": "2026-03-05T00:00"
+  },
+  {
+   "id": "githurai",
+   "region": "nairobi",
+   "name": "Githurai",
+   "where": "Nairobi, Kenya",
+   "lat": -1.20284,
+   "lon": 36.91686,
+   "half": 1500,
+   "start": "2026-03-05T00:00"
+  },
+  {
+   "id": "gbagada",
+   "region": "lagos",
+   "name": "Gbagada",
+   "where": "Lagos, Nigeria",
+   "lat": 6.55807,
+   "lon": 3.38362,
+   "half": 1500,
+   "start": "2026-06-28T00:00"
+  },
+  {
+   "id": "cele",
+   "region": "lagos",
+   "name": "Cele",
+   "where": "Lagos, Nigeria",
+   "lat": 6.5074,
+   "lon": 3.32176,
+   "half": 1500,
+   "start": "2026-06-28T00:00"
+  },
+  {
+   "id": "ikate",
+   "region": "lagos",
+   "name": "Ikate, Lekki",
+   "where": "Lagos, Nigeria",
+   "lat": 6.4402,
+   "lon": 3.4889,
+   "half": 1500,
+   "start": "2026-06-28T00:00"
+  }
+ ]
+}

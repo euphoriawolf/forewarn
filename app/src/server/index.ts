@@ -7,9 +7,10 @@
 import { routeAgentRequest } from 'agents';
 import { AIChatAgent } from '@cloudflare/ai-chat';
 import { streamText, convertToModelMessages } from 'ai';
-import { model, system, makeTools, checkNumbers, answer, loopOptions, type Env, type Place } from './harness';
+import { model, system, makeTools, checkNumbers, answer, loopOptions, noEmDash, type Env, type Place } from './harness';
 import { readForecast } from './forecast';
 import { floodLine, search } from './place';
+import { packFor } from './packs';
 
 // One chat agent per visitor session. The page sets the place in its state before the first question.
 export class AskAgent extends AIChatAgent<Env, { place: Place | null }> {
@@ -23,6 +24,7 @@ export class AskAgent extends AIChatAgent<Env, { place: Place | null }> {
       model: model(this.env), system: system(place), tools: makeTools(this.env, place, results), ...loopOptions,
       messages: await convertToModelMessages(this.messages),
       abortSignal: options?.abortSignal,
+      experimental_transform: noEmDash,
       onError: ({ error }) => console.error('agent stream error:', error instanceof Error ? error.message : error),
       onStepFinish: (st) => console.log('agent step:', st.finishReason, st.toolCalls.map((c) => c.toolName).join(','), st.text.length),
       onFinish: async (event) => {
@@ -59,7 +61,7 @@ export default {
         }
         const line = floodLine(env.FLOOD_CHECK_API, lat, lon);
         const [l, forecast] = await Promise.all([line, readForecast(lat, lon, line.then((x) => x.mm))]);
-        return Response.json({ floodLine: l, forecast }, { headers: { 'Cache-Control': 'public, max-age=600' } });
+        return Response.json({ floodLine: l, forecast, pack: packFor(lat, lon) }, { headers: { 'Cache-Control': 'public, max-age=600' } });
       }
     } catch (e) {
       return Response.json({ error: 'Something went wrong while reading the forecast. Try again in a minute.', detail: String(e) }, { status: 502 });

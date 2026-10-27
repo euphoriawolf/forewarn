@@ -7,7 +7,7 @@
   // The test address. *.workers.dev stalls on large files from Kenyan connections, so we serve from our own domain.
   // Waiting for Derrick's OK (a DNS change): "routes": [{ "pattern": "forewarn-test.dawnstackai.com", "custom_domain": true }],
   // The page and its files; the Worker answers /api/* and /agents/* first.
-  "assets": { "not_found_handling": "single-page-application", "run_worker_first": ["/api/*", "/agents/*"] },
+  "assets": { "binding": "ASSETS", "not_found_handling": "single-page-application", "run_worker_first": ["/api/*", "/agents/*"] },
   // One chat agent per visitor session: its messages and the place it is about live in its own SQLite.
   "durable_objects": { "bindings": [{ "name": "AskAgent", "class_name": "AskAgent" }] },
   "migrations": [{ "tag": "v1", "new_sqlite_classes": ["AskAgent"] }],
