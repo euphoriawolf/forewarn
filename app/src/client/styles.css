@@ -70,7 +70,7 @@ h3 { margin: 0; font-size: 13px; font-weight: 600; color: var(--muted); }
 .area i { width: 24px; height: 24px; border: 2.5px solid #b08a00; background: rgba(255,210,63,.35); border-radius: 4px; flex: none; }
 .area b { display: block; font-size: 14px; }
 
-.chat { display: grid; gap: 8px; border-top: 1px solid var(--line); padding-top: 14px; }
+.chat { display: grid; gap: 8px; padding-bottom: 8px; border-top: 1px solid var(--line); padding-top: 14px; }
 .me { justify-self: end; max-width: 88%; background: var(--ink); color: #fff; padding: 9px 12px; border-radius: 16px 16px 4px 16px; }
 .bot { margin: 0; white-space: pre-wrap; }
 .steps { display: grid; gap: 3px; font-size: 12px; color: var(--muted); }
@@ -79,7 +79,9 @@ h3 { margin: 0; font-size: 13px; font-weight: 600; color: var(--muted); }
 .spin { width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--water); border-right-color: transparent; animation: spin 0.8s linear infinite; flex: none; }
 @keyframes spin { to { transform: rotate(360deg); } }
 .suggest { display: flex; flex-wrap: wrap; gap: 6px; }
-.ask { position: sticky; bottom: calc(10px + env(safe-area-inset-bottom)); height: 52px; border-radius: 26px; background: var(--ink); display: flex; align-items: center; gap: 10px; padding: 0 6px 0 18px; margin-top: auto; }
+/* the input stays at the bottom on a band of page colour, so text scrolls under the band, never under the input */
+.askbar { position: sticky; bottom: 0; margin: auto -16px calc(-16px - env(safe-area-inset-bottom)); padding: 18px 16px calc(12px + env(safe-area-inset-bottom)); background: linear-gradient(rgba(248,249,246,0), var(--paper) 16px); z-index: 5; }
+.ask { height: 52px; border-radius: 26px; background: var(--ink); display: flex; align-items: center; gap: 10px; padding: 0 6px 0 18px; }
 .ask input { flex: 1; min-width: 0; border: 0; outline: 0; background: none; color: #eef1ec; font: inherit; }
 .ask input::placeholder { color: #a9b3ad; }
 .ask button { width: 40px; height: 40px; border-radius: 50%; border: 0; background: #eef1ec; display: grid; place-items: center; }

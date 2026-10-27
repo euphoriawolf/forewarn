@@ -77,6 +77,8 @@ function Chat({ place }: { place: Place }) {
   const { messages, sendMessage, status, clearHistory } = useAgentChat({ agent });
   useEffect(() => { clearHistory(); }, [place.lat, place.lon]); // a new place starts a new conversation
   const [text, setText] = useState('');
+  // follow the newest words down, once the person has asked something
+  useEffect(() => { if (messages.length) requestAnimationFrame(() => window.scrollTo(0, document.documentElement.scrollHeight)); }, [messages]);
   const busy = status === 'submitted' || status === 'streaming';
   const ask = (q: string) => { if (!q.trim() || busy) return; sendMessage({ text: q.trim() }); setText(''); };
   return (
@@ -102,10 +104,10 @@ function Chat({ place }: { place: Place }) {
           ))}
         {status === 'submitted' && <div className="steps"><div><span className="spin" />Thinking</div></div>}
       </div>
-      <form className="ask" onSubmit={(e) => { e.preventDefault(); ask(text); }}>
+      <div className="askbar"><form className="ask" onSubmit={(e) => { e.preventDefault(); ask(text); }}>
         <input value={text} onChange={(e) => setText(e.target.value)} placeholder="Ask about your place" aria-label="Ask about your place" disabled={busy} />
         <button type="submit" aria-label="Send" disabled={busy}><I.Send /></button>
-      </form>
+      </form></div>
     </>
   );
 }
