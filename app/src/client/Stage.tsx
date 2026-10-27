@@ -9,7 +9,7 @@ export interface StageApi { run: (action: Record<string, unknown>) => void }
 interface Scene {
   setWater(cm: ArrayLike<number> | null): void; lightRoads(names: string[] | null): void; hours: number; cmAt(h: number): number[]; peak: Float32Array;
   roads: { n: string; p: [number, number][] }[]; depthAt(cm: ArrayLike<number>, x: number, z: number): number;
-  tag(text: string, x: number, z: number, cls?: string, lift?: number): HTMLElement; view(name: string, o?: Record<string, number>): void;
+  tag(text: string, x: number, z: number, cls?: string, lift?: number): HTMLElement; view(name: string, o?: Record<string, number>): void; camera(): Record<string, number>;
   onFrame(fn: ((t: number) => void) | null): void; dispose(): void;
 }
 
@@ -23,8 +23,12 @@ const when = (start: string, h: number) => {
   return `${t.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' })}, ${String(t.getUTCHours()).padStart(2, '0')}:00`;
 };
 
-export const Stage = forwardRef<StageApi, { pack: PackPin }>(function Stage({ pack }, ref) {
-  const box = useRef<HTMLDivElement>(null), canvas = useRef<HTMLCanvasElement>(null), scene = useRef<Scene | null>(null), pin = useRef<HTMLElement | null>(null), roadTags = useRef<HTMLElement[]>([]);
+export const Stage = forwardRef<StageApi, { pack: PackPin }>(function Stage({ pack: start }, ref) {
+  // the area on screen: starts around the pin, moves when the person pans more than 1 km away
+  const [pack, setPack] = useState(start);
+  useEffect(() => setPack(start), [`${start.region}:${start.cx}:${start.cz}:${start.dx}:${start.dz}`]);
+  const nextCamera = useRef<Record<string, number> | null>(null);
+  const outer = useRef<HTMLDivElement>(null), box = useRef<HTMLDivElement>(null), canvas = useRef<HTMLCanvasElement>(null), scene = useRef<Scene | null>(null), pin = useRef<HTMLElement | null>(null), roadTags = useRef<HTMLElement[]>([]);
   const queued = useRef<Record<string, unknown>[]>([]);
   const key = `${pack.region}:${pack.cx}:${pack.cz}:${pack.dx}:${pack.dz}`;
   const [load, setLoad] = useState({ f: 0, text: 'Loading the ground' });
@@ -33,17 +37,32 @@ export const Stage = forwardRef<StageApi, { pack: PackPin }>(function Stage({ pa
 
   useEffect(() => {
     let gone = false;
-    placeScene({ stage: box.current, canvas: canvas.current, source: tileSource(pack), view: 'overview', quality: lowEnd() ? 'low' : 'high', progress: (f: number, text: string) => !gone && setLoad({ f, text }) })
+    placeScene({ stage: box.current, canvas: canvas.current, source: tileSource(pack), view: 'overview', quality: lowEnd() ? 'low' : 'high', progress: (f: number, text: string) => !gone && setLoad({ f, text }), start: nextCamera.current ?? undefined, onSettle: (x: number, z: number) => !gone && moveTo(x, z) })
       .then((s: Scene) => {
         if (gone) return s.dispose();
         scene.current = s;
-        s.view('overview', { tx: pack.dx, tz: pack.dz });
+        if (!nextCamera.current) s.view('overview', { tx: pack.dx, tz: pack.dz });
+        nextCamera.current = null;
         pin.current = s.tag('Your place', pack.dx, pack.dz, 'green', 8);
         for (const a of queued.current.splice(0)) run(a);
       })
       .catch(() => setLoad({ f: 1, text: 'The 3D could not load. Your answer above is not affected.' }));
     return () => { gone = true; scene.current?.dispose(); scene.current = null; };
   }, [key]);
+
+  // panned far from the centre: load the four tiles around the new spot, keep the camera where it is
+  const index = useRef<Promise<{ tile: number; tiles: number[][] }> | null>(null);
+  async function moveTo(x: number, z: number) {
+    if (Math.max(Math.abs(x), Math.abs(z)) < 1000) return;
+    index.current ??= fetch(`/tiles/${pack.region}/index.json`).then((r) => r.json());
+    const ix = await index.current, T = ix.tile, X = pack.cx + x, Z = pack.cz + z;
+    const i0 = Math.round(X / T) - 1, j0 = Math.round(Z / T) - 1, have = new Set(ix.tiles.map(([i, j]) => `${i}_${j}`));
+    const tiles = ([[i0, j0], [i0 + 1, j0], [i0, j0 + 1], [i0 + 1, j0 + 1]] as [number, number][]).filter(([i, j]) => have.has(`${i}_${j}`));
+    if (!tiles.length) return;
+    const cx = (i0 + 1) * T, cz = (j0 + 1) * T, cam = scene.current?.camera();
+    nextCamera.current = cam ? { ...cam, tx: cam.tx + pack.cx - cx, tz: cam.tz + pack.cz - cz } : null;
+    setPack({ ...pack, tiles, cx, cz, dx: pack.dx + pack.cx - cx, dz: pack.dz + pack.cz - cz });
+  }
 
   const clear = () => {
     const s = scene.current!;
@@ -92,11 +111,20 @@ export const Stage = forwardRef<StageApi, { pack: PackPin }>(function Stage({ pa
   }
   useImperativeHandle(ref, () => ({ run }), [key]);
 
+  // pinned at the top: the frame shrinks as the page scrolls, the scene keeps its size and is cropped
+  useEffect(() => {
+    let raf = 0;
+    const fit = () => { raf = 0; const el = outer.current; if (!el) return; const full = box.current!.clientHeight, min = Math.round(full * 0.5); el.style.height = `${Math.max(min, full - window.scrollY)}px`; el.style.setProperty('--crop', `${(full - Math.max(min, full - window.scrollY)) / -2}px`); };
+    const on = () => { if (!raf) raf = requestAnimationFrame(fit); };
+    addEventListener('scroll', on, { passive: true }); addEventListener('resize', on); fit();
+    return () => { removeEventListener('scroll', on); removeEventListener('resize', on); cancelAnimationFrame(raf); };
+  }, []);
+
   return (
-    <div className="stage" ref={box}>
-      <canvas ref={canvas} />
+    <div className="stage" ref={outer}>
+      <div className="scene" ref={box}><canvas ref={canvas} /></div>
       {clock && <div className="clock">{clock}<span>{pack.start.startsWith('2026-03') ? 'March 2026 storm' : 'June 2026 storm'}</span></div>}
-      {legend === 'water' && <div className="legend"><i className="w" />Water from the model<i className="a" />Water at the door</div>}
+      {legend === 'water' && <div className="legend"><i className="w" />Water (drawn 4x deeper)<i className="a" />Water at the door</div>}
       {legend === 'roads' && <div className="legend"><i className="r" />Water in the last storm<i className="g" />Stayed dry</div>}
       <div className={`load ${load.f >= 1 ? 'done' : ''}`}><span>{load.text}</span><i><b style={{ width: `${load.f * 100}%` }} /></i></div>
     </div>

@@ -36,7 +36,7 @@ const ROOFS_PITCHED = ['#6e6a66', '#5a5856', '#7a7470', '#6b5d55', '#4e5257', '#
 const ROOFS_FLAT = ['#8a8781', '#96928a', '#7e7b75', '#a09b92'];
 
 // source: { ground(), photo(), city(), life() }, each a promise (see tiles.ts)
-export async function placeScene({ stage, canvas, source, view = 'street', weather = 'clear', hour = 16.3, day = 300, quality = 'high', progress }) {
+export async function placeScene({ stage, canvas, source, view = 'street', weather = 'clear', hour = 16.3, day = 300, quality = 'high', progress, onSettle, start: startView }) {
   const low = quality === 'low';
   const say = progress ?? (() => {});
   say(0.08, 'Loading the ground');
@@ -98,11 +98,43 @@ export async function placeScene({ stage, canvas, source, view = 'street', weath
     overview: { yaw: 2.6, pitch: 0.6, dist: 1150, tx: 0, tz: 40 },
     roads: { yaw: 2.9, pitch: 0.9, dist: 1050, tx: -120, tz: 120 },
   };
-  let V = { ...views[view] }, drag = null, idle = true, prev = 0;
-  stage.addEventListener('pointerdown', (e) => { drag = [e.clientX, e.clientY, V.yaw, V.pitch]; idle = false; stage.setPointerCapture(e.pointerId); });
-  stage.addEventListener('pointermove', (e) => { if (!drag) return; V.yaw = drag[2] - (e.clientX - drag[0]) * 0.006; V.pitch = Math.max(0.05, Math.min(1.4, drag[3] + (e.clientY - drag[1]) * 0.004)); });
-  stage.addEventListener('pointerup', () => (drag = null));
-  stage.addEventListener('wheel', (e) => { e.preventDefault(); V.dist = Math.max(60, Math.min(1800, V.dist * (1 + e.deltaY * 0.001))); }, { passive: false });
+  let V = { ...views[view], ...(startView ?? {}) }, idle = !startView, prev = 0;
+  // Touch and mouse: one finger (or left button) turns; two fingers pinch to zoom and drag to pan;
+  // right button or shift-drag pans; the wheel zooms. Panning stops at the edge of what is loaded,
+  // and onSettle(x, z) reports where the view came to rest, so the page can load the next tiles.
+  const pts = new Map(); let gesture = null, settle = null;
+  const limit = HALF - 150;
+  const panBy = (dxs, dys) => {
+    // screen drag to ground metres, along the camera's heading
+    const k = V.dist / Math.max(200, stage.clientHeight) * 1.2, sy = Math.sin(V.yaw), cy = Math.cos(V.yaw);
+    V.tx = Math.max(-limit, Math.min(limit, V.tx - (dxs * cy - dys * sy) * k));
+    V.tz = Math.max(-limit, Math.min(limit, V.tz - (-dxs * sy - dys * cy) * k));
+  };
+  const start = () => {
+    const p = [...pts.values()];
+    if (p.length === 1) gesture = { kind: p[0].pan ? 'pan' : 'turn', x: p[0].x, y: p[0].y, yaw: V.yaw, pitch: V.pitch };
+    else if (p.length >= 2) gesture = { kind: 'pinch', d: Math.hypot(p[0].x - p[1].x, p[0].y - p[1].y), mx: (p[0].x + p[1].x) / 2, my: (p[0].y + p[1].y) / 2, dist: V.dist };
+  };
+  stage.addEventListener('pointerdown', (e) => { pts.set(e.pointerId, { x: e.clientX, y: e.clientY, pan: e.button === 2 || e.shiftKey }); idle = false; stage.setPointerCapture(e.pointerId); start(); });
+  stage.addEventListener('pointermove', (e) => {
+    if (!pts.has(e.pointerId) || !gesture) return;
+    pts.get(e.pointerId).x = e.clientX; pts.get(e.pointerId).y = e.clientY;
+    const p = [...pts.values()];
+    if (gesture.kind === 'turn') { V.yaw = gesture.yaw - (p[0].x - gesture.x) * 0.006; V.pitch = Math.max(0.05, Math.min(1.4, gesture.pitch + (p[0].y - gesture.y) * 0.004)); }
+    else if (gesture.kind === 'pan') { panBy(p[0].x - gesture.x, p[0].y - gesture.y); gesture.x = p[0].x; gesture.y = p[0].y; }
+    else if (p.length >= 2) {
+      const d = Math.hypot(p[0].x - p[1].x, p[0].y - p[1].y), mx = (p[0].x + p[1].x) / 2, my = (p[0].y + p[1].y) / 2;
+      V.dist = Math.max(60, Math.min(2200, gesture.dist * (gesture.d / Math.max(20, d))));
+      panBy(mx - gesture.mx, my - gesture.my); gesture.mx = mx; gesture.my = my;
+    }
+  });
+  const end = (e) => {
+    pts.delete(e.pointerId); start();
+    if (!pts.size) { gesture = null; clearTimeout(settle); settle = setTimeout(() => onSettle?.(V.tx, V.tz), 400); }
+  };
+  stage.addEventListener('pointerup', end); stage.addEventListener('pointercancel', end);
+  stage.addEventListener('contextmenu', (e) => e.preventDefault());
+  stage.addEventListener('wheel', (e) => { e.preventDefault(); idle = false; V.dist = Math.max(60, Math.min(2200, V.dist * (1 + e.deltaY * 0.001))); }, { passive: false });
 
   const composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(1, 1, { type: THREE.HalfFloatType, samples: low ? 0 : 4 }));
   composer.addPass(new RenderPass(scene, camera));
@@ -184,19 +216,20 @@ export async function placeScene({ stage, canvas, source, view = 'street', weath
   const wcol = new THREE.Float32BufferAttribute(new Float32Array(wgeo.attributes.position.count * 4), 4); wgeo.setAttribute('color', wcol);
   const ripple = makeRipple(); ripple.repeat.set(140, 140);
   // Brown-green where shallow, blue-grey where deep, and the sky reflects in it.
-  waterMat = new THREE.MeshPhysicalMaterial({ vertexColors: true, transparent: true, roughness: 0.03, metalness: 0, ior: 1.33, envMapIntensity: 1.8, clearcoat: 0.6, clearcoatRoughness: 0.02, normalMap: ripple, normalScale: new THREE.Vector2(0.25, 0.25), depthWrite: false });
+  waterMat = new THREE.MeshStandardMaterial({ vertexColors: true, transparent: true, roughness: 0.18, metalness: 0, envMapIntensity: 0.7, normalMap: ripple, normalScale: new THREE.Vector2(0.18, 0.18), depthWrite: false, emissive: new THREE.Color('#0b3d91'), emissiveIntensity: 0.18 });
   const water = new THREE.Mesh(wgeo, waterMat); water.renderOrder = 2; water.visible = false; scene.add(water);
-  // floodwater is muddy: tea-brown where shallow, darker olive-grey where deep
-  const shallow = new THREE.Color('#8d7a55'), mid = new THREE.Color('#6b6448'), deep = new THREE.Color('#3f4a42'), c = new THREE.Color();
+  // Flood Check's water: pale cyan where shallow, bright blue, then deep blue; easy to read from above
+  const shallow = new THREE.Color('#8cd9ff'), mid = new THREE.Color('#1a8cf2'), deep = new THREE.Color('#0838a0'), c = new THREE.Color();
+  const DEPTH_V = 4; // water is drawn 4 times thicker than real, so 25 cm still shows from 400 m (the legend says so)
   function setWater(cm) {
     if (!cm) { water.visible = false; bld.mark(null); return; }
     const p = wgeo.attributes.position;
     for (let i = 0; i < p.count; i++) {
       const x = p.getX(i), z = p.getZ(i), d = Math.max(0, bil(cm, x, z) / 100);
-      p.setY(i, gy(x, z) + d + 0.05);
-      const a = Math.min(1, Math.max(0, (d - 0.03) / 0.1));
-      c.lerpColors(shallow, mid, Math.min(1, d / 0.3)).lerp(deep, Math.max(0, Math.min(1, (d - 0.3) / 0.8)));
-      wcol.setXYZW(i, c.r, c.g, c.b, a * (0.7 + 0.28 * Math.min(1, d / 0.4)));
+      p.setY(i, gy(x, z) + d * DEPTH_V + 0.15);
+      const a = Math.min(1, Math.max(0, (d - 0.03) / 0.07));
+      c.lerpColors(shallow, mid, Math.min(1, d / 0.25)).lerp(deep, Math.max(0, Math.min(1, (d - 0.35) / 0.65)));
+      wcol.setXYZW(i, c.r, c.g, c.b, a * (0.82 + 0.14 * Math.min(1, d / 0.5)));
     }
     p.needsUpdate = true; wcol.needsUpdate = true; wgeo.computeVertexNormals(); water.visible = true;
     bld.mark((x, z) => bil(cm, x, z) >= 10);
@@ -223,6 +256,7 @@ export async function placeScene({ stage, canvas, source, view = 'street', weath
     depthAt: (cm, x, z) => Math.round(cell(cm, x, z)),
     tag(text, x, z, cls = '', lift = 4) { const el = document.createElement('div'); el.className = 'tag ' + cls; el.textContent = text; stage.append(el); tags.push({ el, p: new THREE.Vector3(x, gy(x, z) + lift, z) }); return el; },
     view(name, o = {}) { V = { ...views[name], ...o }; idle = true; },
+    camera: () => ({ ...V }),
     dispose() { alive = false; renderer.dispose(); },
     onFrame: (fn) => (onFrame = fn),
   };

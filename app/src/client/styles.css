@@ -4,10 +4,13 @@
   --bg: #e3e7e2; --paper: #f8f9f6; --ink: #16201b; --muted: #5d6a63; --line: #dde2dc;
   --water: #1d4ed8; --water-soft: #e3eafc;
   --green: #2f7d4f; --green-soft: #e3f1e7; --amber: #b86e00; --amber-soft: #fbefd9; --red: #b42318; --red-soft: #fbe3e0;
-  --display: 'Bricolage Grotesque', system-ui, sans-serif; --text: 'Public Sans', system-ui, sans-serif;
+  --display: 'Bricolage Grotesque Variable', 'Bricolage Grotesque', system-ui, sans-serif; --text: 'Public Sans', system-ui, sans-serif;
 }
 * { box-sizing: border-box; }
 html, body, #root { margin: 0; min-height: 100%; }
+/* never slide sideways; inputs at 16px so iPhone Safari does not zoom in when one is tapped */
+html, body { overflow-x: clip; overscroll-behavior-x: none; }
+input, textarea { font-size: 16px !important; }
 body { background: var(--paper); color: var(--ink); font: 15px/1.45 var(--text); -webkit-font-smoothing: antialiased; }
 button { font: inherit; color: inherit; cursor: pointer; }
 button:focus-visible, input:focus-visible { outline: 3px solid var(--water); outline-offset: 2px; }
@@ -41,7 +44,8 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--water); out
 .map .pin::after { content: ''; width: 14px; height: 14px; border-radius: 50%; background: var(--water); border: 3px solid #fff; margin-top: 4px; box-shadow: 0 2px 6px rgba(0,0,0,.3); }
 .map .hint { position: absolute; left: 10px; right: 10px; top: 10px; z-index: 2; font-size: 12px; background: rgba(248,249,246,.94); padding: 7px 9px; border-radius: 9px; text-align: center; }
 
-.top { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.top { display: flex; justify-content: space-between; align-items: center; gap: 10px; min-width: 0; }
+.top > div { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .top b { font-weight: 600; } .top small { display: block; color: var(--muted); font-size: 12px; }
 .chip { white-space: nowrap; flex: none; border: 1px solid var(--line); background: #fff; border-radius: 16px; padding: 7px 12px; font-weight: 600; font-size: 13px; }
 
@@ -92,15 +96,16 @@ h3 { margin: 0; font-size: 13px; font-weight: 600; color: var(--muted); }
 @media (prefers-reduced-motion: reduce) { .spin, .skeleton { animation: none; } }
 
 /* the 3D: on top of the answer, full width on a phone */
-.stage { position: relative; height: 46vh; min-height: 300px; max-height: 520px; margin: 0 -16px; overflow: hidden; background: #c9d3d6; touch-action: none; cursor: grab; flex: none; }
-.stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
-.stage .tag { position: absolute; transform: translate(-50%, -130%); font: 600 12px/1 var(--text); background: var(--ink); color: #fff; padding: 6px 8px; border-radius: 8px; white-space: nowrap; pointer-events: none; z-index: 2; }
+.stage { position: sticky; top: 0; z-index: 4; height: 46vh; min-height: 150px; margin: 0 -16px; overflow: hidden; background: #c9d3d6; touch-action: none; cursor: grab; flex: none; box-shadow: 0 6px 16px rgba(22,32,27,.12); }
+.stage .scene { position: absolute; left: 0; right: 0; top: var(--crop, 0px); height: 46vh; min-height: 300px; max-height: 520px; }
+.stage .scene canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.stage .scene .tag, .stage .tag { position: absolute; transform: translate(-50%, -130%); font: 600 12px/1 var(--text); background: var(--ink); color: #fff; padding: 6px 8px; border-radius: 8px; white-space: nowrap; pointer-events: none; z-index: 2; }
 .stage .tag.blue { background: var(--water); } .stage .tag.green { background: var(--green); } .stage .tag.red { background: var(--red); }
 .stage .clock { position: absolute; right: 12px; top: 12px; z-index: 3; font: 600 12px/1.25 var(--text); background: rgba(248,249,246,.94); padding: 6px 9px; border-radius: 8px; text-align: right; }
 .stage .clock span { display: block; font-weight: 400; color: var(--muted); }
 .stage .legend { position: absolute; left: 12px; bottom: 12px; z-index: 3; display: flex; align-items: center; gap: 6px; font-size: 11px; background: rgba(248,249,246,.94); padding: 6px 9px; border-radius: 8px; }
 .stage .legend i { width: 12px; height: 8px; border-radius: 2px; display: inline-block; margin-left: 4px; }
-.stage .legend .w { background: #6b6448; } .stage .legend .a { background: #f0a12e; } .stage .legend .r { background: var(--red); } .stage .legend .g { background: var(--green); }
+.stage .legend .w { background: linear-gradient(90deg, #8cd9ff, #1a8cf2, #0838a0); width: 22px; } .stage .legend .a { background: #f0a12e; } .stage .legend .r { background: var(--red); } .stage .legend .g { background: var(--green); }
 .stage .load { position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%); width: 220px; z-index: 3; display: grid; gap: 5px; text-align: center; font-size: 12px; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,.5); transition: opacity .4s; pointer-events: none; }
 .stage .load i { display: block; height: 3px; border-radius: 2px; background: rgba(255,255,255,.35); overflow: hidden; }
 .stage .load i b { display: block; height: 100%; background: #fff; transition: width .3s; }

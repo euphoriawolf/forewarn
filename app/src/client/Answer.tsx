@@ -2,6 +2,7 @@
 // computed in code. The agent answers questions below it and shows each step as it works.
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Stage, type StageApi } from './Stage';
+import { Safe } from './Safe';
 import { useAgent } from 'agents/react';
 import { useAgentChat } from '@cloudflare/ai-chat/react';
 import * as I from './icons';
@@ -80,7 +81,8 @@ function Chat({ place, onAction }: { place: Place; onAction: (a: Record<string, 
   }, []);
   const agent = useAgent<{ place: Place | null }>({ agent: 'AskAgent', name: session });
   useEffect(() => { agent.setState({ place }); }, [agent, place]);
-  const { messages, sendMessage, status, clearHistory } = useAgentChat({ agent });
+  // no old history: each visit starts fresh, and the page never waits on loading it
+  const { messages, sendMessage, status, clearHistory } = useAgentChat({ agent, getInitialMessages: null });
   useEffect(() => { clearHistory(); }, [place.lat, place.lon]); // a new place starts a new conversation
   const [text, setText] = useState('');
   // follow the newest words down, once the person has asked something
@@ -136,6 +138,8 @@ export function Answer({ place, onChange }: { place: Place; onChange: () => void
   const stage = useRef<StageApi>(null);
   const [marked, setMarked] = useState('');
   const act = (x: Record<string, unknown>) => { if (x.action === 'mark_day') setMarked(String(x.weekday)); else stage.current?.run(x); };
+  // ?replay in the address plays the last flood straight away (for demos and recordings)
+  useEffect(() => { if (a?.pack && new URLSearchParams(location.search).has('replay')) stage.current?.run({ action: 'play_last_flood' }); }, [a]);
   useEffect(() => {
     setA(null); setError(''); setMarked('');
     fetch(`/api/place?lat=${place.lat}&lon=${place.lon}`).then((r) => r.json() as Promise<A>).then((d) => (d.error ? setError(d.error) : setA(d))).catch(() => setError('The forecast is not answering. Check your connection and try again.'));
@@ -145,7 +149,7 @@ export function Answer({ place, onChange }: { place: Place; onChange: () => void
       <div className="top"><div><b>{place.name}</b><small>{place.where ? `${place.where}, next 7 days` : 'Next 7 days'}</small></div><button className="chip" type="button" onClick={onChange}>Change place</button></div>
       {error && <div className="error">{error}</div>}
       {!a && !error && <><div className="skeleton" style={{ height: 150 }} /><div className="skeleton" style={{ height: 56 }} /></>}
-      {a?.pack && <Stage ref={stage} pack={a.pack} />}
+      {a?.pack && <Safe note="The 3D view could not load on this connection. The answer below is not affected."><Stage ref={stage} pack={a.pack} /></Safe>}
       {a && (
         <>
           <Verdict a={a} />
@@ -156,7 +160,7 @@ export function Answer({ place, onChange }: { place: Place; onChange: () => void
           <p className="fine">{a.floodLine.note} ECMWF 51-run forecast through Open-Meteo.{a.floodLine.source === 'last-flood' ? ' Last flood from Flood Check, a model estimate.' : ''}</p>
         </>
       )}
-      <Chat place={place} onAction={act} />
+      <Safe note="The chat could not connect. Check your connection and reload the page."><Chat place={place} onAction={act} /></Safe>
     </div>
   );
 }
