@@ -24,3 +24,7 @@ export const Minus = () => <svg viewBox="0 0 24 24" {...s} strokeWidth={2.4}><pa
 // a compass needle: the red half points north
 export const North = () => <svg viewBox="0 0 24 24"><path d="M12 3l4 9h-8z" fill="#b42318" /><path d="M12 21l-4-9h8z" fill="#9aa59f" /></svg>;
 export const Camera = () => <svg viewBox="0 0 24 24" {...s} strokeWidth={2.1}><path d="M4 8h3l2-3h6l2 3h3v11H4z" /><circle cx="12" cy="13" r="3.5" /></svg>;
+export const Shield = () => <svg viewBox="0 0 24 24" {...s} strokeWidth={2}><path d="M12 3l7 3v5c0 5-3 8.5-7 10-4-1.5-7-5-7-10V6z" /><path d="M9 12l2 2 4-4" /></svg>;
+export const History = () => <svg viewBox="0 0 24 24" {...s} strokeWidth={2}><path d="M3 12a9 9 0 1 0 3-6.7L3 8" /><path d="M3 3v5h5M12 7v5l3 2" /></svg>;
+export const Blur = () => <svg viewBox="0 0 24 24" {...s} strokeWidth={2}><circle cx="12" cy="8" r="4" /><path d="M4 21c1-4 4.5-6 8-6s7 2 8 6" /><path d="M3 3l18 18" /></svg>;
+export const Flag = () => <svg viewBox="0 0 24 24" {...s} strokeWidth={2}><path d="M5 21V4h11l-2 4 2 4H5" /></svg>;

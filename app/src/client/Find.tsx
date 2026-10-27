@@ -128,48 +128,41 @@ export function Find({ onPlace }: { onPlace: (p: Place) => void }) {
 
       <section><div className="wrap weeks">
         <div>
-          <h2>The water came at night. The rain had been coming for a month.</h2>
-          <p className="lead">In the 30 days before that night, Nairobi had more than twice its normal rain. The ground was full. New rain had nowhere to go but the river.</p>
-          <p className="lead">From 1991 to 2020, only one year was wetter at that time of year. The signs were in the data for weeks. They did not reach the people in the valley.</p>
+          <h2>The rain had been coming for a month.</h2>
+          <p className="lead">In the 30 days before that night, Nairobi got 340 mm of rain. A normal year brings 161 mm. The ground was full, so the next rain went straight into the river.</p>
         </div>
-        <div className="bars" role="img" aria-label="Rain in the 30 days before 23 April: 340 mm in 2024, against a normal of 161 mm">
-          <div className="now"><strong>340 mm</strong><b style={{ height: 200 }} /><span>2024</span></div>
-          <div><strong>161 mm</strong><b style={{ height: 95 }} /><span>A normal year</span></div>
-        </div>
+        <figure className="barfig">
+          <div className="bars" role="img" aria-label="Rain in the 30 days before 23 April: 340 mm in 2024, against a normal of 161 mm">
+            <div className="now"><strong>340 mm</strong><b style={{ height: 200 }} /><span>April 2024</span></div>
+            <div><strong>161 mm</strong><b style={{ height: 95 }} /><span>A normal year</span></div>
+          </div>
+          <figcaption>Only 1 year from 1991 to 2020 was wetter. CHIRPS rain records.</figcaption>
+        </figure>
       </div></section>
 
       <section className="film"><div className="wrap">
-        <h2>Watch a flood fill a neighbourhood, hour by hour.</h2>
-        <p className="lead">This is the March 2026 storm in Nairobi’s Industrial Area, by the Ngong River, from a flood model. Blue is water. Amber marks buildings with water at the door.</p>
+        <h2>Nairobi's Industrial Area, filling up hour by hour.</h2>
         <video ref={film} src="/og-video.mp4" poster="/flood-poster.jpg" muted loop playsInline preload="none" aria-label="3D flood model: water rises over a Nairobi neighbourhood" />
-        <p className="filmnote">Model estimate from Flood Check, drawn 4 times deeper than real so shallow water shows from above.</p>
+        <p className="filmnote">The March 2026 storm, from the Flood Check model. Blue is water. Amber is a building with water at the door. Water is drawn 4 times deeper so it shows from above.</p>
       </div></section>
 
       <section className="gap"><div className="wrap">
-        <h2>This is not one city’s story.</h2>
+        <h2>It happens all over Africa.</h2>
         <div className="nums">
           <div className="num"><b>Over half</b><p>of the people in Africa have no early warning system to tell them a flood is coming.</p><cite>WMO: 40% of Africans were covered in 2023, the lowest of any region. About 45% in 2024.</cite></div>
           <div className="num"><b>24 hours</b><p>of notice can cut the damage from a flood or storm by up to 30%.</p><cite>WMO, Early Warnings for All Action Plan for Africa.</cite></div>
         </div>
       </div></section>
 
-      <section><div className="wrap">
-        <div>
-          <h2>A disaster warning for every area, not only every country.</h2>
-          <p className="lead">Forecasts and warnings exist. Most go to governments and cover whole regions. Forewarn starts at the other end: the area where you live, down to your own street.</p>
-        </div>
-      </div></section>
-
       <section className="runs"><div className="wrap">
-        <h2>What Forewarn does, and what runs it</h2>
-        <p className="lead">Each part is built on public data or an open model you can check. Meta’s models do the reading and the seeing; code does the maths.</p>
+        <h2>How Forewarn warns you</h2>
+        <p className="lead">Two Meta models and three public data sources. Code works out every number.</p>
         <div className="feats">
           <article className="feat wide">
             <div>
               <span className="model meta">Meta Muse Spark Open</span>
-              <h3>An agent you can ask</h3>
-              <p>Ask about your area in plain words. The agent reads the forecasts and the rain, moves the 3D map to show you, and answers in a few short sentences. A checker compares every number in its answer with the data before you see it.</p>
-              <p className="how">Runs on Baseten, with the Cloudflare Agents SDK and the Vercel AI SDK.</p>
+              <h3>Ask in plain words</h3>
+              <p>It reads the data for your area, moves the map to show you, and every number it says is checked first.</p>
             </div>
             <figure className="phone mini">
               <div className="msg"><div className="psteps"><div>Read 51 forecasts for the next 14 days</div><div>Read the last 30 days of rain</div></div>
@@ -179,37 +172,39 @@ export function Find({ onPlace }: { onPlace: (p: Place) => void }) {
           <article className="feat wide">
             <div>
               <span className="model meta">Meta SAM 3.1</span>
-              <h3>Witness: your photo, read for water</h3>
-              <p>Add a photo of a flood where you are. Segment Anything finds the floodwater and marks it in blue, and finds every person in the frame so the page can pixelate them. Nobody in a report can be recognised.</p>
-              <p className="how">One photo takes about 3 seconds.</p>
+              <h3>Send a photo of the water</h3>
+              <p>SAM finds the water and the people in it. We tint the water blue and pixelate the people, so nobody can be recognised.</p>
             </div>
             <img className="wit" src="/witness-lagos.jpg" alt="A flooded Lagos street: the water marked in blue, the people pixelated" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
           </article>
           <article className="feat">
-            <span className="model">ECMWF ensemble</span>
-            <h3>The next 14 days</h3>
-            <p>51 runs of the European forecast, blended for your spot from the four nearest 28 km squares. The chance comes out in words, like “about 1 in 4”.</p>
+            <div className="viz dots51" role="img" aria-label="3 of 51 forecasts lit">{Array.from({ length: 51 }, (_, i) => <i key={i} className={i < 3 ? 'on' : ''} />)}<b>about 1 in 20</b></div>
+            <span className="model">ECMWF forecast</span>
+            <h3>14 days ahead</h3>
+            <p>51 versions of the European forecast for your spot, counted for you.</p>
           </article>
           <article className="feat">
-            <span className="model">CHIRPS, 1991 to 2020</span>
+            <div className="viz minibars" role="img" aria-label="Last 30 days 46 mm, normal 43 mm"><div><b style={{ width: '92%' }} /><span>Last 30 days, 46 mm</span></div><div><b className="n" style={{ width: '86%' }} /><span>Normal, 43 mm</span></div></div>
+            <span className="model">CHIRPS rain records</span>
             <h3>How wet the ground is</h3>
-            <p>The last 30 days of rain against 30 years of normal for the time of year. Soaked ground floods sooner; on a farm, a low number shows a dry season.</p>
+            <p>The last month against 30 years of records. On a farm, a low number means a dry season.</p>
           </article>
           <article className="feat">
+            <div className="viz still" style={{ backgroundImage: 'url(/flood-poster.jpg)' }} role="img" aria-label="Floodwater in a 3D model of Nairobi" />
             <span className="model">Flood Check model</span>
-            <h3>Your street in 3D</h3>
-            <p>In Lagos and Nairobi, the last big storm comes back hour by hour: real buildings, trees and roads, and the water the model shows at each door.</p>
+            <h3>The last flood in 3D</h3>
+            <p>Lagos and Nairobi, street by street, with the water at each door.</p>
           </article>
         </div>
       </div></section>
 
       <section className="trust"><div className="wrap">
-        <h2>Built to be trusted</h2>
-        <div className="cards">
-          <div><b>Every number is real</b><p>Code computes each chance, depth and date from public data. The agent explains them, and a checker compares every number with the data before you see it.</p></div>
-          <div><b>Tested on past disasters</b><p>We run Forewarn on 36 floods across Africa from 2024 to 2026 and publish what it would have said, hits and misses side by side.</p></div>
-          <div><b>Works with official warnings</b><p>Forewarn adds detail for your area. If your local authorities tell you to move, follow them.</p></div>
-          <div><b>Growing city by city</b><p>Forecasts and rain readings cover all of Africa today. Street-level 3D covers Lagos and Nairobi, with more cities next.</p></div>
+        <h2>Every number has a source</h2>
+        <div className="icons">
+          <div><I.Shield /><p>A checker compares each number the agent says with the data.</p></div>
+          <div><I.History /><p>We're testing it on 36 past African floods, and we'll show the misses too.</p></div>
+          <div><I.Blur /><p>People in photos are pixelated before anyone sees them.</p></div>
+          <div><I.Flag /><p>If your local officials say leave, leave.</p></div>
         </div>
       </div></section>
 
