@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Forewarn: map and agent</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Public+Sans:wght@400;600&display=swap" rel="stylesheet" />
+<style>
+  /* Just the map and the agent: the map stays still at the top, the chat scrolls under it,
+     map actions sit on the map. Real numbers for Kibera from the live app, 27 Oct 2026. */
+  :root { --bg: #e3e7e2; --paper: #f8f9f6; --ink: #16201b; --muted: #5d6a63; --line: #dde2dc; --water: #1d4ed8; --green: #2f7d4f;
+    --display: 'Bricolage Grotesque', system-ui, sans-serif; --text: 'Public Sans', system-ui, sans-serif; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.45 var(--text); -webkit-font-smoothing: antialiased; }
+  header { max-width: 1320px; margin: 0 auto; padding: 36px 16px 0; }
+  h1 { font: 800 36px/1.05 var(--display); letter-spacing: -0.02em; margin: 0 0 8px; }
+  header p { margin: 0; color: var(--muted); max-width: 70ch; }
+  .row { max-width: 1320px; margin: 0 auto; padding: 24px 16px 60px; display: grid; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); gap: 26px; justify-items: center; align-items: start; }
+  figure { margin: 0; width: 100%; max-width: 360px; }
+  figcaption { padding: 12px 4px 0; } figcaption b { font: 600 18px/1.2 var(--display); display: block; } figcaption span { color: var(--muted); font-size: 14px; }
+  .phone { position: relative; width: 100%; aspect-ratio: 360 / 760; background: var(--paper); border-radius: 26px; overflow: hidden; box-shadow: 0 16px 36px rgba(22,32,27,.13); display: flex; flex-direction: column; }
+  .bar { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px 10px; }
+  .bar b { font-weight: 600; } .bar small { display: block; color: var(--muted); font-size: 12px; }
+  .chip { border: 1px solid var(--line); background: #fff; border-radius: 16px; padding: 6px 11px; font: 600 12px/1 var(--text); white-space: nowrap; }
+  .map { position: relative; height: 44%; flex: none; background: center / cover; }
+  .map .acts { position: absolute; left: 10px; right: 10px; bottom: 10px; display: flex; gap: 6px; overflow: hidden; }
+  .map .acts span { background: rgba(248,249,246,.95); border-radius: 16px; padding: 7px 11px; font: 600 12px/1 var(--text); white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,.18); display: flex; align-items: center; gap: 6px; }
+  .map .acts span.on { background: var(--ink); color: #fff; }
+  .map .acts svg { width: 13px; height: 13px; }
+  .map .tag { position: absolute; transform: translate(-50%, -100%); font: 600 11px/1 var(--text); background: var(--green); color: #fff; padding: 5px 7px; border-radius: 7px; white-space: nowrap; }
+  .map .tag.blue { background: var(--water); }
+  .map .clock { position: absolute; right: 10px; top: 10px; font: 600 11px/1.25 var(--text); background: rgba(248,249,246,.94); padding: 5px 8px; border-radius: 7px; text-align: right; }
+  .map .clock span { display: block; font-weight: 400; color: var(--muted); }
+  .chat { flex: 1; overflow: hidden; padding: 12px 14px 0; display: flex; flex-direction: column; gap: 8px; }
+  .steps { font-size: 11px; color: var(--muted); display: flex; gap: 6px; align-items: center; }
+  .steps svg { width: 12px; height: 12px; color: var(--green); }
+  .bot { margin: 0; font-size: 14px; }
+  .bot b { font-weight: 600; }
+  .note { font-size: 13px; background: #eef1ec; border-radius: 12px; padding: 8px 10px; display: flex; gap: 8px; align-items: flex-start; }
+  .note svg { width: 15px; height: 15px; flex: none; margin-top: 2px; color: var(--water); }
+  .me { align-self: flex-end; max-width: 85%; background: var(--ink); color: #fff; padding: 8px 11px; border-radius: 15px 15px 4px 15px; font-size: 14px; }
+  .sug { display: flex; gap: 6px; flex-wrap: wrap; }
+  .ask { margin: 8px 12px 4px; height: 48px; border-radius: 24px; background: var(--ink); color: #eef1ec; display: flex; align-items: center; padding: 0 6px 0 16px; font-size: 14px; flex: none; }
+  .ask span:first-child { flex: 1; opacity: .75; }
+  .ask i { width: 36px; height: 36px; border-radius: 50%; background: #eef1ec; display: grid; place-items: center; }
+  .ask i svg { width: 16px; height: 16px; color: var(--ink); }
+  .fine { font-size: 10.5px; color: var(--muted); text-align: center; margin: 0 0 8px; flex: none; }
+  .desk { width: 100%; max-width: 1100px; grid-column: 1 / -1; }
+  .desk .frame { aspect-ratio: 16 / 9; background: var(--paper); border-radius: 18px; overflow: hidden; box-shadow: 0 16px 36px rgba(22,32,27,.13); display: grid; grid-template-columns: 1fr 380px; }
+  .desk .map { height: 100%; }
+  .desk .map .acts { bottom: auto; top: 10px; right: auto; }
+  .desk .side { display: flex; flex-direction: column; border-left: 1px solid var(--line); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Just the map and the agent</h1>
+  <p>No cards. The map stays still at the top; the chat scrolls under it. The agent opens with the answer in words. Map actions (last flood, nearest flood, my street, overview) sit on the map; tapping one moves the map and adds one line to the chat. Numbers are real, for Kibera on 27 Oct; the agent's wording is a draft.</p>
+</header>
+<main class="row" id="row"></main>
+<script>
+const I = {
+  tick: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+  play: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>',
+  drop: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3C9 8 6 11 6 14.5a6 6 0 0 0 12 0C18 11 15 8 12 3z"/></svg>',
+  eye: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>',
+  up: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 18l8-12 8 12z"/></svg>',
+  send: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M13 6l6 6-6 6"/></svg>',
+};
+const acts = (on) => `<div class="acts">${[['Last flood', I.play], ['Nearest flood', I.drop], ['My street', I.eye], ['Overview', I.up]].map(([t, i]) => `<span class="${t === on ? 'on' : ''}">${i}${t}</span>`).join('')}</div>`;
+const ask = `<div class="ask"><span>Ask about your place</span><i>${I.send}</i></div><p class="fine">Test version: chats are saved to improve Forewarn.</p>`;
+const opening = `
+  <div class="steps">${I.tick}Read 51 forecasts for 14 days and the March storm here</div>
+  <p class="bot"><b>Flooding looks unlikely here for the next 14 days.</b> The riskiest day is Thursday: about 1 in 20 forecasts bring more than 28.4 mm, more rain than the worst day of the March storm, which did not flood your spot.</p>
+  <p class="bot">Further out, the weeks from 16 November look near normal. This is for the area around you, not one street.</p>`;
+document.getElementById('row').innerHTML = `
+<figure><div class="phone">
+  <div class="bar"><div><b>Kibera</b><small>Nairobi, Kenya</small></div><span class="chip">Change</span></div>
+  <div class="map" style="background-image:url(data/map-kibera-14.jpg)">${acts('')}</div>
+  <div class="chat">${opening}
+    <div class="sug"><span class="chip">What floods near me?</span><span class="chip">Which day is wettest?</span></div>
+  </div>${ask}
+</div><figcaption><b>1. Open: the agent answers first</b><span>No card. The agent's first message is the answer, in words, with what it checked. The map shows your place; the actions sit on it.</span></figcaption></figure>
+
+<figure><div class="phone">
+  <div class="bar"><div><b>Kibera</b><small>Nairobi, Kenya</small></div><span class="chip">Change</span></div>
+  <div class="map" style="background-image:url(data/map-kibera-roofs.jpg)"><div class="clock">Sat 7 Mar, 16:00<span>March 2026 storm</span></div>${acts('Last flood')}</div>
+  <div class="chat">${opening}
+    <div class="note">${I.play}<div>Playing the March storm. Your spot stayed dry; the nearest water reached 24 cm, 250 m south.</div></div>
+  </div>${ask}
+</div><figcaption><b>2. Tap "Last flood" on the map</b><span>The map plays the storm hour by hour. One line lands in the chat so the words and the picture agree; the agent can carry on from there.</span></figcaption></figure>
+
+<figure><div class="phone">
+  <div class="bar"><div><b>Kibera</b><small>Nairobi, Kenya</small></div><span class="chip">Change</span></div>
+  <div class="map" style="background-image:url(data/map-kibera-roofs.jpg)"><span class="tag blue" style="left:42%;top:30%">24 cm in March</span>${acts('Nearest flood')}</div>
+  <div class="chat">
+    <div class="me">What floods near me?</div>
+    <div class="steps">${I.tick}Found the nearest spot that flooded</div>
+    <p class="bot">The nearest spot that flooded in the March storm is about 250 m south of you. The model shows water reached 24 cm there, at its highest early on Saturday 7 March. I have put it on the map.</p>
+  </div>${ask}
+</div><figcaption><b>3. Or ask, and the agent moves the map</b><span>The same map actions are the agent's tools: asking "what floods near me?" flies the map to the spot and marks it.</span></figcaption></figure>
+
+<div class="desk"><div class="frame">
+  <div class="map" style="background-image:url(data/map-kibera-roofs.jpg)"><div class="clock">Sat 7 Mar, 16:00<span>March 2026 storm</span></div>${acts('Last flood')}</div>
+  <div class="side"><div class="bar"><div><b>Kibera</b><small>Nairobi, Kenya</small></div><span class="chip">Change</span></div><div class="chat">${opening}<div class="note">${I.play}<div>Playing the March storm. Your spot stayed dry; the nearest water reached 24 cm, 250 m south.</div></div></div>${ask}</div>
+</div><figcaption><b>4. Desktop</b><span>The map fills the screen; the agent sits on the right.</span></figcaption></div>`;
+</script>
+</body>
+</html>
