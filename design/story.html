@@ -8,139 +8,165 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Public+Sans:wght@400;600&display=swap" rel="stylesheet" />
 <style>
-  /* The landing page as a story, from real numbers only:
-     ECMWF 51-run forecasts made 3 days before the Nairobi flood of 23 April 2024 (the run of 20 April 00:00 UTC,
-     lagos-flood/data-cache/forewarn/ens-events.json), and CHIRPS daily rain 1991 to 2024 for the
-     30 days before it. Kibera's "last 30 days" is from Open-Meteo, 27 Oct 2026. */
-  :root { --paper: #f8f9f6; --ink: #16201b; --muted: #5d6a63; --line: #dde2dc; --water: #1d4ed8; --water-soft: #e3eafc; --green: #2f7d4f;
+  /* The landing page as one story, told in order: the night (a real account), the weeks before it
+     (our data), the gap (two sourced numbers), the idea, the product, its limits, the ask.
+     Research behind the shape: one person's story moves people more than statistics, and mixing the
+     two in the same moment weakens the story (Small, Loewenstein and Slovic, 2007). So the opening has
+     no numbers, and the numbers come after, each on its own.
+     Sources are at the bottom of the page. */
+  :root { --night: #0b1420; --night-2: #13202f; --paper: #f8f9f6; --ink: #16201b; --muted: #5d6a63; --line: #dde2dc;
+    --water: #1d4ed8; --water-lit: #7fb2ff; --green: #2f7d4f;
     --display: 'Bricolage Grotesque', system-ui, sans-serif; --text: 'Public Sans', system-ui, sans-serif; }
   * { box-sizing: border-box; }
-  body { margin: 0; background: var(--paper); color: var(--ink); font: 16px/1.5 var(--text); -webkit-font-smoothing: antialiased; }
-  .wrap { max-width: 1040px; margin: 0 auto; padding: 0 16px; }
-  .brand { font: 800 20px/1 var(--display); letter-spacing: -0.02em; display: flex; gap: 8px; align-items: center; padding: 18px 0; }
-  .brand svg { width: 22px; height: 22px; color: var(--water); }
-  h1 { font: 800 clamp(34px, 6vw, 60px)/1.02 var(--display); letter-spacing: -0.03em; margin: 8px 0 14px; max-width: 16ch; }
-  h2 { font: 800 clamp(26px, 4vw, 40px)/1.08 var(--display); letter-spacing: -0.02em; margin: 0 0 10px; max-width: 22ch; }
+  body { margin: 0; background: var(--paper); color: var(--ink); font: 17px/1.55 var(--text); -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 0 20px; }
   p { margin: 0; }
-  .lead { font-size: 18px; color: var(--muted); max-width: 46ch; }
-  .find { margin: 22px 0 10px; display: grid; gap: 10px; max-width: 460px; }
-  .field { height: 54px; border-radius: 14px; border: 1.5px solid var(--line); background: #fff; display: flex; align-items: center; padding: 0 16px; color: var(--muted); }
-  .btn { height: 50px; border-radius: 25px; background: var(--line); display: grid; place-items: center; font-weight: 600; }
-  section { padding: 56px 0; border-top: 1px solid var(--line); }
-  .date { font: 600 14px/1 var(--text); color: var(--water); margin-bottom: 14px; }
+  .brand { font: 800 20px/1 var(--display); letter-spacing: -0.02em; display: flex; gap: 8px; align-items: center; padding: 20px 0; }
+  .brand svg { width: 22px; height: 22px; }
 
-  /* the story: three moments, the same place */
-  .beats { display: grid; gap: 18px; margin-top: 28px; }
-  @media (min-width: 860px) { .beats { grid-template-columns: repeat(3, 1fr); } }
-  .beat { background: #fff; border: 1px solid var(--line); border-radius: 20px; padding: 20px; display: grid; gap: 12px; align-content: start; }
-  .beat .when { font-size: 13px; font-weight: 600; color: var(--muted); }
-  .beat .big { font: 800 44px/1 var(--display); letter-spacing: -0.02em; }
-  .beat .big small { font: 600 16px/1 var(--text); color: var(--muted); margin-left: 6px; letter-spacing: 0; }
-  .runs { display: grid; grid-template-columns: repeat(17, 1fr); gap: 4px; }
-  .runs i { aspect-ratio: 1; border-radius: 50%; background: #d6dcd8; }
-  .runs i.on { background: var(--water); }
-  .bars { display: grid; gap: 8px; }
-  .bar { display: grid; grid-template-columns: 74px 1fr; gap: 10px; align-items: center; font-size: 13px; }
-  .bar b { display: block; height: 22px; border-radius: 6px; background: #c5cdc8; }
-  .bar.now b { background: var(--water); }
-  .beat img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; border-radius: 12px; display: block; }
-  .check { font-size: 12px; color: #9a5b00; background: #fbefd9; border-radius: 8px; padding: 6px 9px; }
+  /* 1. the night */
+  .night { background: radial-gradient(120% 80% at 70% 0%, var(--night-2), var(--night) 60%); color: #e8eef6; padding-bottom: 72px; }
+  .night .brand { color: #fff; } .night .brand svg { color: var(--water-lit); }
+  .place { margin-top: 48px; font-size: 15px; color: #9fb0c4; }
+  .shout { font: 800 clamp(64px, 14vw, 150px)/0.92 var(--display); letter-spacing: -0.04em; margin: 14px 0 6px; color: #fff; }
+  .shout small { display: block; font: 600 clamp(18px, 2.4vw, 24px)/1.3 var(--text); letter-spacing: 0; color: var(--water-lit); margin-top: 12px; }
+  .tell { max-width: 34ch; font-size: clamp(19px, 2.2vw, 22px); line-height: 1.5; color: #cfd9e5; margin-top: 26px; }
+  .tell + .tell { margin-top: 14px; }
+  .point { font: 800 clamp(28px, 4.4vw, 44px)/1.1 var(--display); letter-spacing: -0.02em; color: #fff; max-width: 20ch; margin-top: 44px; }
+  .find { margin-top: 26px; display: grid; gap: 10px; max-width: 470px; }
+  .field { height: 56px; border-radius: 14px; background: #fff; display: flex; align-items: center; justify-content: space-between; padding: 0 8px 0 18px; color: var(--muted); }
+  .field b { white-space: nowrap; background: var(--water); color: #fff; font-weight: 600; border-radius: 10px; padding: 10px 14px; font-size: 15px; }
+  .find small { color: #9fb0c4; font-size: 14px; }
 
-  .turn { margin-top: 30px; font: 800 clamp(22px, 3vw, 30px)/1.2 var(--display); letter-spacing: -0.01em; max-width: 30ch; }
+  section { padding: 72px 0; }
+  h2 { font: 800 clamp(30px, 4.6vw, 46px)/1.06 var(--display); letter-spacing: -0.025em; margin: 0 0 16px; max-width: 18ch; }
+  .lead { font-size: 19px; max-width: 46ch; color: #2c3a33; }
+  .lead + .lead { margin-top: 12px; }
 
-  /* what Forewarn reads */
-  .reads { display: grid; gap: 18px; margin-top: 26px; }
-  @media (min-width: 860px) { .reads { grid-template-columns: repeat(3, 1fr); } }
-  .read b { font: 600 19px/1.25 var(--display); display: block; margin-bottom: 4px; }
-  .read p { color: var(--muted); }
+  /* 2. the weeks before */
+  .weeks { display: grid; gap: 34px; align-items: end; }
+  @media (min-width: 860px) { .weeks { grid-template-columns: 1fr 1fr; } }
+  .bars { display: flex; gap: 22px; align-items: flex-end; height: 260px; padding-top: 10px; }
+  .bars div { flex: 1; display: grid; gap: 8px; align-content: end; height: 100%; text-align: center; }
+  .bars b { display: block; border-radius: 10px 10px 4px 4px; background: #c5cdc8; }
+  .bars .now b { background: var(--water); }
+  .bars strong { font: 800 30px/1 var(--display); }
+  .bars span { font-size: 14px; color: var(--muted); }
 
-  /* the app opening, beside the promise */
-  .pair { display: grid; gap: 28px; align-items: center; }
+  /* 3. the gap: two numbers, each alone */
+  .gap { background: #eef1ec; }
+  .nums { display: grid; gap: 40px; margin-top: 30px; }
+  @media (min-width: 860px) { .nums { grid-template-columns: 1fr 1fr; } }
+  .num b { font: 800 clamp(64px, 10vw, 104px)/0.95 var(--display); letter-spacing: -0.04em; display: block; color: var(--water); }
+  .num p { font-size: 19px; max-width: 30ch; margin-top: 10px; }
+  .num cite { display: block; font-style: normal; font-size: 13px; color: var(--muted); margin-top: 8px; }
+
+  /* 4. the idea and the product */
+  .pair { display: grid; gap: 40px; align-items: center; }
   @media (min-width: 860px) { .pair { grid-template-columns: 1fr 360px; } }
-  .phone { background: #fff; border: 1px solid var(--line); border-radius: 26px; overflow: hidden; box-shadow: 0 16px 36px rgba(22,32,27,.12); }
-  .phone .map { height: 170px; background: url(data/map-kibera-roofs.jpg) center / cover; }
-  .phone .msg { padding: 14px 16px 18px; display: grid; gap: 8px; font-size: 14px; }
-  .phone .steps { font-size: 11.5px; color: var(--muted); }
+  .phone { background: #fff; border: 1px solid var(--line); border-radius: 28px; overflow: hidden; box-shadow: 0 18px 40px rgba(22,32,27,.14); }
+  .phone .bar { display: flex; justify-content: space-between; padding: 12px 16px; font-size: 14px; } .phone .bar b { font-weight: 600; }
+  .phone .map { height: 180px; background: url(data/map-kibera-roofs.jpg) center / cover; }
+  .phone .msg { padding: 14px 16px 18px; display: grid; gap: 8px; font-size: 14.5px; line-height: 1.5; }
+  .phone .steps { font-size: 12px; color: var(--muted); }
   .phone .steps div::before { content: '✓ '; color: var(--green); font-weight: 700; }
-  .rules { display: grid; gap: 12px; margin-top: 18px; }
-  .rules div { display: flex; gap: 10px; }
-  .rules i { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--water); margin-top: 9px; }
-  footer { padding: 32px 0 48px; font-size: 13px; color: var(--muted); border-top: 1px solid var(--line); }
-  .note { max-width: 1040px; margin: 0 auto; padding: 14px 16px; font-size: 13px; color: var(--muted); }
+  .does { display: grid; gap: 14px; margin-top: 24px; max-width: 46ch; }
+  .does div { display: grid; grid-template-columns: 22px 1fr; gap: 10px; }
+  .does i { width: 10px; height: 10px; border-radius: 50%; background: var(--water); margin-top: 9px; }
+
+  /* 5. honest limits */
+  .limits { border-top: 1px solid var(--line); }
+  .limits ul { margin: 18px 0 0; padding-left: 20px; max-width: 56ch; display: grid; gap: 10px; color: #2c3a33; }
+
+  /* 6. the ask */
+  .ask { background: var(--night); color: #fff; text-align: left; }
+  .ask h2 { color: #fff; }
+  .ask .find small { color: #9fb0c4; }
+  footer { padding: 28px 0 44px; font-size: 13px; color: var(--muted); }
+  footer a { color: inherit; }
+  .note { background: #fbefd9; color: #6b4300; font-size: 13px; padding: 10px 20px; text-align: center; }
 </style>
 </head>
 <body>
-<div class="note">Mockup of the landing page as a story. Every number comes from real data (listed at the bottom). Orange boxes are facts not yet traced to a source: they stay off the live page until they are.</div>
-<div class="wrap">
-  <div class="brand"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3C9 8 6 11 6 14.5a6 6 0 0 0 12 0C18 11 15 8 12 3z"/></svg>Forewarn</div>
-  <h1>Know what the weather will do to your place, before it happens.</h1>
-  <p class="lead">Your street, farm or village, anywhere in Africa. Floods first.</p>
-  <div class="find"><div class="field">Find your street, farm or village</div><div class="btn">Use my location</div></div>
-</div>
+<div class="note">Mockup. The Mathare account, the coverage figures and the 30% figure are sourced (links at the bottom). The rain numbers are ours, from CHIRPS. The story does not name a person: we have no one's permission to tell their story.</div>
 
-<section><div class="wrap">
-  <div class="date">Nairobi, April 2024</div>
-  <h2>The warning was in the month before, not the day.</h2>
-  <div class="beats">
-    <div class="beat">
-      <div class="when">20 April: three days before</div>
-      <div class="big">3 <small>of 51 forecasts</small></div>
-      <div class="runs" id="runs"></div>
-      <p>brought heavy rain (30 mm or more) for 23 April. The middle forecast: 11 mm. On the forecast alone, a flood looked unlikely.</p>
-    </div>
-    <div class="beat">
-      <div class="when">The 30 days before</div>
-      <div class="big">340 mm <small>of rain</small></div>
-      <div class="bars">
-        <div class="bar now"><span>2024</span><b style="width:85%"></b></div>
-        <div class="bar"><span>Normal</span><b style="width:40%"></b></div>
-      </div>
-      <p>More than twice the normal 161 mm for that time of year. In 30 years (1991 to 2020), only one was wetter. The ground was already full.</p>
-    </div>
-    <div class="beat">
-      <div class="when">23 April</div>
-      <img src="data/hero-march.jpg" alt="Water in Nairobi streets, from the flood model" />
-      <p>Rain that looked ordinary fell on soaked ground, and Nairobi flooded.</p>
-      <div class="check">To trace: a source for the April 2024 flood itself (the event list counts 369 reports; whose?). The picture is the March 2026 storm from the model, so its caption must say so.</div>
-    </div>
+<header class="night"><div class="wrap">
+  <div class="brand"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3C9 8 6 11 6 14.5a6 6 0 0 0 12 0C18 11 15 8 12 3z"/></svg>Forewarn</div>
+  <p class="place">Mathare, Nairobi. The night of Tuesday 23 April 2024.</p>
+  <p class="shout">“Maji! Maji!”<small>Water! Water!</small></p>
+  <p class="tell">People woke in the middle of the night to their neighbours shouting. The river that runs through the valley was already rising into their homes.</p>
+  <p class="tell">That shout was the warning. For most people in Africa, it still is.</p>
+  <p class="point">Forewarn tells you days before what the weather will do to your street.</p>
+  <div class="find">
+    <div class="field">Your street, farm or village<b>Check my place</b></div>
+    <small>Free. Any place in Africa. No account needed.</small>
   </div>
-  <p class="turn">So Forewarn reads both: the rain that is coming, and the rain already in the ground.</p>
+</div></header>
+
+<section><div class="wrap weeks">
+  <div>
+    <h2>The water came at night. The rain had been coming for a month.</h2>
+    <p class="lead">In the 30 days before that night, Nairobi had more than twice its normal rain. The ground was full. New rain had nowhere to go but the river.</p>
+    <p class="lead">From 1991 to 2020, only one year was wetter at that time of year. The signs were in the data for weeks. They did not reach the people in the valley.</p>
+  </div>
+  <div class="bars" role="img" aria-label="Rain in the 30 days before 23 April: 340 mm in 2024, against a normal of 161 mm">
+    <div class="now"><strong>340 mm</strong><b style="height:200px"></b><span>2024</span></div>
+    <div><strong>161 mm</strong><b style="height:95px"></b><span>A normal year</span></div>
+  </div>
 </div></section>
 
-<section><div class="wrap">
-  <h2>Three things it reads for your place</h2>
-  <div class="reads">
-    <div class="read"><b>The next 14 days</b><p>51 runs of the ECMWF forecast, blended for your spot. You get a chance in plain words: "about 1 in 4 forecasts".</p></div>
-    <div class="read"><b>The last 30 days</b><p>How much rain has already fallen against normal for the time of year. Soaked ground floods sooner. On a farm, the same number shows a season running dry.</p></div>
-    <div class="read"><b>Your street in 3D</b><p>In Lagos and Nairobi, replay the last flood street by street and see which roads went under.</p></div>
+<section class="gap"><div class="wrap">
+  <h2>This is not one city’s story.</h2>
+  <div class="nums">
+    <div class="num"><b>Over half</b><p>of the people in Africa have no early warning system to tell them a flood is coming.</p><cite>WMO: 40% of Africans were covered in 2023, the lowest of any region. About 45% in 2024.</cite></div>
+    <div class="num"><b>24 hours</b><p>of notice can cut the damage from a flood or storm by up to 30%.</p><cite>WMO, Early Warnings for All Action Plan for Africa.</cite></div>
   </div>
 </div></section>
 
 <section><div class="wrap pair">
   <div>
-    <h2>An agent you can ask, that never makes up a number.</h2>
-    <div class="rules">
-      <div><i></i><p>Code computes every chance, depth and date. The agent (Meta's Muse Spark) explains them and moves the map.</p></div>
-      <div><i></i><p>A checker compares every number in an answer with the data before you see it.</p></div>
-      <div><i></i><p>A person approves every alert before it goes to anyone.</p></div>
+    <h2>A warning for every street, not only every country.</h2>
+    <p class="lead">Forecasts and warnings exist. Most go to governments and cover whole regions. Forewarn starts at the other end: your door.</p>
+    <div class="does">
+      <div><i></i><p><b>Days ahead, in plain words.</b> It reads 51 runs of the world’s leading forecast for your spot and tells you the chance, like “about 1 in 4”.</p></div>
+      <div><i></i><p><b>It knows how wet the ground already is.</b> The month before matters as much as the day. On a farm, the same reading shows a season running dry.</p></div>
+      <div><i></i><p><b>See it on your own street.</b> In Lagos and Nairobi, watch the last flood come back street by street.</p></div>
+      <div><i></i><p><b>Ask it anything.</b> An agent built on Meta’s Muse Spark answers, and it never makes up a number.</p></div>
     </div>
   </div>
   <div class="phone">
+    <div class="bar"><b>Kibera</b><span>Nairobi, Kenya</span></div>
     <div class="map"></div>
     <div class="msg">
       <div class="steps"><div>Read 51 forecasts for the next 14 days</div><div>Read the last 30 days of rain</div></div>
       <p><b>Flooding looks unlikely in Kibera for the next 14 days.</b> The ground is not soaked: the last 30 days brought 46 mm, close to the normal 37 mm for this time of year.</p>
-      <p>The riskiest day is Thursday: about 1 in 20 forecasts bring more than 28.4 mm. That is more than the worst day of the March storm, which did not flood your spot.</p>
+      <p>The riskiest day is Thursday: about 1 in 20 forecasts bring more than 28.4 mm.</p>
     </div>
   </div>
 </div></section>
 
+<section class="limits"><div class="wrap">
+  <h2>What it cannot do yet</h2>
+  <ul>
+    <li>It will miss some floods. Forecasts can under-call a single violent storm. We test Forewarn on 36 past African floods and show the misses next to the hits.</li>
+    <li>The street-level 3D covers Lagos and Nairobi for now. The forecast and the rain reading cover all of Africa.</li>
+    <li>It does not replace your government’s warnings. If they tell you to leave, leave.</li>
+  </ul>
+</div></section>
+
+<section class="ask"><div class="wrap">
+  <h2>Check your place before the next rains.</h2>
+  <div class="find">
+    <div class="field">Your street, farm or village<b>Check my place</b></div>
+    <small>Free. Any place in Africa. No account needed.</small>
+  </div>
+</div></section>
+
 <footer><div class="wrap">
-  Data: ECMWF ensemble forecasts through Open-Meteo. CHIRPS daily rainfall (Climate Hazards Center, UC Santa Barbara). Street-level water from Flood Check, a model estimate (pre-existing project). Imagery: Esri, EOX Sentinel-2.
+  Sources: <a href="https://www.aljazeera.com/news/2024/5/1/blame-the-government-kenyans-bemoan-lack-of-support-amid-record-flooding">Al Jazeera, 1 May 2024</a> (Mathare, the night of 23 April).
+  <a href="https://wmo.int/news/media-centre/early-warnings-all-action-plan-africa-launched">WMO, Early Warnings for All Action Plan for Africa, 2023</a>.
+  <a href="https://news.un.org/en/story/2025/10/1166151">UN News, October 2025</a> (24 hours, up to 30%). WMO EUMETSAT forum, 2024 (about 45%).
+  Rain: CHIRPS daily, Climate Hazards Center, UC Santa Barbara, 1991 to 2024. Forecasts: ECMWF through Open-Meteo. Street water: Flood Check, a model estimate.
 </div></footer>
-<script>
-  // 51 dots, 3 lit: the 3 forecasts that brought 30 mm or more for 23 April
-  document.getElementById('runs').innerHTML = Array.from({ length: 51 }, (_, i) => `<i class="${i < 3 ? 'on' : ''}"></i>`).join('');
-</script>
 </body>
 </html>
