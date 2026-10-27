@@ -207,24 +207,35 @@ export async function placeScene({ stage, canvas, source, view = 'street', weath
   stage.addEventListener('wheel', (e) => {
     e.preventDefault(); stop();
     const dy = e.deltaY * (e.deltaMode === 1 ? 16 : 1);
-    zoomAt(e.clientX, e.clientY, Math.exp(dy * (e.ctrlKey ? 0.01 : 0.0015))); settled();
+    zoomAt(e.clientX, e.clientY, Math.exp(dy * (e.ctrlKey ? 0.01 : 0.0015))); touch(); settled();
   }, { passive: false, signal: off.signal });
   // the buttons on the map: zoom on the centre, and point north again
-  const centre = () => { const r = stage.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; };
+  const centre = () => { const r = stage.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + (r.height - inset) / 2 }; };
 
+  // Draw only when something changes: a still map costs nothing, so the page around it (the chat sheet)
+  // stays smooth. While the view moves, frames skip ambient occlusion; one full frame follows when it stops.
+  let ao = null, dirty = true, wasActive = false, shadowsDrawn = false;
+  const touch = () => { dirty = true; };
   const composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(1, 1, { type: THREE.HalfFloatType, samples: low ? 0 : 4 }));
   composer.addPass(new RenderPass(scene, camera));
   if (!low) {
-    const ao = new GTAOPass(scene, camera, 1, 1);
+    ao = new GTAOPass(scene, camera, 1, 1);
     ao.updateGtaoMaterial({ radius: 6, distanceExponent: 1.5, thickness: 4, scale: 1.4, samples: 16, distanceFallOff: 1 });
     ao.blendIntensity = 1.0;
     composer.addPass(ao);
   }
   composer.addPass(new OutputPass());
+  // inset: how many pixels at the bottom a sheet covers. The picture shifts up by half of it (a view
+  // offset, not a resize), so the place stays centred in what can be seen, and it eases there
+  let inset = 0, insetGoal = 0;
+  const offset = () => {
+    const w = stage.clientWidth, h = stage.clientHeight;
+    if (Math.abs(inset) < 0.5) camera.clearViewOffset(); else camera.setViewOffset(w, h, 0, inset / 2, w, h);
+  };
   const size = () => {
     const w = stage.clientWidth, h = stage.clientHeight;
     renderer.setSize(w, h, false); composer.setSize(w, h);
-    camera.aspect = w / h; camera.updateProjectionMatrix();
+    camera.aspect = w / h; offset(); camera.updateProjectionMatrix(); dirty = true;
   };
   new ResizeObserver(size).observe(stage); size();
 
@@ -255,20 +266,31 @@ export async function placeScene({ stage, canvas, source, view = 'street', weath
       if (near) { Object.assign(V, fly); fly = null; settled(); }
     }
     if (drift && !gesture && !fly) V.yaw += dt * drift; // a slow turn, for the film
-    place();
-    onView?.(V.yaw);
-    // the shadow box follows what you look at, sized to the view, so shadows stay sharp
-    const r = Math.min(1600, Math.max(250, V.dist * 0.9));
-    Object.assign(sun.shadow.camera, { left: -r, right: r, top: r, bottom: -r, near: 1, far: 6000 }); sun.shadow.camera.updateProjectionMatrix();
-    sun.target.position.copy(target); sun.position.copy(target).addScaledVector(sd, 2500);
-    if (waterMat && !still) waterMat.normalMap.offset.set(t * 0.000012, t * 0.000008);
-    onFrame?.(t);
-    composer.render();
-    for (const g2 of tags) {
-      pv.copy(g2.p).project(camera);
-      const off = pv.z > 1 || Math.abs(pv.x) > 1.1 || Math.abs(pv.y) > 1.1;
-      g2.el.style.display = off ? 'none' : '';
-      g2.el.style.left = ((pv.x + 1) / 2) * stage.clientWidth + 'px'; g2.el.style.top = ((1 - pv.y) / 2) * stage.clientHeight + 'px';
+    if (Math.abs(insetGoal - inset) > 0.5) { inset += (insetGoal - inset) * (1 - Math.exp(-dt / 140)); offset(); }
+    else if (inset !== insetGoal) { inset = insetGoal; offset(); }
+    const active = !!(pts.size || glide || zoomAnim || fly || onFrame || (drift && !still) || inset !== insetGoal);
+    if (wasActive && !active) dirty = true; // the full-quality frame once it stops
+    wasActive = active;
+    if (active || dirty) {
+      dirty = false;
+      place();
+      onView?.(V.yaw);
+      // the shadow box follows what you look at, sized to the view, so shadows stay sharp
+      const r = Math.min(1600, Math.max(250, V.dist * 0.9));
+      Object.assign(sun.shadow.camera, { left: -r, right: r, top: r, bottom: -r, near: 1, far: 6000 }); sun.shadow.camera.updateProjectionMatrix();
+      sun.target.position.copy(target); sun.position.copy(target).addScaledVector(sd, 2500);
+      if (waterMat && !still && active) waterMat.normalMap.offset.set(t * 0.000012, t * 0.000008);
+      onFrame?.(t);
+      if (ao) ao.enabled = !active;
+      // shadows: kept from the last still frame while the view moves, redrawn when it stops
+      renderer.shadowMap.autoUpdate = !active || !shadowsDrawn; shadowsDrawn = true;
+      composer.render();
+      for (const g2 of tags) {
+        pv.copy(g2.p).project(camera);
+        const off = pv.z > 1 || Math.abs(pv.x) > 1.1 || Math.abs(pv.y) > 1.1;
+        g2.el.style.display = off ? 'none' : '';
+        g2.el.style.left = ((pv.x + 1) / 2) * stage.clientWidth + 'px'; g2.el.style.top = ((1 - pv.y) / 2) * stage.clientHeight + 'px';
+      }
     }
     requestAnimationFrame(frame);
   }
@@ -278,7 +300,7 @@ export async function placeScene({ stage, canvas, source, view = 'street', weath
   say(0.4, 'Loading buildings and roads');
   const C = await source.city();
   const bld = buildBuildings(C.buildings, gy, photo, HALF);
-  scene.add(bld.mesh);
+  scene.add(bld.mesh); touch();
 
   const roadLayer = new THREE.Group(); scene.add(roadLayer);
   function ribbons(roads, width, color, lift, opacity = 1) {
@@ -305,7 +327,7 @@ export async function placeScene({ stage, canvas, source, view = 'street', weath
   // ---- stage 3: trees and water
   say(0.72, 'Loading trees and the March water');
   const L = await source.life();
-  scene.add(buildTrees(L.trees, gy));
+  scene.add(buildTrees(L.trees, gy)); touch();
 
   const n = 300, wgeo = new THREE.PlaneGeometry(HALF * 2, HALF * 2, n, n); wgeo.rotateX(-Math.PI / 2);
   const wcol = new THREE.Float32BufferAttribute(new Float32Array(wgeo.attributes.position.count * 4), 4); wgeo.setAttribute('color', wcol);
@@ -317,6 +339,7 @@ export async function placeScene({ stage, canvas, source, view = 'street', weath
   const shallow = new THREE.Color('#8cd9ff'), mid = new THREE.Color('#1a8cf2'), deep = new THREE.Color('#0838a0'), c = new THREE.Color();
   const DEPTH_V = 4; // water is drawn 4 times thicker than real, so 25 cm still shows from 400 m (the legend says so)
   function setWater(cm) {
+    touch();
     if (!cm) { water.visible = false; bld.mark(null); return; }
     const p = wgeo.attributes.position;
     for (let i = 0; i < p.count; i++) {
@@ -333,6 +356,7 @@ export async function placeScene({ stage, canvas, source, view = 'street', weath
   let lit = null;
   const peak = new Float32Array(g.w * g.h); for (const h of L.cm) for (let i = 0; i < peak.length; i++) peak[i] = Math.max(peak[i], h[i]);
   function lightRoads(names) {
+    touch();
     if (lit) { roadLayer.remove(...lit); lit = null; }
     if (!names?.length) return;
     const wetSeg = [], drySeg = [];
@@ -345,14 +369,15 @@ export async function placeScene({ stage, canvas, source, view = 'street', weath
     roadLayer.add(...lit);
   }
 
-  say(1, '');
+  say(1, ''); touch();
   return {
     setWater, lightRoads, hours: L.cm.length, cmAt: (h) => L.cm[h], peak, start: L.start, roads: C.roads,
     depthAt: (cm, x, z) => Math.round(cell(cm, x, z)),
-    tag(text, x, z, cls = '', lift = 4) { const el = document.createElement('div'); el.className = 'tag ' + cls; el.textContent = text; stage.append(el); tags.push({ el, p: new THREE.Vector3(x, gy(x, z) + lift, z) }); return el; },
+    tag(text, x, z, cls = '', lift = 4) { const el = document.createElement('div'); el.className = 'tag ' + cls; el.textContent = text; stage.append(el); tags.push({ el, p: new THREE.Vector3(x, gy(x, z) + lift, z) }); touch(); return el; },
     view(name, o = {}) { stop(); fly = { ...views[name], ...o }; },
     zoom(f) { stop(); const c = centre(); zoomAnim = { x: c.x, y: c.y, f, t0: performance.now(), done: 0 }; },
     north() { stop(); fly = { ...V, yaw: 0 }; },
+    setInset(px) { insetGoal = Math.max(0, px); },
     camera: () => ({ ...V }),
     dispose() { alive = false; off.abort(); clearTimeout(settle); for (const t of tags) t.el.remove(); renderer.dispose(); },
     onFrame: (fn) => (onFrame = fn),

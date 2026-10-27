@@ -71,11 +71,16 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--water); out
 
 /* a place: the map and the agent. Phone: the map on top stays still, only the chat scrolls under
    it. Desktop: the map fills the left, the agent sits on the right. */
-.place { height: 100dvh; display: grid; grid-template-rows: auto 44dvh minmax(0, 1fr); grid-template-areas: "top" "map" "talk"; overflow: hidden; }
-.place > .top { grid-area: top; padding: 10px 16px 9px; }
-.mapbox { grid-area: map; position: relative; min-height: 0; }
-.talk { grid-area: talk; min-height: 0; display: flex; flex-direction: column; }
-.chat { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 14px 16px 8px; display: flex; flex-direction: column; gap: 10px; }
+.place { position: relative; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
+.place > .top { padding: 10px 16px 9px; flex: none; }
+.place > .body { position: relative; flex: 1; min-height: 0; }
+.mapbox { position: absolute; inset: 0; }
+/* the chat as a sheet over the map: only its height moves (the map behind never resizes) */
+.sheet { position: absolute; left: 0; right: 0; bottom: 0; height: 55%; z-index: 5; background: var(--paper); border-radius: 20px 20px 0 0; box-shadow: 0 -8px 28px rgba(22,32,27,.18); display: flex; flex-direction: column; will-change: height; }
+.grab { flex: none; height: 26px; display: grid; place-items: center; touch-action: none; cursor: grab; }
+.grab i { width: 40px; height: 5px; border-radius: 3px; background: #c5cdc8; }
+.talk { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.chat { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 4px 16px 8px; display: flex; flex-direction: column; gap: 10px; }
 .turn { display: grid; gap: 8px; }
 .turn:empty { display: none; }
 .me { justify-self: end; max-width: 88%; background: var(--ink); color: #fff; padding: 9px 12px; border-radius: 16px 16px 4px 16px; }
@@ -94,7 +99,7 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--water); out
 .stage .tag.blue { background: var(--water); } .stage .tag.green { background: var(--green); } .stage .tag.red { background: var(--red); }
 .stage .clock { position: absolute; left: 10px; top: 10px; z-index: 3; font: 600 12px/1.25 var(--text); background: rgba(248,249,246,.94); padding: 6px 9px; border-radius: 8px; pointer-events: none; }
 .stage .clock span { display: block; font-weight: 400; color: var(--muted); }
-.stage .legend { position: absolute; left: 10px; bottom: 54px; z-index: 3; display: flex; align-items: center; gap: 6px; font-size: 11px; background: rgba(248,249,246,.94); padding: 6px 9px; border-radius: 8px; pointer-events: none; }
+.stage .legend { position: absolute; left: 10px; bottom: calc(var(--inset, 0px) + 54px); transition: bottom .38s cubic-bezier(.2, .8, .2, 1); z-index: 3; display: flex; align-items: center; gap: 6px; font-size: 11px; background: rgba(248,249,246,.94); padding: 6px 9px; border-radius: 8px; pointer-events: none; }
 .stage .legend i { width: 12px; height: 8px; border-radius: 2px; display: inline-block; margin-left: 4px; }
 .stage .legend .w { background: linear-gradient(90deg, #8cd9ff, #1a8cf2, #0838a0); width: 22px; } .stage .legend .a { background: #f0a12e; } .stage .legend .r { background: var(--red); } .stage .legend .g { background: var(--green); }
 .stage .load { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 220px; z-index: 3; display: grid; gap: 5px; text-align: center; font-size: 12px; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,.5); transition: opacity .4s; pointer-events: none; }
@@ -102,7 +107,7 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--water); out
 .stage .load i b { display: block; height: 100%; background: #fff; transition: width .3s; }
 .stage .load.done { opacity: 0; visibility: hidden; transition: opacity .4s, visibility 0s .4s; }
 /* the map's own buttons: the actions along the bottom, the compass (and zoom with a mouse) on the right */
-.stage .acts { position: absolute; left: 0; right: 0; bottom: 0; z-index: 3; display: flex; gap: 6px; padding: 0 10px 10px; overflow-x: auto; scrollbar-width: none; touch-action: pan-x; }
+.stage .acts { position: absolute; left: 0; right: 0; bottom: var(--inset, 0px); transition: bottom .38s cubic-bezier(.2, .8, .2, 1); z-index: 3; display: flex; gap: 6px; padding: 0 10px 10px; overflow-x: auto; scrollbar-width: none; touch-action: pan-x; }
 .stage .acts::-webkit-scrollbar { display: none; }
 .stage .acts button { flex: none; display: flex; align-items: center; gap: 6px; border: 0; border-radius: 17px; padding: 8px 12px; background: rgba(248,249,246,.96); font-weight: 600; font-size: 13px; box-shadow: 0 2px 8px rgba(0,0,0,.18); }
 .stage .acts button.on { background: var(--ink); color: #fff; }
@@ -115,9 +120,10 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--water); out
 @media (hover: hover) and (pointer: fine) { .stage .nav .desk { display: grid; } }
 
 @media (min-width: 900px) {
-  .place { grid-template-columns: minmax(0, 1fr) 400px; grid-template-rows: auto minmax(0, 1fr); grid-template-areas: "map top" "map talk"; }
-  .place > .top { border-left: 1px solid var(--line); padding: 14px 16px 10px; }
-  .talk { border-left: 1px solid var(--line); }
+  .place > .top { position: absolute; top: 0; right: 0; width: 400px; z-index: 6; background: var(--paper); border-left: 1px solid var(--line); padding: 14px 16px 10px; }
+  .mapbox { right: 400px; }
+  .sheet { left: auto; width: 400px; top: 0; height: auto !important; padding-top: 56px; border-radius: 0; box-shadow: none; border-left: 1px solid var(--line); }
+  .grab { display: none; }
   .stage .acts { top: 12px; bottom: auto; padding: 0 12px; flex-wrap: wrap; right: 70px; }
   .stage .clock { left: auto; right: 62px; top: auto; bottom: 12px; }
   .stage .legend { bottom: 12px; left: 12px; }
@@ -284,3 +290,5 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--water); out
 .icons div { display: grid; gap: 10px; align-content: start; }
 .icons svg { width: 30px; height: 30px; color: var(--water); }
 .icons p { font-size: 16px; color: #2c3a33; }
+
+.note small { display: block; font-size: 12px; color: var(--muted); margin-top: 4px; }

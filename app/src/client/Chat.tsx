@@ -23,7 +23,7 @@ const STEP: Record<string, [string, string]> = {
   read_last_30_days: ['Reading the last 30 days of rain', 'Read the last 30 days of rain'],
 };
 // a line in the chat from the page itself (a map button, a photo check), not from the agent
-export interface Note { id: number; text: string; img?: string; busy?: boolean }
+export interface Note { id: number; text: string; small?: string; img?: string; busy?: boolean }
 const textOf = (m: { parts: { type: string; text?: string }[] }) => m.parts.map((p) => (p.type === 'text' ? p.text : '')).join('');
 
 export function Chat({ place, onAction, notes, onPhoto, logging }: { place: Place; onAction: (a: Record<string, unknown>) => void; notes: Note[]; onPhoto: (f: File) => void; logging: boolean }) {
@@ -74,7 +74,7 @@ export function Chat({ place, onAction, notes, onPhoto, logging }: { place: Plac
   const noteAt = (k: number) => notes.map((n, i) => (at.current[i] === k ? (
     <div key={n.id} className={`note ${n.img ? 'photo' : ''}`}>
       {n.img && <img src={n.img} alt="Your photo, with the floodwater in blue and people pixelated" />}
-      <div>{n.busy ? <span className="spin" /> : n.img ? <I.Camera /> : <I.Play />}{n.text}</div>
+      <div>{n.busy ? <span className="spin" /> : n.img ? <I.Camera /> : <I.Play />}<span>{n.text}{n.small && <small>{n.small}</small>}</span></div>
     </div>
   ) : null));
 

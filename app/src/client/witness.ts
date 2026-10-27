@@ -1,10 +1,11 @@
-// Witness on the page: shrink a phone photo, send it to /api/witness (Meta's SAM 3.1), then draw the
+// Witness on the page: shrink a phone photo, send it to /api/witness (Meta's SAM 3.1 and Muse Spark), then draw the
 // result: floodwater tinted blue, every person pixelated so nobody can be recognised. Pixelating works
 // in every browser (canvas blur filters do not, on older iPhones).
 import { decodeMaskToRaster } from '@meta-sam/parser';
 
 interface Region { left: number; top: number; right: number; bottom: number; mask: { encoding: string; payload: string; width?: number; height?: number } }
-export interface WitnessResult { image: string; waterPct: number; people: number; found: boolean }
+export interface Reading { isFlood: boolean; reaches: string; moving: string; meaning: string; advice: string }
+export interface WitnessResult { image: string; waterPct: number; people: number; found: boolean; reading: Reading | null }
 
 const MAX = 1280;
 
@@ -42,7 +43,7 @@ function through(onto: CanvasRenderingContext2D, layer: HTMLCanvasElement, mask:
 export async function checkPhoto(file: File): Promise<WitnessResult> {
   const { canvas, w, h, data } = await shrink(file);
   const r = await fetch('/api/witness', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ image: data, width: w, height: h }) });
-  const res = (await r.json()) as { error?: string; water: Region[]; people: Region[]; waterPct: number };
+  const res = (await r.json()) as { error?: string; water: Region[]; people: Region[]; waterPct: number; reading: Reading | null };
   if (!r.ok || res.error) throw new Error(res.error ?? 'The photo check failed. Try again.');
   const out = document.createElement('canvas'); out.width = w; out.height = h;
   const ctx = out.getContext('2d')!; ctx.drawImage(canvas, 0, 0);
@@ -60,5 +61,5 @@ export async function checkPhoto(file: File): Promise<WitnessResult> {
     px.width = w; px.height = h; const p = px.getContext('2d')!; p.imageSmoothingEnabled = false; p.drawImage(tiny, 0, 0, w, h);
     through(ctx, px, maskOf(res.people, w, h, 0.08));
   }
-  return { image: out.toDataURL('image/jpeg', 0.85), waterPct: res.waterPct, people: res.people.length, found: res.water.length > 0 };
+  return { image: out.toDataURL('image/jpeg', 0.85), waterPct: res.waterPct, people: res.people.length, found: res.water.length > 0, reading: res.reading };
 }

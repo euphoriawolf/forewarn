@@ -156,7 +156,7 @@ export function Find({ onPlace }: { onPlace: (p: Place) => void }) {
 
       <section className="runs"><div className="wrap">
         <h2>How Forewarn warns you</h2>
-        <p className="lead">Two Meta models and three public data sources. Code works out every number.</p>
+        <p className="lead">Meta's Muse Spark and SAM models, and three public data sources. Code works out every number.</p>
         <div className="feats">
           <article className="feat wide">
             <div>
@@ -171,9 +171,9 @@ export function Find({ onPlace }: { onPlace: (p: Place) => void }) {
           </article>
           <article className="feat wide">
             <div>
-              <span className="model meta">Meta SAM 3.1</span>
+              <span className="model meta">Meta SAM 3.1 and Muse Spark</span>
               <h3>Send a photo of the water</h3>
-              <p>SAM finds the water and the people in it. We tint the water blue and pixelate the people, so nobody can be recognised.</p>
+              <p>SAM marks the water and the people. Muse Spark tells you what the water reaches and what to do. People are pixelated, so nobody can be recognised.</p>
             </div>
             <img className="wit" src="/witness-lagos.jpg" alt="A flooded Lagos street: the water marked in blue, the people pixelated" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
           </article>

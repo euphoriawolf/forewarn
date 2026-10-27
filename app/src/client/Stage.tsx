@@ -15,7 +15,7 @@ interface Scene {
   setWater(cm: ArrayLike<number> | null): void; lightRoads(names: string[] | null): void; hours: number; cmAt(h: number): number[]; peak: Float32Array;
   roads: { n: string; p: [number, number][] }[]; depthAt(cm: ArrayLike<number>, x: number, z: number): number;
   tag(text: string, x: number, z: number, cls?: string, lift?: number): HTMLElement; view(name: string, o?: Record<string, number>): void; camera(): Record<string, number>;
-  onFrame(fn: ((t: number) => void) | null): void; zoom(f: number): void; north(): void; dispose(): void;
+  onFrame(fn: ((t: number) => void) | null): void; zoom(f: number): void; north(): void; setInset(px: number): void; dispose(): void;
 }
 
 // slow phones get the light version: no ambient occlusion, small shadows, 1x pixels
@@ -28,7 +28,7 @@ const when = (start: string, h: number) => {
   return `${t.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' })}, ${String(t.getUTCHours()).padStart(2, '0')}:00`;
 };
 
-export const Stage = forwardRef<StageApi, { pack: PackPin; nearby?: Nearby | null; onNote?: (text: string) => void; film?: boolean }>(function Stage({ pack: start, nearby, onNote, film }, ref) {
+export const Stage = forwardRef<StageApi, { pack: PackPin; nearby?: Nearby | null; onNote?: (text: string) => void; film?: boolean; inset?: number }>(function Stage({ pack: start, nearby, onNote, film, inset = 0 }, ref) {
   // the area on screen: starts around the pin, moves when the person pans more than 1 km away
   const [pack, setPack] = useState(start);
   useEffect(() => setPack(start), [`${start.region}:${start.cx}:${start.cz}:${start.dx}:${start.dz}`]);
@@ -40,6 +40,9 @@ export const Stage = forwardRef<StageApi, { pack: PackPin; nearby?: Nearby | nul
   const [clock, setClock] = useState('');
   const [legend, setLegend] = useState<'' | 'water' | 'roads'>('');
   const [on, setOn] = useState('');
+  // the part of the map a sheet covers on a phone: the camera keeps the place centred above it
+  const insetRef = useRef(inset);
+  useEffect(() => { insetRef.current = inset; scene.current?.setInset(inset); }, [inset]);
   const needle = useRef<HTMLSpanElement>(null);
   const storm = pack.start.startsWith('2026-03') ? 'March 2026 storm' : 'June 2026 storm';
 
@@ -52,6 +55,7 @@ export const Stage = forwardRef<StageApi, { pack: PackPin; nearby?: Nearby | nul
         if (!nextCamera.current) s.view('overview', { tx: pack.dx, tz: pack.dz });
         nextCamera.current = null;
         pin.current = s.tag('Your place', pack.dx, pack.dz, 'green', 8);
+        s.setInset(insetRef.current);
         for (const a of queued.current.splice(0)) run(a);
       })
       .catch(() => setLoad({ f: 1, text: 'The 3D could not load on this connection. The chat still works.' }));
@@ -151,7 +155,7 @@ export const Stage = forwardRef<StageApi, { pack: PackPin; nearby?: Nearby | nul
   // the film: only the picture, for the landing video and recordings (see Film.tsx)
   if (film) return <div className="stage film"><div className="scene" ref={box}><canvas ref={canvas} /></div>{load.f >= 1 && <i data-ready />}</div>;
   return (
-    <div className="stage">
+    <div className="stage" style={{ ['--inset' as string]: `${inset}px` }}>
       <div className="scene" ref={box}><canvas ref={canvas} /></div>
       {clock && <div className="clock">{clock}<span>{storm}</span></div>}
       <div className="acts">{ACTS.map(([label, action, Icon]) => <button key={action} type="button" className={on === action ? 'on' : ''} onClick={() => tap(action)}><Icon />{label}</button>)}</div>
