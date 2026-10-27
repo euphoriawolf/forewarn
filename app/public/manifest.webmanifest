@@ -1,7 +1,7 @@
 {
   "name": "Forewarn",
   "short_name": "Forewarn",
-  "description": "Know what the weather will do to your place, before it happens.",
+  "description": "Know days before a flood reaches your area. Disaster early warning for Africa.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

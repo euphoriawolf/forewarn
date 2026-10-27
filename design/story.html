@@ -24,10 +24,40 @@
   .brand { font: 800 20px/1 var(--display); letter-spacing: -0.02em; display: flex; gap: 8px; align-items: center; padding: 20px 0; }
   .brand svg { width: 22px; height: 22px; }
 
+  /* 0. the hero: a real photo, tinted to the brand's night blue so it sits with the page */
+  .hero { position: relative; min-height: 92vh; display: flex; color: #fff; background: var(--night); overflow: hidden; }
+  .hero .photo { position: absolute; inset: 0; }
+  /* the photo in grey on its own layer, so the fade above it keeps the brand's night blue */
+  .hero .photo::before { content: ''; position: absolute; inset: 0; background: url(https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/Moment_of_a_life_saver_at_the_right_time.jpg/1920px-Moment_of_a_life_saver_at_the_right_time.jpg) 55% 60% / cover; filter: grayscale(1) contrast(1.1) brightness(.9); }
+  .hero .photo::after { content: ''; position: absolute; inset: 0; }
+  /* phone: the photo fills the top, the words sit on the dark bottom. Wide screens: the photo moves right,
+     so the rescue stays in view beside the words */
+  .hero .photo { bottom: 40%; }
+  .hero .photo::after { background: linear-gradient(180deg, rgba(11,20,32,.35) 0%, rgba(11,20,32,0) 30%, rgba(11,20,32,.6) 75%, var(--night) 100%), rgba(29,78,216,.16); }
+  @media (min-width: 860px) {
+    .hero .photo { bottom: 0; left: 32%; }
+    .hero .photo::before { background-position: 50% 55%; }
+    .hero .photo::after { background: linear-gradient(90deg, var(--night) 0%, var(--night) 4%, rgba(11,20,32,.55) 24%, rgba(11,20,32,0) 50%), linear-gradient(180deg, rgba(11,20,32,0) 70%, var(--night) 100%), rgba(29,78,216,.16); }
+  }
+  .hero .wrap { position: relative; display: flex; flex-direction: column; width: 100%; }
+  .hero .brand { color: #fff; } .hero .brand svg { color: var(--water-lit); }
+  .hero-text { margin-top: auto; padding-bottom: 20px; }
+  .hero h1 { font: 800 clamp(36px, 6vw, 66px)/1.02 var(--display); letter-spacing: -0.03em; margin: 0; max-width: 17ch; }
+  .hero .sub { font-size: clamp(18px, 2.2vw, 22px); color: #d6e0ec; max-width: 38ch; margin-top: 16px; }
+  .credit { font-size: 12px; color: #93a3b6; padding: 8px 0 18px; }
+  .film video { width: 100%; border-radius: 18px; display: block; margin-top: 24px; background: #c9d3d6; aspect-ratio: 16 / 9; }
+  .film .fine { font-size: 13px; color: var(--muted); margin-top: 10px; }
+  .trust { border-top: 1px solid var(--line); }
+  .cards { display: grid; gap: 14px; margin-top: 24px; }
+  @media (min-width: 860px) { .cards { grid-template-columns: repeat(2, 1fr); } }
+  .cards div { background: #fff; border: 1px solid var(--line); border-radius: 18px; padding: 18px 20px; }
+  .cards b { font: 600 19px/1.25 var(--display); display: block; margin-bottom: 6px; }
+  .cards p { color: #2c3a33; font-size: 16px; }
+
   /* 1. the night */
-  .night { background: radial-gradient(120% 80% at 70% 0%, var(--night-2), var(--night) 60%); color: #e8eef6; padding-bottom: 72px; }
+  .night { background: var(--night); color: #e8eef6; padding: 40px 0 80px; }
   .night .brand { color: #fff; } .night .brand svg { color: var(--water-lit); }
-  .place { margin-top: 48px; font-size: 15px; color: #9fb0c4; }
+  .place { margin-top: 0; font-size: 15px; color: #9fb0c4; }
   .shout { font: 800 clamp(64px, 14vw, 150px)/0.92 var(--display); letter-spacing: -0.04em; margin: 14px 0 6px; color: #fff; }
   .shout small { display: block; font: 600 clamp(18px, 2.4vw, 24px)/1.3 var(--text); letter-spacing: 0; color: var(--water-lit); margin-top: 12px; }
   .tell { max-width: 34ch; font-size: clamp(19px, 2.2vw, 22px); line-height: 1.5; color: #cfd9e5; margin-top: 26px; }
@@ -88,20 +118,30 @@
 </style>
 </head>
 <body>
-<div class="note">Mockup. The Mathare account, the coverage figures and the 30% figure are sourced (links at the bottom). The rain numbers are ours, from CHIRPS. The story does not name a person: we have no one's permission to tell their story.</div>
+<div class="note">Mockup. The Mathare account, the coverage figures and the 30% figure are sourced (links at the bottom). The rain numbers are ours, from CHIRPS. The hero photo is hotlinked from Wikimedia Commons for this mockup. The film is our own render.</div>
 
-<header class="night"><div class="wrap">
-  <div class="brand"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3C9 8 6 11 6 14.5a6 6 0 0 0 12 0C18 11 15 8 12 3z"/></svg>Forewarn</div>
+<header class="hero">
+  <div class="photo" role="img" aria-label="A man pulls a motorbike rider out of fast floodwater on a city street while people watch"></div>
+  <div class="wrap">
+    <div class="brand"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3C9 8 6 11 6 14.5a6 6 0 0 0 12 0C18 11 15 8 12 3z"/></svg>Forewarn</div>
+    <div class="hero-text">
+      <h1>For most people in Africa, the flood warning is the water itself.</h1>
+      <p class="sub">Forewarn warns you days before a flood reaches your area: your street, your farm, your village.</p>
+      <div class="find">
+        <div class="field">Find your area<b>Check my area</b></div>
+        <small>Free. Anywhere in Africa. No account needed.</small>
+      </div>
+    </div>
+    <p class="credit">Kampala, Uganda, 25 October 2018. A rider is pulled from the flood by people on the street. Photo: Jameswasswa, CC BY-SA 4.0.</p>
+  </div>
+</header>
+
+<section class="night"><div class="wrap">
   <p class="place">Mathare, Nairobi. The night of Tuesday 23 April 2024.</p>
   <p class="shout">“Maji! Maji!”<small>Water! Water!</small></p>
   <p class="tell">People woke in the middle of the night to their neighbours shouting. The river that runs through the valley was already rising into their homes.</p>
-  <p class="tell">That shout was the warning. For most people in Africa, it still is.</p>
-  <p class="point">Forewarn tells you days before what the weather will do to your street.</p>
-  <div class="find">
-    <div class="field">Your street, farm or village<b>Check my place</b></div>
-    <small>Free. Any place in Africa. No account needed.</small>
-  </div>
-</div></header>
+  <p class="tell">That shout was the warning.</p>
+</div></section>
 
 <section><div class="wrap weeks">
   <div>
@@ -115,6 +155,13 @@
   </div>
 </div></section>
 
+<section class="film"><div class="wrap">
+  <h2>Watch a flood fill a neighbourhood, hour by hour.</h2>
+  <p class="lead">This is the March 2026 storm in Nairobi’s Industrial Area, by the Ngong River, from a flood model. Blue is water. Amber marks buildings with water at the door.</p>
+  <video src="media/flood-nairobi-2026-03.mp4" poster="media/flood-poster.jpg" autoplay muted loop playsinline aria-label="3D flood model: water rises over a Nairobi neighbourhood"></video>
+  <p class="fine">Model estimate from Flood Check, drawn 4 times deeper than real so shallow water shows from above.</p>
+</div></section>
+
 <section class="gap"><div class="wrap">
   <h2>This is not one city’s story.</h2>
   <div class="nums">
@@ -125,12 +172,12 @@
 
 <section><div class="wrap pair">
   <div>
-    <h2>A warning for every street, not only every country.</h2>
-    <p class="lead">Forecasts and warnings exist. Most go to governments and cover whole regions. Forewarn starts at the other end: your door.</p>
+    <h2>A disaster warning for every area, not only every country.</h2>
+    <p class="lead">Forecasts and warnings exist. Most go to governments and cover whole regions. Forewarn starts at the other end: the area where you live, down to your own street.</p>
     <div class="does">
       <div><i></i><p><b>Days ahead, in plain words.</b> It reads 51 runs of the world’s leading forecast for your spot and tells you the chance, like “about 1 in 4”.</p></div>
       <div><i></i><p><b>It knows how wet the ground already is.</b> The month before matters as much as the day. On a farm, the same reading shows a season running dry.</p></div>
-      <div><i></i><p><b>See it on your own street.</b> In Lagos and Nairobi, watch the last flood come back street by street.</p></div>
+      <div><i></i><p><b>See it where you live.</b> In Lagos and Nairobi, watch the last flood come back street by street.</p></div>
       <div><i></i><p><b>Ask it anything.</b> An agent built on Meta’s Muse Spark answers, and it never makes up a number.</p></div>
     </div>
   </div>
@@ -145,26 +192,27 @@
   </div>
 </div></section>
 
-<section class="limits"><div class="wrap">
-  <h2>What it cannot do yet</h2>
-  <ul>
-    <li>It will miss some floods. Forecasts can under-call a single violent storm. We test Forewarn on 36 past African floods and show the misses next to the hits.</li>
-    <li>The street-level 3D covers Lagos and Nairobi for now. The forecast and the rain reading cover all of Africa.</li>
-    <li>It does not replace your government’s warnings. If they tell you to leave, leave.</li>
-  </ul>
+<section class="trust"><div class="wrap">
+  <h2>Built to be trusted</h2>
+  <div class="cards">
+    <div><b>Every number is real</b><p>Code computes each chance, depth and date from public data. The agent explains them, and a checker compares every number with the data before you see it.</p></div>
+    <div><b>Tested on past disasters</b><p>We run Forewarn on 36 floods across Africa from 2024 to 2026 and publish what it would have said, hits and misses side by side.</p></div>
+    <div><b>Works with official warnings</b><p>Forewarn adds detail for your area. If your local authorities tell you to move, follow them.</p></div>
+    <div><b>Growing city by city</b><p>Forecasts and rain readings cover all of Africa today. Street-level 3D covers Lagos and Nairobi, with more cities next.</p></div>
+  </div>
 </div></section>
 
 <section class="ask"><div class="wrap">
-  <h2>Check your place before the next rains.</h2>
+  <h2>Check your area before the next rains.</h2>
   <div class="find">
-    <div class="field">Your street, farm or village<b>Check my place</b></div>
+    <div class="field">Find your area<b>Check my area</b></div>
     <small>Free. Any place in Africa. No account needed.</small>
   </div>
 </div></section>
 
 <footer><div class="wrap">
   Sources: <a href="https://www.aljazeera.com/news/2024/5/1/blame-the-government-kenyans-bemoan-lack-of-support-amid-record-flooding">Al Jazeera, 1 May 2024</a> (Mathare, the night of 23 April).
-  <a href="https://wmo.int/news/media-centre/early-warnings-all-action-plan-africa-launched">WMO, Early Warnings for All Action Plan for Africa, 2023</a>.
+  Hero photo: <a href="https://commons.wikimedia.org/wiki/File:Moment_of_a_life_saver_at_the_right_time.jpg">Jameswasswa, Moment of a life saver at the right time, Wikimedia Commons</a>, CC BY-SA 4.0, tinted. <a href="https://wmo.int/news/media-centre/early-warnings-all-action-plan-africa-launched">WMO, Early Warnings for All Action Plan for Africa, 2023</a>.
   <a href="https://news.un.org/en/story/2025/10/1166151">UN News, October 2025</a> (24 hours, up to 30%). WMO EUMETSAT forum, 2024 (about 45%).
   Rain: CHIRPS daily, Climate Hazards Center, UC Santa Barbara, 1991 to 2024. Forecasts: ECMWF through Open-Meteo. Street water: Flood Check, a model estimate.
 </div></footer>

@@ -28,7 +28,7 @@ const when = (start: string, h: number) => {
   return `${t.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' })}, ${String(t.getUTCHours()).padStart(2, '0')}:00`;
 };
 
-export const Stage = forwardRef<StageApi, { pack: PackPin; nearby?: Nearby | null; onNote?: (text: string) => void }>(function Stage({ pack: start, nearby, onNote }, ref) {
+export const Stage = forwardRef<StageApi, { pack: PackPin; nearby?: Nearby | null; onNote?: (text: string) => void; film?: boolean }>(function Stage({ pack: start, nearby, onNote, film }, ref) {
   // the area on screen: starts around the pin, moves when the person pans more than 1 km away
   const [pack, setPack] = useState(start);
   useEffect(() => setPack(start), [`${start.region}:${start.cx}:${start.cz}:${start.dx}:${start.dz}`]);
@@ -45,7 +45,7 @@ export const Stage = forwardRef<StageApi, { pack: PackPin; nearby?: Nearby | nul
 
   useEffect(() => {
     let gone = false;
-    placeScene({ stage: box.current, canvas: canvas.current, source: tileSource(pack), view: 'overview', quality: lowEnd() ? 'low' : 'high', progress: (f: number, text: string) => !gone && setLoad({ f, text }), start: nextCamera.current ?? undefined, onSettle: (x: number, z: number) => !gone && moveTo(x, z), onView: (yaw: number) => { if (needle.current) needle.current.style.transform = `rotate(${yaw}rad)`; } })
+    placeScene({ stage: box.current, canvas: canvas.current, source: tileSource(pack), view: 'overview', quality: film ? 'high' : lowEnd() ? 'low' : 'high', drift: film ? 0.00003 : 0, progress: (f: number, text: string) => !gone && setLoad({ f, text }), start: nextCamera.current ?? undefined, onSettle: (x: number, z: number) => !gone && moveTo(x, z), onView: (yaw: number) => { if (needle.current) needle.current.style.transform = `rotate(${yaw}rad)`; } })
       .then((s: Scene) => {
         if (gone) return s.dispose();
         scene.current = s;
@@ -86,7 +86,7 @@ export const Stage = forwardRef<StageApi, { pack: PackPin; nearby?: Nearby | nul
     if (a.action === 'street_view') { s.view('street', { tx: pack.dx, tz: pack.dz }); setOn('street_view'); }
     if (a.action === 'play_last_flood') {
       clear(); setLegend('water'); setOn('play_last_flood');
-      s.view('street', { tx: pack.dx, tz: pack.dz, dist: 420, pitch: 0.28 });
+      s.view('street', { tx: pack.dx, tz: pack.dz, dist: Number(a.dist ?? 420), pitch: Number(a.pitch ?? 0.28) }); // the film asks for a higher camera
       // the storm from the first wet hour to a little after its peak at the pin, then hold the peak
       const atPin = Array.from({ length: s.hours }, (_, h) => s.depthAt(s.cmAt(h), pack.dx, pack.dz));
       const wetArea = Array.from({ length: s.hours }, (_, h) => s.cmAt(h).filter((d) => d >= 10).length);
@@ -144,6 +144,8 @@ export const Stage = forwardRef<StageApi, { pack: PackPin; nearby?: Nearby | nul
     } else run({ action });
   }
 
+  // the film: only the picture, for the landing video and recordings (see Film.tsx)
+  if (film) return <div className="stage film"><div className="scene" ref={box}><canvas ref={canvas} /></div>{load.f >= 1 && <i data-ready />}</div>;
   return (
     <div className="stage">
       <div className="scene" ref={box}><canvas ref={canvas} /></div>

@@ -1,0 +1,20 @@
+<!doctype html><html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,800&family=Public+Sans:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  /* The share card, 1200 x 630: our own 3D flood render on the right, the promise on the left. */
+  body { margin: 0; }
+  .card { width: 1200px; height: 630px; position: relative; background: #0b1420; color: #fff; overflow: hidden; font-family: 'Public Sans', sans-serif; }
+  .shot { position: absolute; top: 0; bottom: 0; right: 0; width: 760px; background: url(media/flood-poster.jpg) 45% 50% / cover; }
+  .shot::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, #0b1420 0%, rgba(11,20,32,.6) 25%, rgba(11,20,32,0) 55%); }
+  .text { position: absolute; left: 64px; top: 64px; bottom: 64px; width: 600px; display: flex; flex-direction: column; }
+  .brand { display: flex; gap: 10px; align-items: center; font: 800 30px/1 'Bricolage Grotesque'; letter-spacing: -0.02em; }
+  .brand svg { width: 32px; height: 32px; color: #7fb2ff; }
+  h1 { font: 800 60px/1.02 'Bricolage Grotesque'; letter-spacing: -0.03em; margin: auto 0 18px; }
+  p { margin: 0; font-size: 24px; color: #cfd9e5; max-width: 30ch; }
+</style></head><body>
+<div class="card"><div class="shot"></div><div class="text">
+  <div class="brand"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3C9 8 6 11 6 14.5a6 6 0 0 0 12 0C18 11 15 8 12 3z"/></svg>Forewarn</div>
+  <h1>Know days before a flood reaches your area.</h1>
+  <p>Disaster early warning for any area in Africa, down to your street.</p>
+</div></div>
+</body></html>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
+  <url>
+    <loc>https://forewarn.dawnstackai.com/</loc>
+    <lastmod>2026-10-27</lastmod>
+    <video:video>
+      <video:thumbnail_loc>https://forewarn.dawnstackai.com/flood-poster.jpg</video:thumbnail_loc>
+      <video:title>A flood fills a Nairobi neighbourhood, hour by hour</video:title>
+      <video:description>A 3D flood model of the March 2026 storm in Nairobi's Industrial Area, by the Ngong River. Blue is water; amber marks buildings with water at the door.</video:description>
+      <video:content_loc>https://forewarn.dawnstackai.com/og-video.mp4</video:content_loc>
+      <video:duration>14</video:duration>
+    </video:video>
+  </url>
+</urlset>

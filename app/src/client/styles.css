@@ -127,3 +127,5 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--water); out
   .stage .legend { bottom: 12px; left: 12px; }
   .stage .nav { top: auto; bottom: 12px; right: 12px; }
 }
+.film-page { position: fixed; inset: 0; background: #c9d3d6; } .stage.film { cursor: default; }
+.stage.film .tag { display: none; }

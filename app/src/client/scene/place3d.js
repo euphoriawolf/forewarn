@@ -36,7 +36,7 @@ const ROOFS_PITCHED = ['#6e6a66', '#5a5856', '#7a7470', '#6b5d55', '#4e5257', '#
 const ROOFS_FLAT = ['#8a8781', '#96928a', '#7e7b75', '#a09b92'];
 
 // source: { ground(), photo(), city(), life() }, each a promise (see tiles.ts)
-export async function placeScene({ stage, canvas, source, view = 'street', weather = 'clear', hour = 16.3, day = 300, quality = 'high', progress, onSettle, onView, start: startView }) {
+export async function placeScene({ stage, canvas, source, view = 'street', weather = 'clear', hour = 16.3, day = 300, quality = 'high', progress, onSettle, onView, drift = 0, start: startView }) {
   const low = quality === 'low';
   const say = progress ?? (() => {});
   say(0.08, 'Loading the ground');
@@ -254,6 +254,7 @@ export async function placeScene({ stage, canvas, source, view = 'street', weath
       }
       if (near) { Object.assign(V, fly); fly = null; settled(); }
     }
+    if (drift && !gesture && !fly) V.yaw += dt * drift; // a slow turn, for the film
     place();
     onView?.(V.yaw);
     // the shadow box follows what you look at, sized to the view, so shadows stay sharp
