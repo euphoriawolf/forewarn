@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Forewarn: the story</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Public+Sans:wght@400;600&display=swap" rel="stylesheet" />
+<style>
+  /* The landing page as a story, from real numbers only:
+     ECMWF 51-run forecasts made 3 days before the Nairobi flood of 23 April 2024 (the run of 20 April 00:00 UTC,
+     lagos-flood/data-cache/forewarn/ens-events.json), and CHIRPS daily rain 1991 to 2024 for the
+     30 days before it. Kibera's "last 30 days" is from Open-Meteo, 27 Oct 2026. */
+  :root { --paper: #f8f9f6; --ink: #16201b; --muted: #5d6a63; --line: #dde2dc; --water: #1d4ed8; --water-soft: #e3eafc; --green: #2f7d4f;
+    --display: 'Bricolage Grotesque', system-ui, sans-serif; --text: 'Public Sans', system-ui, sans-serif; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--paper); color: var(--ink); font: 16px/1.5 var(--text); -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 0 16px; }
+  .brand { font: 800 20px/1 var(--display); letter-spacing: -0.02em; display: flex; gap: 8px; align-items: center; padding: 18px 0; }
+  .brand svg { width: 22px; height: 22px; color: var(--water); }
+  h1 { font: 800 clamp(34px, 6vw, 60px)/1.02 var(--display); letter-spacing: -0.03em; margin: 8px 0 14px; max-width: 16ch; }
+  h2 { font: 800 clamp(26px, 4vw, 40px)/1.08 var(--display); letter-spacing: -0.02em; margin: 0 0 10px; max-width: 22ch; }
+  p { margin: 0; }
+  .lead { font-size: 18px; color: var(--muted); max-width: 46ch; }
+  .find { margin: 22px 0 10px; display: grid; gap: 10px; max-width: 460px; }
+  .field { height: 54px; border-radius: 14px; border: 1.5px solid var(--line); background: #fff; display: flex; align-items: center; padding: 0 16px; color: var(--muted); }
+  .btn { height: 50px; border-radius: 25px; background: var(--line); display: grid; place-items: center; font-weight: 600; }
+  section { padding: 56px 0; border-top: 1px solid var(--line); }
+  .date { font: 600 14px/1 var(--text); color: var(--water); margin-bottom: 14px; }
+
+  /* the story: three moments, the same place */
+  .beats { display: grid; gap: 18px; margin-top: 28px; }
+  @media (min-width: 860px) { .beats { grid-template-columns: repeat(3, 1fr); } }
+  .beat { background: #fff; border: 1px solid var(--line); border-radius: 20px; padding: 20px; display: grid; gap: 12px; align-content: start; }
+  .beat .when { font-size: 13px; font-weight: 600; color: var(--muted); }
+  .beat .big { font: 800 44px/1 var(--display); letter-spacing: -0.02em; }
+  .beat .big small { font: 600 16px/1 var(--text); color: var(--muted); margin-left: 6px; letter-spacing: 0; }
+  .runs { display: grid; grid-template-columns: repeat(17, 1fr); gap: 4px; }
+  .runs i { aspect-ratio: 1; border-radius: 50%; background: #d6dcd8; }
+  .runs i.on { background: var(--water); }
+  .bars { display: grid; gap: 8px; }
+  .bar { display: grid; grid-template-columns: 74px 1fr; gap: 10px; align-items: center; font-size: 13px; }
+  .bar b { display: block; height: 22px; border-radius: 6px; background: #c5cdc8; }
+  .bar.now b { background: var(--water); }
+  .beat img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; border-radius: 12px; display: block; }
+  .check { font-size: 12px; color: #9a5b00; background: #fbefd9; border-radius: 8px; padding: 6px 9px; }
+
+  .turn { margin-top: 30px; font: 800 clamp(22px, 3vw, 30px)/1.2 var(--display); letter-spacing: -0.01em; max-width: 30ch; }
+
+  /* what Forewarn reads */
+  .reads { display: grid; gap: 18px; margin-top: 26px; }
+  @media (min-width: 860px) { .reads { grid-template-columns: repeat(3, 1fr); } }
+  .read b { font: 600 19px/1.25 var(--display); display: block; margin-bottom: 4px; }
+  .read p { color: var(--muted); }
+
+  /* the app opening, beside the promise */
+  .pair { display: grid; gap: 28px; align-items: center; }
+  @media (min-width: 860px) { .pair { grid-template-columns: 1fr 360px; } }
+  .phone { background: #fff; border: 1px solid var(--line); border-radius: 26px; overflow: hidden; box-shadow: 0 16px 36px rgba(22,32,27,.12); }
+  .phone .map { height: 170px; background: url(data/map-kibera-roofs.jpg) center / cover; }
+  .phone .msg { padding: 14px 16px 18px; display: grid; gap: 8px; font-size: 14px; }
+  .phone .steps { font-size: 11.5px; color: var(--muted); }
+  .phone .steps div::before { content: '✓ '; color: var(--green); font-weight: 700; }
+  .rules { display: grid; gap: 12px; margin-top: 18px; }
+  .rules div { display: flex; gap: 10px; }
+  .rules i { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--water); margin-top: 9px; }
+  footer { padding: 32px 0 48px; font-size: 13px; color: var(--muted); border-top: 1px solid var(--line); }
+  .note { max-width: 1040px; margin: 0 auto; padding: 14px 16px; font-size: 13px; color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="note">Mockup of the landing page as a story. Every number comes from real data (listed at the bottom). Orange boxes are facts not yet traced to a source: they stay off the live page until they are.</div>
+<div class="wrap">
+  <div class="brand"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3C9 8 6 11 6 14.5a6 6 0 0 0 12 0C18 11 15 8 12 3z"/></svg>Forewarn</div>
+  <h1>Know what the weather will do to your place, before it happens.</h1>
+  <p class="lead">Your street, farm or village, anywhere in Africa. Floods first.</p>
+  <div class="find"><div class="field">Find your street, farm or village</div><div class="btn">Use my location</div></div>
+</div>
+
+<section><div class="wrap">
+  <div class="date">Nairobi, April 2024</div>
+  <h2>The warning was in the month before, not the day.</h2>
+  <div class="beats">
+    <div class="beat">
+      <div class="when">20 April: three days before</div>
+      <div class="big">3 <small>of 51 forecasts</small></div>
+      <div class="runs" id="runs"></div>
+      <p>brought heavy rain (30 mm or more) for 23 April. The middle forecast: 11 mm. On the forecast alone, a flood looked unlikely.</p>
+    </div>
+    <div class="beat">
+      <div class="when">The 30 days before</div>
+      <div class="big">340 mm <small>of rain</small></div>
+      <div class="bars">
+        <div class="bar now"><span>2024</span><b style="width:85%"></b></div>
+        <div class="bar"><span>Normal</span><b style="width:40%"></b></div>
+      </div>
+      <p>More than twice the normal 161 mm for that time of year. In 30 years (1991 to 2020), only one was wetter. The ground was already full.</p>
+    </div>
+    <div class="beat">
+      <div class="when">23 April</div>
+      <img src="data/hero-march.jpg" alt="Water in Nairobi streets, from the flood model" />
+      <p>Rain that looked ordinary fell on soaked ground, and Nairobi flooded.</p>
+      <div class="check">To trace: a source for the April 2024 flood itself (the event list counts 369 reports; whose?). The picture is the March 2026 storm from the model, so its caption must say so.</div>
+    </div>
+  </div>
+  <p class="turn">So Forewarn reads both: the rain that is coming, and the rain already in the ground.</p>
+</div></section>
+
+<section><div class="wrap">
+  <h2>Three things it reads for your place</h2>
+  <div class="reads">
+    <div class="read"><b>The next 14 days</b><p>51 runs of the ECMWF forecast, blended for your spot. You get a chance in plain words: "about 1 in 4 forecasts".</p></div>
+    <div class="read"><b>The last 30 days</b><p>How much rain has already fallen against normal for the time of year. Soaked ground floods sooner. On a farm, the same number shows a season running dry.</p></div>
+    <div class="read"><b>Your street in 3D</b><p>In Lagos and Nairobi, replay the last flood street by street and see which roads went under.</p></div>
+  </div>
+</div></section>
+
+<section><div class="wrap pair">
+  <div>
+    <h2>An agent you can ask, that never makes up a number.</h2>
+    <div class="rules">
+      <div><i></i><p>Code computes every chance, depth and date. The agent (Meta's Muse Spark) explains them and moves the map.</p></div>
+      <div><i></i><p>A checker compares every number in an answer with the data before you see it.</p></div>
+      <div><i></i><p>A person approves every alert before it goes to anyone.</p></div>
+    </div>
+  </div>
+  <div class="phone">
+    <div class="map"></div>
+    <div class="msg">
+      <div class="steps"><div>Read 51 forecasts for the next 14 days</div><div>Read the last 30 days of rain</div></div>
+      <p><b>Flooding looks unlikely in Kibera for the next 14 days.</b> The ground is not soaked: the last 30 days brought 46 mm, close to the normal 37 mm for this time of year.</p>
+      <p>The riskiest day is Thursday: about 1 in 20 forecasts bring more than 28.4 mm. That is more than the worst day of the March storm, which did not flood your spot.</p>
+    </div>
+  </div>
+</div></section>
+
+<footer><div class="wrap">
+  Data: ECMWF ensemble forecasts through Open-Meteo. CHIRPS daily rainfall (Climate Hazards Center, UC Santa Barbara). Street-level water from Flood Check, a model estimate (pre-existing project). Imagery: Esri, EOX Sentinel-2.
+</div></footer>
+<script>
+  // 51 dots, 3 lit: the 3 forecasts that brought 30 mm or more for 23 April
+  document.getElementById('runs').innerHTML = Array.from({ length: 51 }, (_, i) => `<i class="${i < 3 ? 'on' : ''}"></i>`).join('');
+</script>
+</body>
+</html>
