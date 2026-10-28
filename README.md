@@ -9,11 +9,12 @@ Built for the Meta Global AI Developer Hackathon (Indie track), from 26 Oct 2026
 ## What it does
 
 - **Ask in plain words.** Put a pin on your door and ask "will it flood here this week?". The agent answers with a level (green, amber or red), a chance in words ("1 in 5 forecasts") and what to do.
-- **Speak your question.** Tap the microphone and ask out loud. Meta's Muse Voice Transcribe writes it down, and you can fix the words before you send. English is tested; other languages go live only after a speaker checks them.
+- **Speak your question.** Tap the microphone and ask out loud. Meta's Muse Voice Transcribe writes it down, and you can fix the words before you send. It works in English, French and Swahili. Yoruba, Hausa, Igbo and Amharic failed the test (`evals/voice-langs.py`), so the page does not offer them yet.
 - **14 days ahead.** The answer uses 51 rain forecasts for the next 14 days, plus a weekly outlook to about a month.
 - **How wet the ground is.** The rain of the last 30 days, against 30 years of normal. Soaked ground floods sooner.
 - **The last flood in 3D.** In Lagos and Nairobi, the agent plays the water of the last big storm on real ground, buildings and trees. It can light the roads that took water.
 - **Send a photo of the water.** SAM 3.1 marks the water and the people. Muse Spark says what the water reaches. The page pixelates the people before it shows the photo or sends it as a report.
+- **Near your place.** Every place shows what is near it, nearest first, with distance and direction: the street that flooded in the last storm (Lagos and Nairobi), flood reports from the last 48 hours, and past floods from the time machine. A tap flies the map there. Outside Lagos and Nairobi a satellite map shows the pin, the forecast squares and arrows at the edge for points off the screen.
 - **Flood reports on the map.** A person checks each photo report. After that, it shows for 48 hours on maps within 5 km, and the agent uses it in its answers.
 - **Alerts for your area.** Give an email and confirm it. An agent for your area checks the forecast every 6 hours. When a flood is possible in the next 7 days, it writes an alert. A person reads the alert before it goes out.
 - **The time machine.** Pick one of 36 past African floods and see what Forewarn would have said 7 days to 1 day before, with today's rules. The scorecard lists every flood, the misses too: 21 of 36 got a warning, 19 of them 3 days or more ahead.
@@ -63,6 +64,7 @@ app/
     watch.ts      the agent for each followed area
     alerts.ts     followers, alert drafts, sending and its limits
     review.ts     the review page
+    nearby.ts     flood reports and past floods near a place, with distance and direction
     past.ts       the time machine and its scorecard
   src/client/   the page, the map, the chat and the 3D
   tools/        scripts that cut the 3D tiles and the rain normals
@@ -113,6 +115,7 @@ The dev server must run first (`npm run dev` in `app/`).
 | `node evals/past-suite.mjs [days] [model]` | The agent answers from the forecast made that many days before each of 36 past floods. Each answer must pass the number checker and give the level that code computed. Last run (28 Oct, 3-day rule), 3 days before, Muse Spark Open: 35 of 36. The miss: Gqeberha, June 2024, right numbers but no level word. |
 | `modal run evals/modal_pull.py`, then `python3 evals/rules.py` | Every daily forecast since April 2024 at the flood places, pulled on Modal. Each alert rule is tuned on half the floods, checked on the other half, and scored for alerts with no flood after them. This chose the 3-day rule. |
 | `python3 evals/false-alarms.py` | How often soaked ground came with no flood after it, at the same places from 2000 to 2025. |
+| `modal run evals/modal_fleurs.py`, then `python3 evals/voice-langs.py` | 15 native-speaker clips per language from Google FLEURS (CC BY 4.0) through the voice route's model. A language passes at a median of 25% of words wrong or less. 28 Oct: English 5%, French 8%, Swahili 19% pass; Yoruba 37%, Hausa 48%, Igbo 61%, Amharic 73% fail. |
 | `node evals/compare-models.mjs` | The same 10 questions to Muse Spark Open and Muse Spark 1.3: speed, the checker and the tools called. |
 
 ## Privacy and safety

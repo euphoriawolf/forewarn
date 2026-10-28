@@ -5,6 +5,10 @@
 import { useEffect, useRef, useState, type PointerEvent as PE } from 'react';
 import { lazy, Suspense } from 'react';
 import type { StageApi } from './Stage';
+import { Near, type NearPoint } from './Near';
+import type { Map2DApi } from './Map2D';
+// the satellite map for places without 3D: MapLibre is large, so it loads on its own
+const Map2D = lazy(() => import('./Map2D').then((m) => ({ default: m.Map2D })));
 // the 3D engine is large: it loads on its own, so a slow phone gets the chat first
 const Stage = lazy(() => import('./Stage').then((m) => ({ default: m.Stage })));
 // the chat library is large too
@@ -20,7 +24,8 @@ const FROM_PAGE = '[from the page]';
 export function Answer({ place, onChange }: { place: Place; onChange: () => void }) {
   const [a, setA] = useState<A | null>(null);
   const [error, setError] = useState('');
-  const stage = useRef<StageApi>(null);
+  const stage = useRef<StageApi>(null), flat = useRef<Map2DApi>(null);
+  const [near, setNear] = useState<NearPoint[] | null>(null);
   const [notes, setNotes] = useState<Note[]>([]);
   const [say, setSay] = useState<{ id: number; text: string } | null>(null);
   // Witness: a photo through SAM 3.1, shown as a card in the chat and tagged on the map
@@ -152,6 +157,25 @@ export function Answer({ place, onChange }: { place: Place; onChange: () => void
       stage.current?.run({ action: 'reports', list: list.map((r) => ({ x: pk.dx + (r.lon - place.lon) * kx, z: pk.dz + (place.lat - r.lat) * ky, text: `Report, ${ago(r.at)}: water to ${r.reaches}` })) });
     }).catch(() => {});
   }, [a]);
+  // "Near your place": reports and past floods from /api/nearby, plus the nearest street that flooded in 3D
+  useEffect(() => {
+    setNear(null);
+    fetch(`/api/nearby?lat=${place.lat}&lon=${place.lon}`).then((r) => (r.ok ? (r.json() as Promise<NearPoint[]>) : [])).then((list) => setNear(Array.isArray(list) ? list : [])).catch(() => setNear([]));
+  }, [place]);
+  const points: NearPoint[] | null = near && a ? [
+    ...(a.nearby && !a.nearby.here ? [{ kind: 'flood' as const, title: `Flooded in the ${a.pack?.start.startsWith('2026-03') ? 'March' : 'June'} storm`, detail: `${a.nearby.peakCm} cm in the Flood Check model`, m: a.nearby.distanceM, direction: a.nearby.direction, x: a.nearby.x, z: a.nearby.z }] : []),
+    ...near,
+  ].sort((p, q) => p.m - q.m) : null;
+  const pick = (p: NearPoint) => {
+    if (phone() && sheet.current && sheet.current.clientHeight > stops()[1] + 10) snapTo(stops()[1]);
+    if (a?.pack) {
+      const pk = a.pack, kx = 111320 * Math.cos((place.lat * Math.PI) / 180), ky = 110574;
+      if (p.kind === 'flood' && a.nearby) return stage.current?.run({ action: 'show_spot', ...a.nearby });
+      // the 3D covers about 4 km: a point beyond it, or a past flood, opens elsewhere
+      if (p.kind === 'report' && p.m < 2500) return stage.current?.run({ action: 'show_point', x: pk.dx + (p.lon! - place.lon) * kx, z: pk.dz + (place.lat - p.lat!) * ky, text: `${p.title}: ${p.detail}` });
+    } else if (p.kind !== 'past' || p.m > 300) return flat.current?.show(p);
+    if (p.kind === 'past' && p.id !== undefined) location.href = `/?past=${p.id}`;
+  };
   useEffect(() => {
     setA(null); setError(''); setNotes([]);
     fetch(`/api/place?lat=${place.lat}&lon=${place.lon}`).then((r) => r.json() as Promise<A>).then((d) => (d.error ? setError(d.error) : setA(d))).catch(() => setError('The forecast is not answering. Check your connection and try again.'));
@@ -163,8 +187,9 @@ export function Answer({ place, onChange }: { place: Place; onChange: () => void
         <div className="mapbox">
           {!a && !error && <div className="stage"><div className="load"><span>Loading your place</span></div></div>}
           {error && <div className="stage none"><p>{error}</p></div>}
-          {a && !a.pack && <div className="stage none"><p>Street-level 3D covers Lagos and Nairobi for now. The agent can still read the forecast for your place.</p></div>}
+          {a && !a.pack && <Safe note="The map could not load on this connection. The chat still works."><Suspense fallback={<div className="stage"><div className="load"><span>Loading the map</span></div></div>}><Map2D ref={flat} place={place} points={points ?? []} squares={a.forecast.squares} inset={inset} /></Suspense></Safe>}
           {a?.pack && <Safe note="The 3D view could not load on this connection. The chat still works."><Suspense fallback={<div className="stage"><div className="load"><span>Loading the 3D</span></div></div>}><Stage ref={stage} pack={a.pack} nearby={a.nearby} inset={inset} onNote={(t) => setNotes((n) => [...n, { id: Date.now(), text: t }])} /></Suspense></Safe>}
+          {a && <Near points={points} onPick={pick} room={inset ? (body.current?.clientHeight ?? 0) - inset : undefined} />}
         </div>
         <div className="sheet" ref={sheet}>
           <div className="grab" onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerCancel={up} role="separator" aria-label="Drag to show more map or more chat"><i /></div>

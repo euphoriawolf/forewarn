@@ -359,3 +359,30 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--water); out
 .tested .nums { margin-bottom: 28px; }
 @media (min-width: 860px) { .tested .nums { grid-template-columns: repeat(3, 1fr); } .tested .num b { font-size: clamp(56px, 6vw, 80px); } }
 .btn.inline { display: inline-flex; width: auto; padding: 0 24px; text-decoration: none; }
+
+/* "Near your place" (Near.tsx): a list over the top of the map, nearest first */
+.near { position: absolute; left: 10px; top: 10px; z-index: 4; max-width: min(340px, calc(100% - 70px)); }
+.near .head { display: flex; align-items: center; gap: 6px; border: 0; background: rgba(248,249,246,.96); border-radius: 12px; padding: 8px 12px; font-weight: 600; font-size: 13px; box-shadow: 0 2px 10px rgba(0,0,0,.18); }
+.near .head svg { width: 16px; height: 16px; color: var(--water); }
+.near .list { margin-top: 6px; background: var(--paper); border-radius: 12px; overflow: hidden; box-shadow: 0 6px 24px rgba(0,0,0,.25); max-height: 50vh; overflow-y: auto; }
+.near .list button { width: 100%; display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center; text-align: left; border: 0; border-top: 1px solid var(--line); background: none; padding: 10px 12px; }
+.near .list button:first-child { border-top: 0; }
+.near .list button:hover { background: var(--water-soft); }
+.near .list i { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: var(--water-soft); color: var(--water); }
+.near .list i svg { width: 15px; height: 15px; }
+.near .list span { display: grid; min-width: 0; } .near .list b { font-weight: 600; font-size: 13px; }
+.near .list small { font-size: 12px; color: var(--muted); }
+.near .list em { font-style: normal; font-size: 12px; font-weight: 600; white-space: nowrap; }
+.near .list p { margin: 0; padding: 12px; font-size: 13px; color: var(--muted); }
+
+/* the satellite map for places without 3D (Map2D.tsx) */
+.map2d { position: absolute; inset: 0; background: #c9d3d6; }
+.map2d .ml { position: absolute; inset: 0; }
+.mk { display: grid; justify-items: center; }
+.mk i { font: 600 12px/1 var(--text); font-style: normal; background: var(--water); color: #fff; padding: 6px 8px; border-radius: 8px; white-space: nowrap; }
+.mk::after { content: ''; width: 10px; height: 10px; border-radius: 50%; background: var(--water); border: 2px solid #fff; margin-top: 3px; }
+.mk.pin i { background: var(--ink); } .mk.pin::after { background: var(--ink); width: 12px; height: 12px; }
+.mk.past i { background: var(--ink); opacity: .88; }
+.map2d .edge { position: absolute; z-index: 3; transform: translate(-50%, -50%); border: 0; background: rgba(248,249,246,.96); border-radius: 14px; padding: 4px 8px 4px 4px; display: flex; align-items: center; gap: 4px; font: 600 12px/1 var(--text); box-shadow: 0 2px 8px rgba(0,0,0,.25); }
+.map2d .edge i { width: 18px; height: 18px; border-radius: 50%; background: var(--water); position: relative; }
+.map2d .edge i::after { content: ''; position: absolute; left: 6px; top: 5px; border: 4px solid transparent; border-left: 7px solid #fff; }

@@ -111,6 +111,12 @@ export const Stage = forwardRef<StageApi, { pack: PackPin; nearby?: Nearby | nul
       // a person's photo of water: tagged where the map is looking
       const c = s.camera(); roadTags.current.push(s.tag(String(a.text), c.tx, c.tz, 'blue', 6));
     }
+    if (a.action === 'show_point') {
+      // a point from "Near your place" (a flood report): tag it and look at it
+      clear(); const x = Number(a.x), z = Number(a.z);
+      roadTags.current.push(s.tag(String(a.text), x, z, 'blue', 6));
+      s.view('street', { tx: x, tz: z, dist: 420, pitch: 0.6 });
+    }
     if (a.action === 'show_spot') {
       clear(); setLegend('water'); setOn('show_spot');
       const x = Number(a.x), z = Number(a.z);

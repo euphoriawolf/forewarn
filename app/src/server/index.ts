@@ -6,6 +6,7 @@
 //   /api/voice (POST)     a spoken question (16 kHz WAV) through Meta's Muse Voice Transcribe: the words
 //   /api/reports          send a report (POST), or the approved ones near ?lat&lon; /review is the review page
 //   /api/follow (POST)    follow an area by email; /api/follow/confirm and /api/follow/stop are the links in the emails
+//   /api/nearby?lat&lon  flood reports and past floods near a place, with distance and direction
 //   /api/past, /api/past/<n>  the time machine: what Forewarn would have said before 36 past floods
 //   /api/alerts/run       run one area's check now, with a lowered flood line to force a warning (ALERTS_TOKEN)
 //   /agents/ask-agent/<session>   the chat, over WebSocket
@@ -21,6 +22,7 @@ import { packFor, nearestFlood } from './packs';
 import { Logbook, stepsOf, bookOf } from './logbook';
 import { witness } from './witness';
 import { transcribe } from './voice';
+import { nearby } from './nearby';
 import { Reports, reportsOf } from './reports';
 import { reviewPage } from './review';
 import { Alerts, alertsOf, areaKey, confirmEmail, mail, notePage, sendDraft, type Area } from './alerts';
@@ -185,6 +187,11 @@ export default {
         const res = Response.json(id === null ? await scorecard(env) : await replay(env, id), { headers: { 'Cache-Control': 'public, max-age=86400' } });
         ctx.waitUntil(cache.put(key, res.clone()));
         return res;
+      }
+      if (url.pathname === '/api/nearby') {
+        const lat = num(q.get('lat')), lon = num(q.get('lon'));
+        if (lat === null || lon === null) return Response.json({ error: 'Add lat and lon.' }, { status: 400 });
+        return Response.json(await nearby(env, lat, lon), { headers: { 'Cache-Control': 'public, max-age=300' } });
       }
       if (url.pathname === '/api/search') {
         const text = (q.get('q') ?? '').trim();
