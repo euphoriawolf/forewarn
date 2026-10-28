@@ -4,6 +4,8 @@
 //   /api/ask?lat&lon&q=   one checked agent answer (local testing only)
 //   /api/witness (POST)   a flood photo through SAM 3.1 and Muse Spark: the water and the people in it
 //   /api/reports          send a report (POST), or the approved ones near ?lat&lon; /review is the review page
+//   /api/follow (POST)    follow an area by email; /api/follow/confirm and /api/follow/stop are the links in the emails
+//   /api/alerts/run       run one area's check now, with a lowered flood line to force a warning (ALERTS_TOKEN)
 //   /agents/ask-agent/<session>   the chat, over WebSocket
 // Everything else is the page.
 import { routeAgentRequest } from 'agents';
@@ -17,7 +19,9 @@ import { Logbook, stepsOf, bookOf } from './logbook';
 import { witness } from './witness';
 import { Reports, reportsOf } from './reports';
 import { reviewPage } from './review';
-export { Logbook, Reports };
+import { Alerts, alertsOf, areaKey, confirmEmail, mail, notePage, sendDraft, type Area } from './alerts';
+import { Watch, watchOf } from './watch';
+export { Logbook, Reports, Alerts, Watch };
 
 // One chat agent per visitor session. The page sets the place in its state before the first question.
 export class AskAgent extends AIChatAgent<Env, { place: Place | null; suggestions?: string[] }> {
@@ -99,15 +103,58 @@ export default {
         return new Response(Uint8Array.from(atob(data.split(',')[1]), (c) => c.charCodeAt(0)), { headers: { 'Content-Type': 'image/jpeg', 'Cache-Control': any ? 'no-store' : 'public, max-age=3600' } });
       }
       if (url.pathname === '/review') {
-        // the review page: needs the REVIEW_TOKEN secret (?token=)
+        // the review page: alert drafts and flood reports. Needs the REVIEW_TOKEN secret (?token=)
         const token = q.get('token') ?? '';
         if (!env.REVIEW_TOKEN || token !== env.REVIEW_TOKEN) return new Response('Not found', { status: 404 });
         if (req.method === 'POST') {
           const f = await req.formData(), id = String(f.get('id')), d = String(f.get('decision'));
-          if (d === 'approved' || d === 'rejected') await reportsOf(env.Reports).decide(id, d);
-          return Response.redirect(`${url.origin}/review?token=${encodeURIComponent(token)}`, 303);
+          let done = '';
+          if (f.get('kind') === 'alert' && (d === 'approved' || d === 'rejected')) {
+            const draft = await alertsOf(env.Alerts).decide(id, d, String(f.get('subject') ?? '').slice(0, 140), String(f.get('body') ?? '').replace(/\r/g, '').slice(0, 2000));
+            if (draft) { const r = await sendDraft(env, draft); done = `Sent to ${r.sent}${r.capped ? `, ${r.capped} held by the daily limit` : ''}${r.failed ? `, ${r.failed} failed` : ''}.`; }
+          } else if (d === 'approved' || d === 'rejected') await reportsOf(env.Reports).decide(id, d);
+          return Response.redirect(`${url.origin}/review?token=${encodeURIComponent(token)}${done ? `&done=${encodeURIComponent(done)}` : ''}`, 303);
         }
-        return new Response(reviewPage(await reportsOf(env.Reports).pending(), token), { headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' } });
+        const [reports, drafts] = await Promise.all([reportsOf(env.Reports).pending(), alertsOf(env.Alerts).pendingDrafts()]);
+        return new Response(reviewPage(reports, token, drafts, q.get('done') ?? ''), { headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' } });
+      }
+      if (url.pathname === '/api/follow' && req.method === 'POST') {
+        const origin = req.headers.get('Origin');
+        if (origin && new URL(origin).host !== url.host) return new Response('Not found', { status: 404 });
+        const { success } = await env.FOLLOW_LIMIT.limit({ key: req.headers.get('CF-Connecting-IP') ?? 'local' });
+        if (!success) return Response.json({ error: 'Too many tries. Wait a minute and try again.' }, { status: 429 });
+        const b = (await req.json()) as Record<string, unknown>;
+        const email = String(b.email ?? '').trim().toLowerCase(), lat = num(String(b.lat)), lon = num(String(b.lon));
+        if (!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/.test(email) || email.length > 120) return Response.json({ error: 'That email address does not look right.' }, { status: 400 });
+        if (lat === null || lon === null) return Response.json({ error: 'Pick a place first.' }, { status: 400 });
+        const area: Area = { key: areaKey(lat, lon), name: String(b.name ?? 'Your place').slice(0, 80), where: String(b.where ?? '').slice(0, 120), lat, lon };
+        const store = alertsOf(env.Alerts), f = await store.follow(email, area);
+        if (f.already) return Response.json({ status: 'already' });
+        if (!(await store.mayConfirm(email))) return Response.json({ status: 'wait' });
+        const r = await mail(env, email, `Confirm flood alerts for ${area.name}`, confirmEmail(env.SITE, area, f.token));
+        return r === 'ok' ? Response.json({ status: 'sent' }) : Response.json({ error: 'The email did not send. Try again later.', detail: r }, { status: 502 });
+      }
+      if (url.pathname === '/api/follow/confirm') {
+        const areas = await alertsOf(env.Alerts).confirm(q.get('t') ?? '');
+        if (!areas.length) return notePage('This link has expired', 'Follow your area again from the map to get a new link.', env.SITE);
+        // each confirmed area gets its Watch agent, which checks every 6 hours from now
+        await Promise.all(areas.map(async (a) => (await watchOf(env, a.key)).watch(a)));
+        return notePage('Alerts are on', `Forewarn now checks ${areas.map((a) => a.name).join(', ')} every 6 hours. When a flood looks possible in the next 7 days, a person reads the alert and then it comes to you. At most 2 alerts a day.`, env.SITE);
+      }
+      if (url.pathname === '/api/follow/stop') {
+        const s = await alertsOf(env.Alerts).stop(q.get('t') ?? '');
+        return s ? notePage('Alerts stopped', `You will get no more alerts for ${s.name}.`, env.SITE) : notePage('Link not found', 'This stop link is not valid.', env.SITE);
+      }
+      if (url.pathname === '/api/alerts/run' && req.method === 'POST') {
+        // a check now for one area, for testing: ?lat&lon&name, and &line=<mm> to force a warning
+        const token = req.headers.get('Authorization')?.replace(/^Bearer /, '');
+        if (!env.ALERTS_TOKEN || token !== env.ALERTS_TOKEN) return new Response('Not found', { status: 404 });
+        const lat = num(q.get('lat')), lon = num(q.get('lon')), line = num(q.get('line'));
+        if (lat === null || lon === null) return Response.json({ error: 'Add lat and lon.' }, { status: 400 });
+        const w = await watchOf(env, areaKey(lat, lon));
+        await w.watch({ key: areaKey(lat, lon), name: q.get('name') ?? 'Test place', where: q.get('where') ?? '', lat, lon });
+        const decision = await w.check(line ? { lineMm: line } : undefined);
+        return Response.json({ decision, memory: await w.memory() });
       }
       if (url.pathname === '/api/where') {
         const lat = num(q.get('lat')), lon = num(q.get('lon'));

@@ -25,9 +25,11 @@ const STEP: Record<string, [string, string]> = {
   last_flood: ['Checking the last flood here', 'Checked the last flood here'],
   read_last_30_days: ['Reading the last 30 days of rain', 'Read the last 30 days of rain'],
   flood_reports: ['Checking reports from people nearby', 'Checked reports from people nearby'],
+  follow_area: ['Opening the alerts form', 'Opened the alerts form'],
+  warn_family: ['Writing a message for your family', 'Wrote a message for your family'],
 };
 // a line in the chat from the page itself (a map button, a photo check), not from the agent
-export interface Note { id: number; text: string; small?: string; img?: string; busy?: boolean; action?: { label: string; run: () => void }; extra?: ReactNode }
+export interface Note { id: number; text: string; small?: string; img?: string; busy?: boolean; action?: { label: string; run: () => void }; extra?: ReactNode; follow?: boolean; share?: string }
 const textOf = (m: { parts: { type: string; text?: string }[] }) => m.parts.map((p) => (p.type === 'text' ? p.text : '')).join('');
 
 export function Chat({ place, onAction, notes, onPhoto, say, logging }: { place: Place; onAction: (a: Record<string, unknown>) => void; notes: Note[]; onPhoto: (f: File) => void; say?: { id: number; text: string } | null; logging: boolean }) {
@@ -83,11 +85,12 @@ export function Chat({ place, onAction, notes, onPhoto, say, logging }: { place:
   const tapChip = (q: string) => (/photo|picture/i.test(q) ? file.current?.click() : ask(q));
   const asked = messages.some((m) => m.role === 'user' && !hidden(textOf(m)));
   const noteAt = (k: number) => notes.map((n, i) => (at.current[i] === k ? (
-    <div key={n.id} className={`note ${n.img ? 'photo' : ''}`}>
+    <div key={n.id} className={`note ${n.img ? 'photo' : n.extra || n.share ? 'col' : ''}`}>
       {n.img && <img src={n.img} alt="Your photo, with the floodwater in blue and people pixelated" />}
-      <div>{n.busy ? <span className="spin" /> : n.img ? <I.Camera /> : <I.Play />}<span>{n.text}{n.small && <small>{n.small}</small>}</span></div>
+      <div>{n.busy ? <span className="spin" /> : n.img ? <I.Camera /> : n.follow ? <I.Bell /> : n.share ? <I.Send /> : <I.Play />}<span>{n.text}{n.small && <small>{n.small}</small>}</span></div>
       {n.extra}
       {n.action && <button type="button" className="report" onClick={n.action.run}>{n.action.label}</button>}
+      {n.share && <a className="report wa" href={`https://wa.me/?text=${encodeURIComponent(n.share)}`} target="_blank" rel="noopener">Send on WhatsApp</a>}
     </div>
   ) : null));
 

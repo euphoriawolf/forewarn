@@ -11,6 +11,7 @@ const Stage = lazy(() => import('./Stage').then((m) => ({ default: m.Stage })));
 const Chat = lazy(() => import('./Chat').then((m) => ({ default: m.Chat })));
 import { Safe } from './Safe';
 import { ReportPlace, type Spot } from './ReportPlace';
+import { Follow } from './Follow';
 import type { Answer as A, Place } from './types';
 import type { Note } from './Chat';
 // the same words as FROM_PAGE in Chat.tsx (Chat loads on its own, so it is not imported from there)
@@ -122,8 +123,21 @@ export function Answer({ place, onChange }: { place: Place; onChange: () => void
     snapTo(all[i]);
     if (d.pinned && d.chat) { const c = d.chat; setTimeout(() => { c.scrollTop = c.scrollHeight; }, 400); }
   };
+  // "Get flood alerts": the form goes in the chat, from the button by the place name or the agent's follow_area tool
+  const follow = () => {
+    const id = Date.now(), put = (x: Partial<Note>) => setNotes((n) => n.map((m) => (m.id === id ? { ...m, ...x } : m)));
+    setNotes((n) => [...n.filter((m) => !m.follow), { id, follow: true, text: `Flood alerts for ${place.name} by email`, extra: <Follow place={place} onDone={(t) => put({ extra: undefined, small: t })} /> }]);
+    if (phone()) snapTo(stops()[2]);
+  };
   // when the agent moves the map while the chat covers most of it, bring the map back into view
   const act = (x: Record<string, unknown>) => {
+    if (x.action === 'follow') return follow();
+    // warn_family: the agent's words, sent by the person from their own phone
+    if (x.action === 'share' && typeof x.message === 'string') {
+      const text = `${x.message}\n\n${location.origin}/?${new URLSearchParams({ lat: String(place.lat), lon: String(place.lon), name: place.name, where: place.where })}`;
+      setNotes((n) => [...n, { id: Date.now(), text: x.message as string, small: 'A message for your family. You send it from your phone.', share: text }]);
+      return;
+    }
     if (phone() && sheet.current && sheet.current.clientHeight > stops()[1] + 10) snapTo(stops()[1]);
     stage.current?.run(x);
   };
@@ -144,7 +158,7 @@ export function Answer({ place, onChange }: { place: Place; onChange: () => void
   }, [place]);
   return (
     <div className="place">
-      <div className="top"><div><b>{place.name}</b><small>{place.where || 'Your place'}</small></div><button className="chip" type="button" onClick={onChange}>Change</button></div>
+      <div className="top"><div><b>{place.name}</b><small>{place.where || 'Your place'}</small></div><div className="tops"><button className="chip alert" type="button" onClick={follow}>Get alerts</button><button className="chip" type="button" onClick={onChange}>Change</button></div></div>
       <div className="body" ref={body}>
         <div className="mapbox">
           {!a && !error && <div className="stage"><div className="load"><span>Loading your place</span></div></div>}

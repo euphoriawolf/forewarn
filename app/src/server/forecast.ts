@@ -18,7 +18,9 @@ export const levelOf = (share: number): Level => (share >= 0.5 ? 'red' : share >
 // The simplest "k in n" within 3 points of the share: "3 in 4", not "37 in 51".
 export function chanceWords(k: number, n: number): string {
   if (k === 0) return `none of ${n}`;
+  if (k === n) return `all ${n}`;
   const p = k / n;
+  if (p >= 0.95) return 'nearly all';
   for (const of of [2, 3, 4, 5, 10, 20, 50]) for (let a = 1; a < of; a++) if (Math.abs(a / of - p) <= 0.03) return `about ${a} in ${of}`;
   return `${k} in ${n}`;
 }

@@ -305,3 +305,12 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--water); out
 .sheet { overflow: hidden; }
 .chat { overflow-x: hidden; }
 .note { min-width: 0; max-width: 100%; }
+
+/* Get alerts (Follow.tsx) and the family message */
+.tops { display: flex; gap: 6px; flex: none; }
+.chip.alert { background: var(--water); border-color: var(--water); color: #fff; }
+.follow input[type=email] { font: inherit; font-size: 16px; border: 1px solid var(--line); border-radius: 10px; padding: 9px 11px; min-width: 0; }
+.follow .err { color: #b42318; }
+.note a.report { text-decoration: none; display: inline-block; }
+.note a.report.wa { background: #1f7a45; }
+.note.col { flex-direction: column; } .note.col > .where { align-self: stretch; }
