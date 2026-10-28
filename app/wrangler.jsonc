@@ -17,7 +17,9 @@
     "LOG_CHATS": "1",
     // alerts (src/server/alerts.ts): dawnstackai.com is on Cloudflare Email Sending, so any address on it can send.
     // ALERTS_TOKEN is a secret (the test route /api/alerts/run).
-    "SITE": "https://forewarn.dawnstackai.com", "EMAIL_FROM": "forewarn@dawnstackai.com", "ALERTS_REPLY_TO": "derrick@dawnstackai.com" },
+    "SITE": "https://forewarn.dawnstackai.com",
+    // read aloud in Swahili, Yoruba and Hausa: modal/tts.py; TTS_TOKEN is a secret
+    "TTS_URL": "https://derrickikenga--forewarn-tts-service-voice-speak.us-east.modal.run", "EMAIL_FROM": "forewarn@dawnstackai.com", "ALERTS_REPLY_TO": "derrick@dawnstackai.com" },
   "send_email": [{ "name": "EMAIL" }],
   // follow form: at most 3 tries a minute from one address
   "ratelimits": [{ "name": "FOLLOW_LIMIT", "namespace_id": "4811", "simple": { "limit": 3, "period": 60 } },

@@ -1,0 +1,24 @@
+{
+ "english": "Flooding looks possible in the place on Thursday. About one in four forecasts bring more than thirty millimetres of rain. Move valuables off the floor, and keep your phone charged.",
+ "licence": "facebook/mms-tts-* CC BY-NC 4.0",
+ "samples": {
+  "swh": {
+   "text": "Mafuriko yanaweza kutokea Kibera siku ya Alhamisi. Karibu utabiri mmoja kati ya minne unaleta mvua zaidi ya milimita thelathini. Ondoa vitu vya thamani sakafuni, na hakikisha simu yako ina chaji.",
+   "loadSeconds": 2.5,
+   "speakSeconds": 4.6,
+   "audioSeconds": 13.4
+  },
+  "yor": {
+   "text": "Ìkún omi lè ṣẹlẹ̀ ní Ìkòyí ní Ọjọ́bọ̀. Nǹkan bí ọ̀kan nínú mẹ́rin àsọtẹ́lẹ̀ ojú ọjọ́ ló ń mú òjò tó ju ọgbọ̀n mílímítà wá. Gbé àwọn nǹkan iyebíye kúrò lórí ilẹ̀, kí o sì rí i pé fóònù rẹ ní agbára.",
+   "loadSeconds": 4.3,
+   "speakSeconds": 4.6,
+   "audioSeconds": 14.0
+  },
+  "hau": {
+   "text": "Ambaliyar ruwa na iya faruwa a Kano ranar Alhamis. Kusan ɗaya cikin hasashen yanayi huɗu na kawo ruwan sama fiye da milimita talatin. Ɗaga kayayyaki masu daraja daga ƙasa, kuma ka tabbatar wayarka tana da caji.",
+   "loadSeconds": 8.9,
+   "speakSeconds": 8.0,
+   "audioSeconds": 20.9
+  }
+ }
+}

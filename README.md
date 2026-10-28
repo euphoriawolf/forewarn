@@ -40,6 +40,7 @@ The flood line is the rain in one day that floods the place. For Lagos and Nairo
 | Muse Spark 1.3 | Meta Model API | Reads a flood photo in words |
 | SAM 3.1 | Meta Model API | Finds the water and the people in a photo |
 | Muse Voice Transcribe (`muse-voice-transcribe-1.0`) | Meta Model API | Turns a spoken question into text |
+| MMS text-to-speech (`facebook/mms-tts-swh`, `-yor`, `-hau`, CC BY-NC 4.0) | Modal, CPU (`modal/tts.py`) | Reads answers aloud in Swahili, Yoruba and Hausa |
 
 We do not use the `-contributor` models. They let Meta train on what we send, and we send people's chats and photos.
 
@@ -60,6 +61,7 @@ app/
     rain30.ts     the last 30 days against normal
     witness.ts    the photo reading (SAM 3.1 and Muse Spark)
     voice.ts      a spoken question to text (Muse Voice Transcribe)
+    speak.ts      an answer read aloud in Swahili, Yoruba or Hausa (MMS voices on Modal)
     reports.ts    flood reports and their review queue
     watch.ts      the agent for each followed area
     alerts.ts     followers, alert drafts, sending and its limits
@@ -105,6 +107,7 @@ npm run deploy
 | `REVIEW_TOKEN` | Opens the review page for reports and alerts |
 | `ALERTS_TOKEN` | Opens the test route that forces an alert check |
 | `LOGS_TOKEN` | Opens the test chat log |
+| `TTS_TOKEN` | Shared with the Modal voice service (`modal/tts.py`, Modal secret `forewarn-tts`) |
 
 ## Tests
 

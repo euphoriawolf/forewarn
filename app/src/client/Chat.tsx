@@ -49,17 +49,20 @@ function sources(parts: { type: string; state?: string; output?: unknown }[]): s
   }
   return out;
 }
-// Read aloud: the phone's own voice (no server, free). The language is guessed from the words, so a
-// Swahili or French answer is read with a Swahili or French voice when the phone has one.
+// Read aloud. English and French: the phone's own voice (no server, free). Swahili, Yoruba and Hausa:
+// Meta's MMS voices through /api/speak, since phones rarely have them. The language is guessed from the words.
 const guessLang = (t: string) => {
   const w = t.toLowerCase().match(/[a-zàâçéèêëîïôûùü]+/g) ?? [], n = (list: string[]) => w.filter((x) => list.includes(x)).length;
   const sw = n(['na', 'ya', 'wa', 'kwa', 'mvua', 'mafuriko', 'siku', 'leo', 'kesho', 'hapa', 'ni', 'za', 'katika']);
   const fr = n(['le', 'la', 'les', 'des', 'pluie', 'inondation', 'jours', 'aujourd', 'est', 'une', 'pour', 'dans']);
-  return sw > 3 && sw > fr ? 'sw' : fr > 3 ? 'fr' : 'en';
+  const yo = (t.match(/[ẹọṣẸỌṢ]/g) ?? []).length + n(['ni', 'ti', 'àwọn', 'òjò', 'ìkún', 'omi', 'ọjọ́', 'kò', 'yìí']);
+  const ha = (t.match(/[ɗƙɓƊƘƁ]/g) ?? []).length + n(['da', 'ruwa', 'ambaliyar', 'yau', 'gobe', 'ba', 'za', 'cikin', 'kuma', 'wannan']);
+  const best = Math.max(sw, fr, yo, ha);
+  return best <= 3 ? 'en' : best === yo ? 'yo' : best === ha ? 'ha' : best === sw ? 'sw' : 'fr';
 };
 // false when the phone has no voice for the answer's language (an English voice reading Swahili is worse than none)
 function speak(text: string, onEnd: () => void): boolean {
-  const lang = guessLang(text), unit = { en: 'millimetres', fr: 'millimètres', sw: 'milimita' }[lang];
+  const lang = guessLang(text), unit = ({ en: 'millimetres', fr: 'millimètres', sw: 'milimita' } as Record<string, string>)[lang] ?? 'millimetres';
   // "30 mm" read as a word, not as "em em"
   const u = new SpeechSynthesisUtterance(text.replace(/(\d)\s*mm\b/g, `$1 ${unit}`));
   const voice = speechSynthesis.getVoices().find((v) => v.lang.toLowerCase().startsWith(lang));
@@ -103,8 +106,22 @@ export function Chat({ place, onAction, notes, onPhoto, say, logging }: { place:
   const [reading, setReading] = useState('');
   const canSpeak = typeof window !== 'undefined' && 'speechSynthesis' in window;
   useEffect(() => () => { if (canSpeak) speechSynthesis.cancel(); }, []);
-  const listen = (id: string, text: string) => {
-    if (reading === id) { speechSynthesis.cancel(); setReading(''); return; }
+  const audio = useRef<HTMLAudioElement | null>(null);
+  useEffect(() => () => { audio.current?.pause(); }, []);
+  const listen = async (id: string, text: string) => {
+    if (reading === id) { speechSynthesis.cancel(); audio.current?.pause(); setReading(''); return; }
+    const lang = guessLang(text);
+    if (['sw', 'yo', 'ha'].includes(lang)) {
+      speechSynthesis.cancel(); audio.current?.pause(); setVoiceError(''); setReading(id);
+      try {
+        const r = await fetch('/api/speak', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ lang, text }) });
+        if (!r.ok) throw new Error(((await r.json().catch(() => ({}))) as { error?: string }).error ?? 'The voice did not load.');
+        const a = new Audio(URL.createObjectURL(await r.blob())); audio.current = a;
+        a.onended = () => setReading((x) => (x === id ? '' : x));
+        await a.play();
+      } catch (e) { setReading(''); setVoiceError(`${e instanceof Error ? e.message : 'The voice did not load.'} Try again in a moment.`); }
+      return;
+    }
     setVoiceError('');
     if (speak(text, () => setReading((r) => (r === id ? '' : r)))) setReading(id);
     else setVoiceError(`This phone has no ${guessLang(text) === 'sw' ? 'Swahili' : 'French'} voice to read the answer aloud.`);
