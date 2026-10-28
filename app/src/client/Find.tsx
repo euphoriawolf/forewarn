@@ -206,7 +206,7 @@ export function Find({ onPlace }: { onPlace: (p: Place) => void }) {
         <h2>Every number has a source</h2>
         <div className="icons">
           <div><I.Shield /><p>A checker compares each number the agent says with the data.</p></div>
-          <div><I.History /><p>We're testing it on 36 past African floods, and we'll show the misses too.</p></div>
+          <div><I.History /><p>We replayed 36 past African floods with today's rules. <a href="?past">See where it warned and where it missed</a>.</p></div>
           <div><I.Blur /><p>People in photos are pixelated before anyone sees them.</p></div>
           <div><I.Flag /><p>If your local officials say leave, leave.</p></div>
         </div>

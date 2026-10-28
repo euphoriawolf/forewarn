@@ -25,6 +25,16 @@ export function chanceWords(k: number, n: number): string {
   return `${k} in ${n}`;
 }
 
+// One day of the forecast from its runs' rain: the level, the chance and the middle and wettest run.
+// `j` is how many days after the forecast was made (0 is today). The time machine uses this too.
+export function dayOf(day: string, j: number, rain: number[], line: number): Day {
+  const runs = [...rain].sort((a, b) => a - b), over = runs.filter((x) => x >= line).length;
+  const date = new Date(day + 'T12:00:00Z'), weekday = date.toLocaleDateString('en-GB', { weekday: 'long', timeZone: 'UTC' });
+  // how to say the day: today, a weekday this week, or weekday and date further out (14 days repeat weekdays)
+  const when = j === 0 ? 'today' : j === 1 ? 'tomorrow' : j < 7 ? weekday : date.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' });
+  return { day, weekday, when, runs: runs.length, runsOverLine: over, middleMm: +runs[Math.floor(runs.length / 2)].toFixed(1), wettestMm: +runs[runs.length - 1].toFixed(1), level: levelOf(over / runs.length), chance: chanceWords(over, runs.length) };
+}
+
 // Read the four squares (slow part, a network call) separately from counting against a line, so
 // the caller can fetch the forecast and the flood line at the same time.
 export async function readForecast(lat: number, lon: number, floodLineMm: number | Promise<number>): Promise<Forecast> {
@@ -42,12 +52,8 @@ export async function readForecast(lat: number, lon: number, floodLineMm: number
   const all = (await res.json()) as { daily: Record<string, (number | null)[]> & { time: string[] } }[];
   const keys = Object.keys(all[0].daily).filter((k) => k.startsWith('precipitation_sum'));
   const days: Day[] = all[0].daily.time.map((day, j) => {
-    const runs = keys.map((k) => all.reduce((sum, p, i) => sum + squares[i].weight * (p.daily[k]?.[j] ?? 0), 0)).sort((a, b) => a - b);
-    const over = runs.filter((x) => x >= line).length;
-    const date = new Date(day + 'T12:00:00Z'), weekday = date.toLocaleDateString('en-GB', { weekday: 'long', timeZone: 'UTC' });
-    // how to say the day: today, a weekday this week, or weekday and date further out (14 days repeat weekdays)
-    const when = j === 0 ? 'today' : j < 7 ? weekday : date.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' });
-    return { day, weekday, when, runs: runs.length, runsOverLine: over, middleMm: +runs[Math.floor(runs.length / 2)].toFixed(1), wettestMm: +runs[runs.length - 1].toFixed(1), level: levelOf(over / runs.length), chance: chanceWords(over, runs.length) };
+    const runs = keys.map((k) => all.reduce((sum, p, i) => sum + squares[i].weight * (p.daily[k]?.[j] ?? 0), 0));
+    return dayOf(day, j, runs, line);
   });
   const worst = days.reduce((a, b) => (b.runsOverLine > a.runsOverLine ? b : a));
   return { lat, lon, floodLineMm: line, issued: new Date().toISOString(), squares, days, worst };

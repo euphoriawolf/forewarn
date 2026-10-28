@@ -314,3 +314,37 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--water); out
 .note a.report { text-decoration: none; display: inline-block; }
 .note a.report.wa { background: #1f7a45; }
 .note.col { flex-direction: column; } .note.col > .where { align-self: stretch; }
+
+/* the time machine (Past.tsx) */
+.past .score { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.past .score div { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 12px; display: grid; gap: 2px; }
+.past .score b { font: 800 22px/1.05 var(--display); }
+.past .score span { font-size: 12px; color: var(--muted); }
+.past .leads { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; align-items: end; }
+.past .leads div { display: grid; justify-items: center; gap: 2px; }
+.past .leads b { font-weight: 600; } .past .leads small { font-size: 12px; color: var(--muted); }
+.past .floods button { grid-template-columns: 1fr auto; align-items: center; column-gap: 12px; }
+.past .floods button:disabled { cursor: default; opacity: .6; }
+.past .floods button > span:first-child { display: grid; min-width: 0; }
+.past .floods .dots { display: flex; gap: 3px; }
+.past .dots i { width: 10px; height: 10px; border-radius: 50%; background: var(--line); }
+.past .dots i.amber { background: var(--amber); } .past .dots i.red { background: var(--red); }
+.past .floods .hit { color: var(--green); font-weight: 600; } .past .floods .miss { color: var(--muted); }
+.past .picker { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.past .picker button { border: 1.5px solid var(--line); background: #fff; border-radius: 12px; padding: 6px 0; display: grid; justify-items: center; line-height: 1.1; }
+.past .picker button small { font-size: 12px; color: var(--muted); }
+.past .picker button.amber { border-bottom: 4px solid var(--amber); } .past .picker button.red { border-bottom: 4px solid var(--red); }
+.past .picker button.on { border-color: var(--ink); background: var(--ink); color: #fff; } .past .picker button.on small { color: #fff; }
+.past .verdict { border-radius: 18px; padding: 14px 16px; background: var(--green-soft); display: grid; gap: 4px; }
+.past .verdict.amber { background: var(--amber-soft); } .past .verdict.red { background: var(--red-soft); }
+.past .verdict h2 { font: 800 22px/1.15 var(--display); margin: 0; }
+.past .verdict p { margin: 0; } .past .verdict small { color: var(--muted); font-size: 12px; }
+.past .verdict .act { display: flex; gap: 6px; align-items: center; font-weight: 600; margin-top: 4px; }
+.past .verdict .act svg { width: 18px; height: 18px; flex: none; }
+.past .three { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.past .three div { background: #fff; border: 1px solid var(--line); border-top: 4px solid var(--green); border-radius: 12px; padding: 8px; display: grid; gap: 2px; font-size: 13px; }
+.past .three div.amber { border-top-color: var(--amber); } .past .three div.red { border-top-color: var(--red); }
+.past .three div.peak { outline: 2px solid var(--ink); outline-offset: -1px; }
+.past .three small { font-size: 12px; color: var(--muted); }
+.past a.btn { text-decoration: none; }
+.trust a { color: inherit; font-weight: 600; }

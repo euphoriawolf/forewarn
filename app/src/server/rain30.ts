@@ -13,16 +13,34 @@ export interface Rain30 { days: number; from: string; to: string; mm: number; no
 
 const WORDS: [number, string][] = [[0.5, 'much drier than normal'], [0.8, 'drier than normal'], [1.25, 'close to normal'], [2, 'wetter than normal'], [Infinity, 'much wetter than normal, more than twice the usual rain']];
 
+const loadNormals = (assets: Fetcher) => (normals ??= assets.fetch('http://localhost/normals/chirps-1991-2020.bin').then(async (r) => {
+  if (!r.ok) throw new Error(`normals answered ${r.status}`);
+  return new Uint16Array(await r.arrayBuffer());
+}).catch((e) => { normals = null; throw e; }));
+
 export async function rainLast30(assets: Fetcher, lat: number, lon: number): Promise<Rain30> {
-  normals ??= assets.fetch('http://localhost/normals/chirps-1991-2020.bin').then(async (r) => {
-    if (!r.ok) throw new Error(`normals answered ${r.status}`);
-    return new Uint16Array(await r.arrayBuffer());
-  }).catch((e) => { normals = null; throw e; });
   const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=precipitation_sum&past_days=30&forecast_days=1&timezone=auto`;
-  const [grid, res] = await Promise.all([normals, fetchIn(url, 12000, 'The rain records service')]);
+  const [grid, res] = await Promise.all([loadNormals(assets), fetchIn(url, 12000, 'The rain records service')]);
   if (!res.ok) throw new Error(`rain service answered ${res.status}`);
   const d = (await res.json()) as { daily: { time: string[]; precipitation_sum: (number | null)[] } };
-  const times = d.daily.time.slice(0, 30), mm = d.daily.precipitation_sum.slice(0, 30).reduce<number>((a, v) => a + (v ?? 0), 0);
+  return against(grid, lat, lon, d.daily.time.slice(0, 30), d.daily.precipitation_sum.slice(0, 30), 'Last 30 days: Open-Meteo. Normal: CHIRPS 1991 to 2020.');
+}
+
+// The same reading for a day in the past (the time machine): the 30 days that end on `last`, from the
+// Open-Meteo archive (ERA5). `from` and `to` give a longer span in one call; `windows` reads each window from it.
+export async function rainArchive(lat: number, lon: number, from: string, to: string) {
+  const res = await fetchIn(`https://archive-api.open-meteo.com/v1/archive?latitude=${lat}&longitude=${lon}&start_date=${from}&end_date=${to}&daily=precipitation_sum&timezone=GMT`, 15000, 'The rain archive');
+  if (!res.ok) throw new Error(`rain archive answered ${res.status}`);
+  return ((await res.json()) as { daily: { time: string[]; precipitation_sum: (number | null)[] } }).daily;
+}
+export async function rain30Ending(assets: Fetcher, lat: number, lon: number, daily: { time: string[]; precipitation_sum: (number | null)[] }, last: string): Promise<Rain30> {
+  const end = daily.time.indexOf(last) + 1;
+  if (end < 30) throw new Error(`no 30 days of rain before ${last}`);
+  return against(await loadNormals(assets), lat, lon, daily.time.slice(end - 30, end), daily.precipitation_sum.slice(end - 30, end), 'The 30 days: Open-Meteo archive (ERA5). Normal: CHIRPS 1991 to 2020.');
+}
+
+function against(grid: Uint16Array, lat: number, lon: number, times: string[], rain: (number | null)[], source: string): Rain30 {
+  const mm = rain.reduce<number>((a, v) => a + (v ?? 0), 0);
 
   // the normal: the 3 x 3 squares around the place (as the analysis did), each day taking its month's mean
   const r0 = Math.floor((NORTH - lat) / CELL), c0 = Math.floor((lon - WEST) / CELL);
@@ -38,6 +56,6 @@ export async function rainLast30(assets: Fetcher, lat: number, lon: number): Pro
   return {
     days: 30, from: times[0], to: times.at(-1)!, mm: Math.round(mm), normalMm: Math.round(normalMm), timesNormal: +timesNormal.toFixed(1),
     word: WORDS.find(([k]) => timesNormal < k)![1], groundSoaked: timesNormal >= 1.5 && mm >= 100,
-    source: 'Last 30 days: Open-Meteo. Normal: CHIRPS 1991 to 2020.',
+    source,
   };
 }

@@ -34,7 +34,7 @@ export const OPENING = 'How does my place look for the next 14 days?';
 // The page hides it; the agent answers it as a reply to what the person did.
 export const FROM_PAGE = '[from the page]';
 
-export const system = (p: Place | null) => `You are Forewarn. You tell people in Africa what the weather will do to their place: a street, a farm or a village.
+export const system = (p: Place | null, today?: string) => `You are Forewarn. You tell people in Africa what the weather will do to their place: a street, a farm or a village.${today ? `\nToday is ${today}. The forecast tool keeps only 3 days: answer about those days.` : ''}
 ${p ? `The person's place is ${p.name}${p.where ? `, ${p.where}` : ''}. Every tool already knows it.` : 'The person has not picked a place yet. Ask them to search for it first.'}
 - Before you answer anything about rain or floods, call read_forecast. When the ground matters (a flood chance, a farm, a dry spell), also call read_last_30_days: if groundSoaked is true, say plainly that soaked ground floods sooner. For questions about the last flood, call last_flood.
 - Use only numbers, days and dates that are in tool results or in the question. Never estimate a number yourself.
@@ -51,7 +51,10 @@ ${p && packFor(p.lat, p.lon) ? `- The screen shows the place in 3D. Change it wi
 - Answer in at most three short sentences, about 60 words in all. Lead with the answer; leave out anything they did not ask about. Plain English. No em dashes, no dashes between words.`;
 
 // Tools for one answer about one place. `results` collects every tool output for the checker.
-export function makeTools(env: Env, place: Place | null, results: unknown[]): ToolSet {
+// A forecast from the past (src/server/past.ts), for the test suite: the two reading tools answer from it.
+export interface PastView { today: string; forecast: unknown; ground: unknown }
+
+export function makeTools(env: Env, place: Place | null, results: unknown[], past?: PastView): ToolSet {
   const seen = new Map<string, Promise<unknown>>();
   // a failed call is not kept, so the next call tries again; its message goes to the log and the model
   const once = (name: string, run: () => Promise<unknown>) => {
@@ -72,7 +75,7 @@ export function makeTools(env: Env, place: Place | null, results: unknown[]): To
     read_forecast: tool({
       description: "Read the 51-run ECMWF rain forecast for the next 14 days at the person's place, plus a weekly outlook to about a month (only wetter or drier than normal, never a flood chance), blended from the four nearest 28 km squares. Per day: how many runs reach the place's flood line, the middle and the wettest run in mm, the level and the chance in words.",
       inputSchema: z.object({}),
-      execute: () => (place ? once('read_forecast', async () => {
+      execute: () => (past ? once('read_forecast', async () => past.forecast) : place ? once('read_forecast', async () => {
         const l = await lineOf(), f = await readForecast(place.lat, place.lon, l.mm);
         return { floodLine: l, ...f, outlookBeyond14Days: await outlookWeeks(place.lat, place.lon, f.days.at(-1)!.day).catch(() => []) };
       }) : Promise.resolve(none)),
@@ -114,7 +117,7 @@ export function makeTools(env: Env, place: Place | null, results: unknown[]): To
     read_last_30_days: tool({
       description: "How much rain fell at the person's place in the last 30 days, against normal for those days of the year (CHIRPS 1991 to 2020). Soaked ground floods sooner; on a farm, far below normal means the season is running dry.",
       inputSchema: z.object({}),
-      execute: () => (place ? once('read_last_30_days', () => rainLast30(env.ASSETS, place.lat, place.lon)) : Promise.resolve(none)),
+      execute: () => (past ? once('read_last_30_days', async () => past.ground ?? { error: 'No rain record for those 30 days.' }) : place ? once('read_last_30_days', () => rainLast30(env.ASSETS, place.lat, place.lon)) : Promise.resolve(none)),
     }),
     follow_area: tool({
       description: "Open the form on the person's screen where they give their email to get flood alerts for this area. Use when they ask for alerts, warnings, updates or to be told when a flood is coming. The tool cannot sign them up itself.",
@@ -178,9 +181,11 @@ Do not repeat a question they already asked. No numbers. One question per line, 
 }
 
 // One question about one place, answered with the tools and checked. Used by the test route.
-export async function answer(env: Env, place: Place, question: string, which: Which = 'open') {
+export async function answer(env: Env, place: Place, question: string, which: Which = 'open', past?: PastView) {
   const results: unknown[] = [];
-  const base = { model: model(env, which), system: system(place), tools: makeTools(env, place, results), ...loopOptions, ...(which === 'meta-min' ? { providerOptions: { meta: { reasoningEffort: 'minimal' } } } : {}) };
+  // a past forecast: only the two reading tools, so nothing reads today's data
+  const all = makeTools(env, place, results, past), toolSet = past ? { read_forecast: all.read_forecast, read_last_30_days: all.read_last_30_days } : all;
+  const base = { model: model(env, which), system: system(place, past?.today), tools: toolSet, ...loopOptions, ...(which === 'meta-min' ? { providerOptions: { meta: { reasoningEffort: 'minimal' } } } : {}) };
   const t0 = Date.now();
   let r = await generateText({ ...base, prompt: question, abortSignal: AbortSignal.timeout(90000) });
   const firstMs = Date.now() - t0, tools = r.steps.flatMap((st) => st.toolCalls.map((c) => c.toolName)), usage = r.totalUsage;

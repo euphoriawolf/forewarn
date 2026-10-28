@@ -5,6 +5,7 @@
 //   /api/witness (POST)   a flood photo through SAM 3.1 and Muse Spark: the water and the people in it
 //   /api/reports          send a report (POST), or the approved ones near ?lat&lon; /review is the review page
 //   /api/follow (POST)    follow an area by email; /api/follow/confirm and /api/follow/stop are the links in the emails
+//   /api/past, /api/past/<n>  the time machine: what Forewarn would have said before 36 past floods
 //   /api/alerts/run       run one area's check now, with a lowered flood line to force a warning (ALERTS_TOKEN)
 //   /agents/ask-agent/<session>   the chat, over WebSocket
 // Everything else is the page.
@@ -13,6 +14,7 @@ import { AIChatAgent } from '@cloudflare/ai-chat';
 import { streamText, convertToModelMessages } from 'ai';
 import { model, system, makeTools, checkNumbers, answer, loopOptions, noEmDash, followUps, OPENING, FROM_PAGE, type Env, type Place } from './harness';
 import { readForecast, outlookWeeks } from './forecast';
+import { replay, scorecard, pastView } from './past';
 import { floodLine, search, placeName } from './place';
 import { packFor, nearestFlood } from './packs';
 import { Logbook, stepsOf, bookOf } from './logbook';
@@ -61,7 +63,7 @@ export class AskAgent extends AIChatAgent<Env, { place: Place | null; suggestion
 const num = (v: string | null) => (v === null || v === '' || Number.isNaN(+v) ? null : +v);
 
 export default {
-  async fetch(req: Request, env: Env): Promise<Response> {
+  async fetch(req: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(req.url), q = url.searchParams;
     try {
       if (url.pathname === '/api/logs') {
@@ -161,6 +163,18 @@ export default {
         if (lat === null || lon === null) return Response.json({ error: 'Add lat and lon.' }, { status: 400 });
         return Response.json((await placeName(lat, lon)) ?? { name: 'Your location', where: '' });
       }
+      if (url.pathname === '/api/past' || url.pathname.startsWith('/api/past/')) {
+        // the time machine: the whole scorecard, or one flood. The answer only changes with the data or
+        // the rules, so it is kept for a day (the scorecard reads 40 places from two services).
+        const cache = (caches as unknown as { default: Cache }).default, key = new Request(url.origin + url.pathname);
+        const hit = await cache.match(key);
+        if (hit) return hit;
+        const id = url.pathname === '/api/past' ? null : Number(url.pathname.slice('/api/past/'.length));
+        if (id !== null && !Number.isInteger(id)) return Response.json({ error: 'Add a flood number.' }, { status: 400 });
+        const res = Response.json(id === null ? await scorecard(env) : await replay(env, id), { headers: { 'Cache-Control': 'public, max-age=86400' } });
+        ctx.waitUntil(cache.put(key, res.clone()));
+        return res;
+      }
       if (url.pathname === '/api/search') {
         const text = (q.get('q') ?? '').trim();
         return Response.json(text.length < 2 ? [] : await search(text));
@@ -173,7 +187,13 @@ export default {
           if (!['localhost', '127.0.0.1'].includes(url.hostname)) return new Response('Not found', { status: 404 });
           const text = q.get('q');
           if (!text) return Response.json({ error: 'Add q with a question.' }, { status: 400 });
-          return Response.json(await answer(env, { name: q.get('name') ?? 'this place', where: '', lat, lon }, text, (['meta', 'meta-min'].includes(q.get('model') ?? '') ? q.get('model') : 'open') as 'open' | 'meta' | 'meta-min'));
+          const which = (['meta', 'meta-min'].includes(q.get('model') ?? '') ? q.get('model') : 'open') as 'open' | 'meta' | 'meta-min';
+          // ?past=<flood>&lead=<days>: answer from the forecast made that many days before a past flood (evals/past-suite.mjs)
+          if (q.has('past')) {
+            const v = await pastView(env, Number(q.get('past')), Number(q.get('lead') ?? 3));
+            return Response.json({ ...(await answer(env, v.place, text, which, { today: v.today, forecast: v.forecast, ground: v.ground })), expected: v.expected, place: v.place, today: v.today });
+          }
+          return Response.json(await answer(env, { name: q.get('name') ?? 'this place', where: '', lat, lon }, text, which));
         }
         const line = floodLine(env.FLOOD_CHECK_API, lat, lon), pack = packFor(lat, lon);
         const [l, forecast, nearby] = await Promise.all([line, readForecast(lat, lon, line.then((x) => x.mm)), pack ? nearestFlood(env.ASSETS, pack).catch(() => null) : null]);

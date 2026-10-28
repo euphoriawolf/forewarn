@@ -15,6 +15,7 @@ Built for the Meta Global AI Developer Hackathon (Indie track), from 26 Oct 2026
 - **Send a photo of the water.** SAM 3.1 marks the water and the people. Muse Spark says what the water reaches. The page pixelates the people before it shows the photo or sends it as a report.
 - **Flood reports on the map.** A person checks each photo report. After that, it shows for 48 hours on maps within 5 km, and the agent uses it in its answers.
 - **Alerts for your area.** Give an email and confirm it. An agent for your area checks the forecast every 6 hours. When a flood is possible in the next 7 days, it writes an alert. A person reads the alert before it goes out.
+- **The time machine.** Pick one of 36 past African floods and see what Forewarn would have said 7 days to 1 day before, with today's rules. The scorecard lists every flood, the misses too: 14 of 36 got a warning.
 - **Warn your family.** The agent writes a short message from the forecast. You send it on WhatsApp from your own phone.
 
 ## How it works
@@ -59,9 +60,10 @@ app/
     watch.ts      the agent for each followed area
     alerts.ts     followers, alert drafts, sending and its limits
     review.ts     the review page
+    past.ts       the time machine and its scorecard
   src/client/   the page, the map, the chat and the 3D
   tools/        scripts that cut the 3D tiles and the rain normals
-evals/          the model test: the same questions to two models
+evals/          the model test, the agent test suite and the false-alarm test
 spike/          the first test of Muse Spark Open with a tool
 design/         mockups
 ```
@@ -99,6 +101,16 @@ npm run deploy
 | `ALERTS_TOKEN` | Opens the test route that forces an alert check |
 | `LOGS_TOKEN` | Opens the test chat log |
 
+## Tests
+
+The dev server must run first (`npm run dev` in `app/`).
+
+| Command | What it checks |
+|---|---|
+| `node evals/past-suite.mjs [days] [model]` | The agent answers from the forecast made that many days before each of 36 past floods. Each answer must pass the number checker and give the level that code computed. Last run, 3 days before, Muse Spark Open: 36 of 36. |
+| `python3 evals/false-alarms.py` | How often soaked ground came with no flood after it, at the same places from 2000 to 2025. |
+| `node evals/compare-models.mjs` | The same 10 questions to Muse Spark Open and Muse Spark 1.3: speed, the checker and the tools called. |
+
 ## Privacy and safety
 
 - To read a photo, the app sends it to the Meta Model API (SAM 3.1 and Muse Spark 1.3) and keeps nothing. The answer comes back to the phone, and the page pixelates the people.
@@ -115,6 +127,8 @@ npm run deploy
 | Normal rain, 1991 to 2020 | [CHIRPS](https://www.chc.ucsb.edu/data/chirps), Climate Hazards Center, UC Santa Barbara | CHC terms, with credit |
 | Place search | [Photon](https://photon.komoot.io) and [Nominatim](https://nominatim.org), on OpenStreetMap data | ODbL |
 | Satellite map | Esri World Imagery | Esri terms, with credit |
+| Past floods | Google Groundsource, news reports placed on a map | CC BY 4.0 |
+| Past forecasts (ECMWF IFS ensemble archive) | [dynamical.org](https://dynamical.org) | CC BY 4.0 |
 | 3D ground imagery | Sentinel-2 cloudless by [EOX](https://s2maps.eox.at) | CC BY-NC-SA 4.0 |
 
 Photo credits for the landing page are at the bottom of the page itself.
