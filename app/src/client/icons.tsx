@@ -28,3 +28,5 @@ export const Shield = () => <svg viewBox="0 0 24 24" {...s} strokeWidth={2}><pat
 export const History = () => <svg viewBox="0 0 24 24" {...s} strokeWidth={2}><path d="M3 12a9 9 0 1 0 3-6.7L3 8" /><path d="M3 3v5h5M12 7v5l3 2" /></svg>;
 export const Blur = () => <svg viewBox="0 0 24 24" {...s} strokeWidth={2}><circle cx="12" cy="8" r="4" /><path d="M4 21c1-4 4.5-6 8-6s7 2 8 6" /><path d="M3 3l18 18" /></svg>;
 export const Flag = () => <svg viewBox="0 0 24 24" {...s} strokeWidth={2}><path d="M5 21V4h11l-2 4 2 4H5" /></svg>;
+export const Mic = () => <svg viewBox="0 0 24 24" {...s} strokeWidth={2.2}><rect x="9" y="3" width="6" height="11" rx="3" /><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21" /></svg>;
+export const Stop = () => <svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2.5" fill="currentColor" /></svg>;

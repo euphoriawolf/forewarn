@@ -13,6 +13,7 @@ In Mathare, Nairobi, on the night of 23 April 2024, people woke to their neighbo
 ## What Forewarn does
 
 - Ask in plain words. Put a pin on your door and ask "will it flood here this week?". The answer gives a level (unlikely, possible or likely), the chance in words ("about 1 in 4 forecasts") and what to do.
+- Speak your question. Tap the microphone and ask out loud. Meta's Muse Voice Transcribe writes the words down, and the person can fix them before sending. English is tested; other languages are added only after a speaker checks them.
 - 14 days ahead. The answer counts how many of 51 ECMWF forecast runs bring the rain that floods your place, for each of the next 14 days: the place's flood line in one day, or 50 mm over 3 days. A weekly outlook covers about a month, as wetter or drier than normal only.
 - How wet the ground is. The rain of the last 30 days against 30 years of normal (CHIRPS 1991 to 2020). Soaked ground floods sooner. On a farm, far below normal means a dry season.
 - The last flood in 3D. In Lagos and Nairobi, the agent plays the water of the last big storm on real ground, buildings and trees, and can light the roads that took water.
@@ -52,6 +53,7 @@ The time machine replays 36 past African floods (from Google Groundsource news r
 - Muse Spark Open (meta-models/muse-spark-open-1026, on Baseten): the chat agent, its tool calls, the alert text.
 - Muse Spark 1.3 (Meta Model API): reads a flood photo in words.
 - SAM 3.1 (Meta Model API): finds the water and the people in a photo.
+- Muse Voice Transcribe (muse-voice-transcribe-1.0, Meta Model API): turns a spoken question into text. Nothing is kept.
 
 Forewarn does not use Meta's "-contributor" models, which let Meta train on what is sent.
 

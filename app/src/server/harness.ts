@@ -16,7 +16,7 @@ import { rainLast30 } from './rain30';
 import { reportsOf } from './reports';
 
 export interface Env { BASETEN_API_KEY: string; BASETEN_BASE_URL: string; BASETEN_MODEL: string; FLOOD_CHECK_API: string; AskAgent: DurableObjectNamespace; ASSETS: Fetcher; Logbook: DurableObjectNamespace; LOG_CHATS: string; LOGS_TOKEN: string; MODEL_API_KEY: string; Reports: DurableObjectNamespace; REVIEW_TOKEN: string;
-  Watch: DurableObjectNamespace; Alerts: DurableObjectNamespace; EMAIL: SendEmail; EMAIL_FROM: string; ALERTS_REPLY_TO: string; SITE: string; ALERTS_TOKEN: string; FOLLOW_LIMIT: RateLimit }
+  Watch: DurableObjectNamespace; Alerts: DurableObjectNamespace; EMAIL: SendEmail; EMAIL_FROM: string; ALERTS_REPLY_TO: string; SITE: string; ALERTS_TOKEN: string; FOLLOW_LIMIT: RateLimit; VOICE_LIMIT: RateLimit }
 export interface Place { name: string; where: string; lat: number; lon: number }
 
 // The agent's model: Muse Spark Open on Baseten, or Muse Spark 1.3 on Meta's Model API (standard mode,

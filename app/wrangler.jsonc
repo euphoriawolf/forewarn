@@ -20,5 +20,7 @@
     "SITE": "https://forewarn.dawnstackai.com", "EMAIL_FROM": "forewarn@dawnstackai.com", "ALERTS_REPLY_TO": "derrick@dawnstackai.com" },
   "send_email": [{ "name": "EMAIL" }],
   // follow form: at most 3 tries a minute from one address
-  "ratelimits": [{ "name": "FOLLOW_LIMIT", "namespace_id": "4811", "simple": { "limit": 3, "period": 60 } }]
+  "ratelimits": [{ "name": "FOLLOW_LIMIT", "namespace_id": "4811", "simple": { "limit": 3, "period": 60 } },
+    // voice: at most 10 spoken questions a minute from one address
+    { "name": "VOICE_LIMIT", "namespace_id": "4812", "simple": { "limit": 10, "period": 60 } }]
 }

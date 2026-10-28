@@ -3,6 +3,7 @@
 //   /api/place?lat&lon    the answer for a place, computed in code: flood line, 7 days, levels
 //   /api/ask?lat&lon&q=   one checked agent answer (local testing only)
 //   /api/witness (POST)   a flood photo through SAM 3.1 and Muse Spark: the water and the people in it
+//   /api/voice (POST)     a spoken question (16 kHz WAV) through Meta's Muse Voice Transcribe: the words
 //   /api/reports          send a report (POST), or the approved ones near ?lat&lon; /review is the review page
 //   /api/follow (POST)    follow an area by email; /api/follow/confirm and /api/follow/stop are the links in the emails
 //   /api/past, /api/past/<n>  the time machine: what Forewarn would have said before 36 past floods
@@ -19,6 +20,7 @@ import { floodLine, search, placeName } from './place';
 import { packFor, nearestFlood } from './packs';
 import { Logbook, stepsOf, bookOf } from './logbook';
 import { witness } from './witness';
+import { transcribe } from './voice';
 import { Reports, reportsOf } from './reports';
 import { reviewPage } from './review';
 import { Alerts, alertsOf, areaKey, confirmEmail, mail, notePage, sendDraft, type Area } from './alerts';
@@ -79,6 +81,15 @@ export default {
         const body = (await req.json()) as { image?: string; width?: number; height?: number };
         try { return Response.json(await witness(env, String(body.image ?? ''), Number(body.width), Number(body.height))); }
         catch (e) { return Response.json({ error: e instanceof Error ? e.message : 'The photo check failed. Try again.' }, { status: 400 }); }
+      }
+      if (url.pathname === '/api/voice' && req.method === 'POST') {
+        // a spoken question from the page itself only: transcription costs money
+        const origin = req.headers.get('Origin');
+        if (origin && new URL(origin).host !== url.host) return new Response('Not found', { status: 404 });
+        const { success } = await env.VOICE_LIMIT.limit({ key: req.headers.get('CF-Connecting-IP') ?? 'local' });
+        if (!success) return Response.json({ error: 'Too many voice questions in a minute. Type it, or try again shortly.' }, { status: 429 });
+        try { return Response.json(await transcribe(env, await req.arrayBuffer())); }
+        catch (e) { return Response.json({ error: e instanceof Error ? e.message : 'The voice check failed. Type your question instead.' }, { status: 400 }); }
       }
       if (url.pathname === '/api/reports' && req.method === 'POST') {
         const origin = req.headers.get('Origin');

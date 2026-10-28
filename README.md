@@ -9,6 +9,7 @@ Built for the Meta Global AI Developer Hackathon (Indie track), from 26 Oct 2026
 ## What it does
 
 - **Ask in plain words.** Put a pin on your door and ask "will it flood here this week?". The agent answers with a level (green, amber or red), a chance in words ("1 in 5 forecasts") and what to do.
+- **Speak your question.** Tap the microphone and ask out loud. Meta's Muse Voice Transcribe writes it down, and you can fix the words before you send. English is tested; other languages go live only after a speaker checks them.
 - **14 days ahead.** The answer uses 51 rain forecasts for the next 14 days, plus a weekly outlook to about a month.
 - **How wet the ground is.** The rain of the last 30 days, against 30 years of normal. Soaked ground floods sooner.
 - **The last flood in 3D.** In Lagos and Nairobi, the agent plays the water of the last big storm on real ground, buildings and trees. It can light the roads that took water.
@@ -37,6 +38,7 @@ The flood line is the rain in one day that floods the place. For Lagos and Nairo
 | Muse Spark Open (`meta-models/muse-spark-open-1026`) | Baseten | The chat agent, its tool calls, the alert text |
 | Muse Spark 1.3 | Meta Model API | Reads a flood photo in words |
 | SAM 3.1 | Meta Model API | Finds the water and the people in a photo |
+| Muse Voice Transcribe (`muse-voice-transcribe-1.0`) | Meta Model API | Turns a spoken question into text |
 
 We do not use the `-contributor` models. They let Meta train on what we send, and we send people's chats and photos.
 
@@ -56,6 +58,7 @@ app/
     forecast.ts   the 51 forecasts, the blend, the level and the "1 in N"
     rain30.ts     the last 30 days against normal
     witness.ts    the photo reading (SAM 3.1 and Muse Spark)
+    voice.ts      a spoken question to text (Muse Voice Transcribe)
     reports.ts    flood reports and their review queue
     watch.ts      the agent for each followed area
     alerts.ts     followers, alert drafts, sending and its limits

@@ -348,3 +348,14 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--water); out
 .past .three small { font-size: 12px; color: var(--muted); }
 .past a.btn { text-decoration: none; }
 .trust a { color: inherit; font-weight: 600; }
+/* voice in: the stop button while recording */
+.ask button.rec { background: var(--water); }
+.ask button.rec svg { color: #fff; width: 16px; height: 16px; }
+.askbar .fine.err { color: var(--ink); }
+/* the voice card and the tested-on-real-floods section of the landing page */
+.viz.voice { display: flex; align-items: center; gap: 12px; padding: 0 18px; }
+.viz.voice svg { width: 40px; height: 40px; flex: none; color: #fff; background: var(--ink); border-radius: 50%; padding: 9px; }
+.viz.voice span { font-weight: 600; color: var(--ink); }
+.tested .nums { margin-bottom: 28px; }
+@media (min-width: 860px) { .tested .nums { grid-template-columns: repeat(3, 1fr); } .tested .num b { font-size: clamp(56px, 6vw, 80px); } }
+.btn.inline { display: inline-flex; width: auto; padding: 0 24px; text-decoration: none; }

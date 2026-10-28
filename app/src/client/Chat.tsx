@@ -6,6 +6,7 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useAgent } from 'agents/react';
 import { useAgentChat } from '@cloudflare/ai-chat/react';
 import * as I from './icons';
+import { record, transcribe, type Recording } from './voice';
 import type { Place } from './types';
 
 // the same words as OPENING in src/server/harness.ts, which tells the agent how to answer it
@@ -55,6 +56,23 @@ export function Chat({ place, onAction, notes, onPhoto, say, logging }: { place:
     sendMessage({ text: OPENING });
   }, [agent, place]);
   const [text, setText] = useState('');
+  // voice in: 'rec' while recording, 'text' while the words are written down
+  const [voice, setVoice] = useState<'' | 'rec' | 'text'>(''), [voiceError, setVoiceError] = useState('');
+  const rec = useRef<Recording | null>(null), input = useRef<HTMLInputElement>(null), limit = useRef<number>(0);
+  const stopVoice = async () => {
+    const r = rec.current; rec.current = null; clearTimeout(limit.current);
+    if (!r) return;
+    setVoice('text');
+    try { const words = await transcribe(await r.stop()); setText((t) => (t ? `${t} ${words}` : words)); input.current?.focus(); if (!words) setVoiceError('No words came through. Try again closer to the phone.'); }
+    catch (e) { setVoiceError(e instanceof Error ? e.message : 'The voice check failed. Type your question instead.'); }
+    setVoice('');
+  };
+  const startVoice = async () => {
+    setVoiceError('');
+    try { rec.current = await record(); setVoice('rec'); limit.current = window.setTimeout(stopVoice, 30000); }
+    catch { setVoiceError('The microphone is off for this site. Allow it in the browser settings, or type your question.'); }
+  };
+  useEffect(() => () => { rec.current?.cancel(); clearTimeout(limit.current); }, []);
 
   // each map-button line is kept where it happened in the conversation
   const at = useRef<number[]>([]);
@@ -133,9 +151,13 @@ export function Chat({ place, onAction, notes, onPhoto, say, logging }: { place:
         <input ref={file} type="file" accept="image/*" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) onPhoto(f); e.target.value = ''; }} />
         <form className="ask" onSubmit={(e) => { e.preventDefault(); ask(text); }}>
           <button type="button" className="cam" aria-label="Add a photo of a flood" title="Add a photo of a flood" onClick={() => file.current?.click()}><I.Camera /></button>
-          <input value={text} onChange={(e) => setText(e.target.value)} placeholder="Ask about your place" aria-label="Ask about your place" disabled={busy} />
-          <button type="submit" aria-label="Send" disabled={busy}><I.Send /></button>
+          <input ref={input} value={text} onChange={(e) => setText(e.target.value)} placeholder={voice === 'rec' ? 'Listening. Tap the square when you finish.' : voice === 'text' ? 'Writing down your words' : 'Ask about your place'} aria-label="Ask about your place" disabled={busy || voice !== ''} />
+          {voice === 'rec' ? <button type="button" className="rec" aria-label="Stop and write it down" onClick={stopVoice}><I.Stop /></button>
+            : voice === 'text' ? <button type="button" disabled aria-label="Writing down your words"><span className="spin" /></button>
+            : text.trim() ? <button type="submit" aria-label="Send" disabled={busy}><I.Send /></button>
+            : <button type="button" aria-label="Ask by voice" title="Ask by voice" disabled={busy} onClick={startVoice}><I.Mic /></button>}
         </form>
+        {voiceError && <p className="fine err">{voiceError}</p>}
         {logging && <p className="fine">Test version: chats are saved to improve Forewarn.</p>}
       </div>
     </div>

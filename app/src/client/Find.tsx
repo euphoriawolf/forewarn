@@ -182,6 +182,12 @@ export function Find({ onPlace }: { onPlace: (p: Place) => void }) {
             <img className="wit" src="/witness-lagos.jpg" alt="A flooded Lagos street: the water marked in blue, the people pixelated" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
           </article>
           <article className="feat">
+            <div className="viz voice" role="img" aria-label="A spoken question written out as text"><I.Mic /><span>"Will it flood in Kibera this week?"</span></div>
+            <span className="model meta">Meta Muse Voice Transcribe</span>
+            <h3>Speak your question</h3>
+            <p>Tap the microphone and ask out loud. Your words show first, so you can fix them before you send.</p>
+          </article>
+          <article className="feat">
             <div className="viz dots51" role="img" aria-label="3 of 51 forecasts lit">{Array.from({ length: 51 }, (_, i) => <i key={i} className={i < 3 ? 'on' : ''} />)}<b>about 1 in 20</b></div>
             <span className="model">ECMWF forecast</span>
             <h3>14 days ahead</h3>
@@ -200,6 +206,18 @@ export function Find({ onPlace }: { onPlace: (p: Place) => void }) {
             <p>Lagos and Nairobi, street by street, with the water at each door.</p>
           </article>
         </div>
+      </div></section>
+
+      {/* the numbers come from /api/past (21 of 36, 19 ahead) and evals/rules.py (false alarms), 28 Oct; change them with PAST_VERSION */}
+      <section className="tested"><div className="wrap">
+        <h2>Tested on 36 real floods</h2>
+        <p className="lead">We replayed 36 floods in Africa since April 2024 with the forecasts made the week before, and every day in between, to count the alerts that came to nothing.</p>
+        <div className="nums">
+          <div className="num"><b>21 of 36</b><p>floods got a warning from Forewarn's rules.</p><cite>Nairobi, 23 April 2024: warned 5 days ahead.</cite></div>
+          <div className="num"><b>19</b><p>of those warnings came 3 days or more before the water.</p><cite>15 floods were missed. Each one is listed.</cite></div>
+          <div className="num"><b>About 4</b><p>alerts a year for one place with no flood reported after them.</p><cite>April 2024 to January 2026, against news reports of floods within 15 km.</cite></div>
+        </div>
+        <p><a className="btn dark inline" href="?past">See every flood, the misses too</a></p>
       </div></section>
 
       <section className="trust"><div className="wrap">
