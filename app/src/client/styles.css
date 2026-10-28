@@ -386,3 +386,15 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--water); out
 .map2d .edge { position: absolute; z-index: 3; transform: translate(-50%, -50%); border: 0; background: rgba(248,249,246,.96); border-radius: 14px; padding: 4px 8px 4px 4px; display: flex; align-items: center; gap: 4px; font: 600 12px/1 var(--text); box-shadow: 0 2px 8px rgba(0,0,0,.25); }
 .map2d .edge i { width: 18px; height: 18px; border-radius: 50%; background: var(--water); position: relative; }
 .map2d .edge i::after { content: ''; position: absolute; left: 6px; top: 5px; border: 4px solid transparent; border-left: 7px solid #fff; }
+/* voice in: the waveform while recording (it sits over the input, which shows "Listening") */
+.ask { position: relative; }
+.ask .wave { position: absolute; right: 56px; top: 12px; bottom: 12px; width: 92px; display: flex; align-items: center; justify-content: flex-end; gap: 2px; pointer-events: none; }
+.ask .wave i { width: 2px; border-radius: 1px; background: var(--water-soft); transition: height .08s linear; }
+/* "What I checked" under an answer: the sources behind its numbers, folded */
+.checked { font-size: 13px; color: var(--muted); margin-top: -4px; }
+.checked summary { cursor: pointer; font-weight: 600; color: var(--water); list-style: none; display: inline-flex; align-items: center; gap: 4px; }
+.checked summary::-webkit-details-marker { display: none; }
+.checked summary::after { content: '+'; font-weight: 800; }
+.checked[open] summary::after { content: '\2212'; }
+.checked ul { margin: 8px 0 0; padding-left: 18px; display: grid; gap: 6px; }
+.checked p { margin: 8px 0 0; }

@@ -31,6 +31,24 @@ const STEP: Record<string, [string, string]> = {
 };
 // a line in the chat from the page itself (a map button, a photo check), not from the agent
 export interface Note { id: number; text: string; small?: string; img?: string; busy?: boolean; action?: { label: string; run: () => void }; extra?: ReactNode; follow?: boolean; share?: string }
+// "What I checked": the sources behind an answer, read from the tool results the agent used (the same
+// results the number checker holds the answer to), so a person can see where each number came from
+type Out = Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
+const day = (d: string) => new Date(d + 'T12:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' });
+const at = (iso?: string) => (iso ? new Date(iso).toLocaleString('en-GB', { weekday: 'short', hour: '2-digit', minute: '2-digit' }) : '');
+function sources(parts: { type: string; state?: string; output?: unknown }[]): string[] {
+  const seen = new Set<string>(), out: string[] = [];
+  for (const p of parts) {
+    if (!p.type.startsWith('tool-') || p.state !== 'output-available' || !p.output || typeof p.output !== 'object') continue;
+    const name = p.type.slice(5), o = p.output as Out;
+    if (seen.has(name) || o.error) continue; seen.add(name);
+    if (name === 'read_forecast' && o.days) out.push(`Rain forecast: 51 runs of the ECMWF ensemble through Open-Meteo${o.issued ? `, read ${at(o.issued)}` : ''}, blended from the ${o.squares?.length ?? 4} forecast squares (about 28 km) around your place. A day counts runs with ${o.floodLineMm} mm in the day or 50 mm over 3 days.${o.floodLine?.note ? ` ${o.floodLine.note}` : ''}`);
+    if (name === 'read_last_30_days' && o.mm !== undefined) out.push(`Last 30 days: ${o.mm} mm from ${day(o.from)} to ${day(o.to)}, against a normal ${o.normalMm} mm. ${o.source ?? ''}`.trim());
+    if (name === 'flood_reports' && Array.isArray(o.reports)) out.push(o.reports.length ? `Flood reports: ${o.reports.length} from people within 5 km in the last 48 hours, each checked by a person.` : 'Flood reports: none within 5 km in the last 48 hours.');
+    if (['last_flood', 'show_last_flood', 'light_roads', 'show_nearest_flood'].includes(name) && !seen.has('flood check')) { seen.add('flood check'); out.push('Street water: the Flood Check model of the last big storm, a model estimate, not a measurement.'); }
+  }
+  return out;
+}
 const textOf = (m: { parts: { type: string; text?: string }[] }) => m.parts.map((p) => (p.type === 'text' ? p.text : '')).join('');
 
 export function Chat({ place, onAction, notes, onPhoto, say, logging }: { place: Place; onAction: (a: Record<string, unknown>) => void; notes: Note[]; onPhoto: (f: File) => void; say?: { id: number; text: string } | null; logging: boolean }) {
@@ -59,6 +77,8 @@ export function Chat({ place, onAction, notes, onPhoto, say, logging }: { place:
   // voice in: 'rec' while recording, 'text' while the words are written down
   const [voice, setVoice] = useState<'' | 'rec' | 'text'>(''), [voiceError, setVoiceError] = useState('');
   const rec = useRef<Recording | null>(null), input = useRef<HTMLInputElement>(null), limit = useRef<number>(0);
+  // the waveform while recording: the last 28 slices of sound, newest on the right
+  const [levels, setLevels] = useState<number[]>([]);
   const stopVoice = async () => {
     const r = rec.current; rec.current = null; clearTimeout(limit.current);
     if (!r) return;
@@ -69,7 +89,8 @@ export function Chat({ place, onAction, notes, onPhoto, say, logging }: { place:
   };
   const startVoice = async () => {
     setVoiceError('');
-    try { rec.current = await record(); setVoice('rec'); limit.current = window.setTimeout(stopVoice, 30000); }
+    setLevels([]);
+    try { rec.current = await record((l) => setLevels((v) => [...v.slice(-27), l])); setVoice('rec'); limit.current = window.setTimeout(stopVoice, 30000); }
     catch { setVoiceError('The microphone is off for this site. Allow it in the browser settings, or type your question.'); }
   };
   useEffect(() => () => { rec.current?.cancel(); clearTimeout(limit.current); }, []);
@@ -134,6 +155,10 @@ export function Chat({ place, onAction, notes, onPhoto, say, logging }: { place:
                     <div className="steps"><div><span className="spin" />{m.parts.some((p) => p.type.startsWith('tool-')) ? 'Writing the answer' : asked ? 'Thinking' : 'Checking your place'}</div></div>
                   )}
                   {textOf(m) && <p className="bot">{textOf(m)}</p>}
+                  {textOf(m) && !(busy && k === messages.length - 1) && (() => {
+                    const list = sources(m.parts as { type: string; state?: string; output?: unknown }[]);
+                    return list.length ? <details className="checked"><summary>What I checked</summary><ul>{list.map((x, i) => <li key={i}>{x}</li>)}</ul><p>A checker compares every number in the answer with these results before you see it.</p></details> : null;
+                  })()}
                 </>
               )}
           </div>
@@ -151,7 +176,8 @@ export function Chat({ place, onAction, notes, onPhoto, say, logging }: { place:
         <input ref={file} type="file" accept="image/*" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) onPhoto(f); e.target.value = ''; }} />
         <form className="ask" onSubmit={(e) => { e.preventDefault(); ask(text); }}>
           <button type="button" className="cam" aria-label="Add a photo of a flood" title="Add a photo of a flood" onClick={() => file.current?.click()}><I.Camera /></button>
-          <input ref={input} value={text} onChange={(e) => setText(e.target.value)} placeholder={voice === 'rec' ? 'Listening. Tap the square when you finish.' : voice === 'text' ? 'Writing down your words' : 'Ask about your place'} aria-label="Ask about your place" disabled={busy || voice !== ''} />
+          {voice === 'rec' && <div className="wave" aria-hidden="true">{levels.map((l, i) => <i key={i} style={{ height: `${Math.max(8, l * 100)}%` }} />)}</div>}
+          <input ref={input} value={text} onChange={(e) => setText(e.target.value)} placeholder={voice === 'rec' ? 'Listening' : voice === 'text' ? 'Writing down your words' : 'Ask about your place'} aria-label="Ask about your place" disabled={busy || voice !== ''} />
           {voice === 'rec' ? <button type="button" className="rec" aria-label="Stop and write it down" onClick={stopVoice}><I.Stop /></button>
             : voice === 'text' ? <button type="button" disabled aria-label="Writing down your words"><span className="spin" /></button>
             : text.trim() ? <button type="submit" aria-label="Send" disabled={busy}><I.Send /></button>

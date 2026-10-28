@@ -26,7 +26,7 @@ Code makes every number. The model explains the numbers and picks what to show.
 
 1. **Fixed steps run first, in code.** The app finds the place, reads the 51 forecasts, blends the four nearest forecast squares (each about 28 km) and counts the runs that bring the place's flood line in one day, or 50 mm over 3 days.
 2. **The model picks optional tools.** Muse Spark Open calls tools for the 3D view, the reports, the ground, the alerts form and the family message.
-3. **A checker reads every answer.** It compares each number and each day in the answer with the tool results. If one does not match, the model tries again.
+3. **A checker reads every answer.** It compares each number and each day in the answer with the tool results. If one does not match, the model tries again. Under each answer, "What I checked" lists those sources for the person.
 4. **Each followed area has its own agent.** It keeps its last reading in memory and wakes every 6 hours. A rule in code decides: no change, an update, or an alert draft.
 5. **A person approves every warning** that goes to someone else. Drafts wait on a review page. Nothing goes out before a person approves it.
 

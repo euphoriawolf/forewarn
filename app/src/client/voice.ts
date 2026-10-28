@@ -5,13 +5,17 @@ export interface Recording { stop: () => Promise<Blob>; cancel: () => void }
 
 const RATE = 16000;
 
-export async function record(): Promise<Recording> {
+// `onLevel` gets the loudness of each slice of sound (0 to 1), for the waveform on the page
+export async function record(onLevel?: (level: number) => void): Promise<Recording> {
   const stream = await navigator.mediaDevices.getUserMedia({ audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true } });
   const ctx = new AudioContext();
   const src = ctx.createMediaStreamSource(stream);
   // ScriptProcessor is old but works in every browser, older iPhones too, without a worklet file
   const node = ctx.createScriptProcessor(4096, 1, 1), parts: Float32Array[] = [];
-  node.onaudioprocess = (e) => parts.push(new Float32Array(e.inputBuffer.getChannelData(0)));
+  node.onaudioprocess = (e) => {
+    const x = new Float32Array(e.inputBuffer.getChannelData(0)); parts.push(x);
+    if (onLevel) { let sum = 0; for (let i = 0; i < x.length; i++) sum += x[i] * x[i]; onLevel(Math.min(1, Math.sqrt(sum / x.length) * 6)); }
+  };
   src.connect(node); node.connect(ctx.destination);
   const close = () => { node.disconnect(); src.disconnect(); stream.getTracks().forEach((t) => t.stop()); ctx.close(); };
   return {
