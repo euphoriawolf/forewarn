@@ -57,6 +57,8 @@ def fires(rule, place, init_i, day):
     if kind == 'sum3':           # 3 days of rain ending that day over a mm
         lo = max(day - 2, 0)
         return (MM[init_i, place, lo:day + 1].sum(0) >= a).mean() >= b
+    if kind == 'or':             # the app's rule from 28 Oct: one day over the line, or 3 days over a mm (b of runs either way)
+        return fires(('day', 1.0, b), place, init_i, day) or fires(('sum3', a, b), place, init_i, day)
     if kind == 'clim':           # over this place's own top a% of forecast days
         return (runs(place, init_i, day) >= CLIM[place][a]).mean() >= b
     raise ValueError(kind)
@@ -105,6 +107,8 @@ CANDIDATES = [('day', 1.0, 0.2)]  # today's rule first
 CANDIDATES += [('day', s, b) for s in (0.5, 0.67, 0.8, 1.0) for b in (0.1, 0.2) if (s, b) != (1.0, 0.2)]
 CANDIDATES += [('sum3', mm, b) for mm in (40, 50, 60, 80) for b in (0.1, 0.2)]
 CANDIDATES += [('clim', p, b) for p in (0.5, 1, 2, 3) for b in (0.1, 0.2)]
+CANDIDATES += [('or', 50, 0.2)]
+if os.environ.get('ONLY'): CANDIDATES = [c for c in CANDIDATES if c[0] in os.environ['ONLY'].split(',')]
 
 rows = []
 for r in CANDIDATES:

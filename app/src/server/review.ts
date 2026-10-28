@@ -16,11 +16,11 @@ const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&l
 
 const LEVEL: Record<string, string> = { green: 'unlikely', amber: 'possible', red: 'likely' };
 const alertCard = (d: Draft & { followers: number }) => {
-  const r = JSON.parse(d.reading) as { level: string; when: string; chance: string; runsOverLine: number; runs: number; floodLineMm: number; middleMm: number; wettestMm: number; lineNote: string; ground: { mm: number; normalMm: number; word: string } | null };
+  const r = JSON.parse(d.reading) as { level: string; when: string; chance: string; runsOverLine: number; runsOver3Days?: number; why?: string; runs: number; floodLineMm: number; middleMm: number; wettestMm: number; lineNote: string; ground: { mm: number; normalMm: number; word: string } | null };
   return `<article class="alert">
   <div><b>${esc(d.name)}</b> <small>${esc(new Date(d.at).toUTCString())}. ${d.followers === 1 ? '1 follower' : `${d.followers} followers`}.</small>
   <p class="why">${esc(d.why)}</p>
-  <p><small>Flooding ${LEVEL[r.level] ?? r.level} ${/^(today|tomorrow)$/.test(r.when) ? r.when : `on ${esc(r.when)}`}: ${r.runsOverLine} of ${r.runs} forecasts reach ${r.floodLineMm} mm (middle run ${r.middleMm} mm, wettest ${r.wettestMm} mm). ${esc(r.lineNote)}${r.ground ? ` Last 30 days: ${r.ground.mm} mm against a normal ${r.ground.normalMm} mm (${esc(r.ground.word)}).` : ''}</small></p>
+  <p><small>Flooding ${LEVEL[r.level] ?? r.level} ${/^(today|tomorrow)$/.test(r.when) ? r.when : `on ${esc(r.when)}`}: ${r.why === '3 days' ? `${r.runsOver3Days} of ${r.runs} forecasts bring 50 mm or more over 3 days, ${r.runsOverLine} reach ${r.floodLineMm} mm in the day` : `${r.runsOverLine} of ${r.runs} forecasts reach ${r.floodLineMm} mm`} (middle run ${r.middleMm} mm, wettest ${r.wettestMm} mm). ${esc(r.lineNote)}${r.ground ? ` Last 30 days: ${r.ground.mm} mm against a normal ${r.ground.normalMm} mm (${esc(r.ground.word)}).` : ''}</small></p>
   <form method="post"><input type="hidden" name="kind" value="alert"><input type="hidden" name="id" value="${d.id}">
   <label>Subject<input name="subject" value="${esc(d.subject)}" maxlength="140"></label>
   <label>Alert<textarea name="body" rows="6" maxlength="2000">${esc(d.body)}</textarea></label>

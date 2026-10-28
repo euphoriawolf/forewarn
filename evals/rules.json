@@ -1,0 +1,207 @@
+{
+ "train": [
+  "Nairobi 2024-04-23",
+  "Homa Bay area (Kenya) 2024-04-28",
+  "Kisumu 2024-05-04",
+  "Murang'a / Kirinyaga area (Kenya) 2024-05-12",
+  "Gqeberha 2024-06-01",
+  "Cape Town 2024-07-10",
+  "Maiduguri 2024-09-10",
+  "Gqeberha 2024-10-21",
+  "Antananarivo 2025-02-14",
+  "Durban 2025-02-25",
+  "Kampala 2025-03-26",
+  "Accra 2025-05-18",
+  "Cape Town 2025-06-25",
+  "Yola 2025-07-27",
+  "Senegal, 60 km from Dakar 2025-08-25",
+  "Dakar 2025-09-16",
+  "Kampala 2025-10-31",
+  "Nabeul area (Tunisia) 2026-01-19"
+ ],
+ "test": [
+  "Machakos area (Kenya) 2024-04-26",
+  "Murang'a / Kirinyaga area (Kenya) 2024-04-30",
+  "Busia / Budalangi area (Kenya) 2024-05-09",
+  "Accra 2024-05-22",
+  "Lagos 2024-07-03",
+  "Morocco, 152 km from Marrakesh 2024-08-23",
+  "Matam (Senegal River) area (Senegal) 2024-10-16",
+  "Yenagoa 2024-11-03",
+  "Pretoria 2025-02-18",
+  "Johannesburg 2025-03-05",
+  "Kinshasa 2025-04-04",
+  "Alexandria 2025-05-30",
+  "Cape Town 2025-07-04",
+  "Lagos 2025-08-03",
+  "Kaduna 2025-09-04",
+  "Lagos 2025-09-23",
+  "Tunis 2026-01-19",
+  "South Africa, 413 km from Maputo 2026-01-20"
+ ],
+ "places": 35,
+ "rows": [
+  {
+   "rule": [
+    "sum3",
+    40,
+    0.1
+   ],
+   "train": [
+    16,
+    18,
+    16
+   ],
+   "test": [
+    12,
+    18,
+    11
+   ],
+   "falseAlarmsPerPlaceYear": 8.1
+  },
+  {
+   "rule": [
+    "sum3",
+    40,
+    0.2
+   ],
+   "train": [
+    12,
+    18,
+    12
+   ],
+   "test": [
+    11,
+    18,
+    9
+   ],
+   "falseAlarmsPerPlaceYear": 5.9
+  },
+  {
+   "rule": [
+    "sum3",
+    50,
+    0.1
+   ],
+   "train": [
+    13,
+    18,
+    13
+   ],
+   "test": [
+    11,
+    18,
+    9
+   ],
+   "falseAlarmsPerPlaceYear": 6.0
+  },
+  {
+   "rule": [
+    "sum3",
+    50,
+    0.2
+   ],
+   "train": [
+    11,
+    18,
+    11
+   ],
+   "test": [
+    9,
+    18,
+    8
+   ],
+   "falseAlarmsPerPlaceYear": 3.7
+  },
+  {
+   "rule": [
+    "sum3",
+    60,
+    0.1
+   ],
+   "train": [
+    11,
+    18,
+    10
+   ],
+   "test": [
+    9,
+    18,
+    6
+   ],
+   "falseAlarmsPerPlaceYear": 4.1
+  },
+  {
+   "rule": [
+    "sum3",
+    60,
+    0.2
+   ],
+   "train": [
+    8,
+    18,
+    6
+   ],
+   "test": [
+    8,
+    18,
+    5
+   ],
+   "falseAlarmsPerPlaceYear": 2.1
+  },
+  {
+   "rule": [
+    "sum3",
+    80,
+    0.1
+   ],
+   "train": [
+    7,
+    18,
+    5
+   ],
+   "test": [
+    4,
+    18,
+    3
+   ],
+   "falseAlarmsPerPlaceYear": 1.6
+  },
+  {
+   "rule": [
+    "sum3",
+    80,
+    0.2
+   ],
+   "train": [
+    5,
+    18,
+    4
+   ],
+   "test": [
+    3,
+    18,
+    2
+   ],
+   "falseAlarmsPerPlaceYear": 0.8
+  },
+  {
+   "rule": [
+    "or",
+    50,
+    0.2
+   ],
+   "train": [
+    11,
+    18,
+    11
+   ],
+   "test": [
+    10,
+    18,
+    8
+   ],
+   "falseAlarmsPerPlaceYear": 4.1
+  }
+ ]
+}

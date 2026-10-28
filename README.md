@@ -15,14 +15,14 @@ Built for the Meta Global AI Developer Hackathon (Indie track), from 26 Oct 2026
 - **Send a photo of the water.** SAM 3.1 marks the water and the people. Muse Spark says what the water reaches. The page pixelates the people before it shows the photo or sends it as a report.
 - **Flood reports on the map.** A person checks each photo report. After that, it shows for 48 hours on maps within 5 km, and the agent uses it in its answers.
 - **Alerts for your area.** Give an email and confirm it. An agent for your area checks the forecast every 6 hours. When a flood is possible in the next 7 days, it writes an alert. A person reads the alert before it goes out.
-- **The time machine.** Pick one of 36 past African floods and see what Forewarn would have said 7 days to 1 day before, with today's rules. The scorecard lists every flood, the misses too: 14 of 36 got a warning.
+- **The time machine.** Pick one of 36 past African floods and see what Forewarn would have said 7 days to 1 day before, with today's rules. The scorecard lists every flood, the misses too: 21 of 36 got a warning, 19 of them 3 days or more ahead.
 - **Warn your family.** The agent writes a short message from the forecast. You send it on WhatsApp from your own phone.
 
 ## How it works
 
 Code makes every number. The model explains the numbers and picks what to show.
 
-1. **Fixed steps run first, in code.** The app finds the place, reads the 51 forecasts, blends the four nearest forecast squares (each about 28 km) and applies the flood line for the place.
+1. **Fixed steps run first, in code.** The app finds the place, reads the 51 forecasts, blends the four nearest forecast squares (each about 28 km) and counts the runs that bring the place's flood line in one day, or 50 mm over 3 days.
 2. **The model picks optional tools.** Muse Spark Open calls tools for the 3D view, the reports, the ground, the alerts form and the family message.
 3. **A checker reads every answer.** It compares each number and each day in the answer with the tool results. If one does not match, the model tries again.
 4. **Each followed area has its own agent.** It keeps its last reading in memory and wakes every 6 hours. A rule in code decides: no change, an update, or an alert draft.
@@ -107,7 +107,8 @@ The dev server must run first (`npm run dev` in `app/`).
 
 | Command | What it checks |
 |---|---|
-| `node evals/past-suite.mjs [days] [model]` | The agent answers from the forecast made that many days before each of 36 past floods. Each answer must pass the number checker and give the level that code computed. Last run, 3 days before, Muse Spark Open: 36 of 36. |
+| `node evals/past-suite.mjs [days] [model]` | The agent answers from the forecast made that many days before each of 36 past floods. Each answer must pass the number checker and give the level that code computed. Last run (28 Oct, 3-day rule), 3 days before, Muse Spark Open: 35 of 36. The miss: Gqeberha, June 2024, right numbers but no level word. |
+| `modal run evals/modal_pull.py`, then `python3 evals/rules.py` | Every daily forecast since April 2024 at the flood places, pulled on Modal. Each alert rule is tuned on half the floods, checked on the other half, and scored for alerts with no flood after them. This chose the 3-day rule. |
 | `python3 evals/false-alarms.py` | How often soaked ground came with no flood after it, at the same places from 2000 to 2025. |
 | `node evals/compare-models.mjs` | The same 10 questions to Muse Spark Open and Muse Spark 1.3: speed, the checker and the tools called. |
 

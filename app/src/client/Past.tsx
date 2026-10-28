@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import * as I from './icons';
 
 type Level = 'green' | 'amber' | 'red';
-interface Day { day: string; when: string; runsOverLine: number; runs: number; middleMm: number; wettestMm: number; level: Level; chance: string }
+interface Day { day: string; when: string; runsOverLine: number; runsOver3Days: number; threeDayLineMm: number; why: 'one day' | '3 days'; runs: number; middleMm: number; wettestMm: number; level: Level; chance: string }
 interface Lead { lead: number; init: string; days: Day[]; worst: Day; ground: { mm: number; normalMm: number; word: string; groundSoaked: boolean } | null; alert: boolean }
 interface Replay { id: number; label: string; country: string; peak: string; lat: number; lon: number; reports: number; floodLine: { mm: number; note: string } | null; leads: Lead[]; firstAlert: number | null; note?: string }
 interface Card { floods: number; withForecasts: number; warned: number; warned3: number; byLead: { lead: number; alerts: number }[]; replays: Replay[]; source: string; method: string }
@@ -87,7 +87,7 @@ function Flood({ r }: { r: Replay }) {
       <section className={`verdict ${l.worst.level}`}>
         <small>Forecast made {date(l.init)}</small>
         <h2>Flooding {WORD[l.worst.level]} {/^(today|tomorrow)$/.test(l.worst.when) ? l.worst.when : `on ${l.worst.when}`}</h2>
-        <p>{cap(l.worst.chance)} forecasts brought {r.floodLine?.mm} mm or more that day, the line for this place.</p>
+        <p>{l.worst.why === '3 days' ? `${cap(l.worst.chance)} forecasts brought ${l.worst.threeDayLineMm} mm or more over the 3 days to then.` : `${cap(l.worst.chance)} forecasts brought ${r.floodLine?.mm} mm or more that day, the line for this place.`}</p>
         <p className="act">{l.alert ? <><I.Bell /> Forewarn would have drafted an alert for a person to approve.</> : <><I.Minus /> Forewarn would have stayed quiet.</>}</p>
       </section>
       <div className="three">

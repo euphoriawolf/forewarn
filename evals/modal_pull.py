@@ -9,6 +9,7 @@
 # Usage:  modal run evals/modal_pull.py                 (all forecasts)
 #         modal run evals/modal_pull.py --limit 3       (the last 3 forecasts, a test)
 #         modal run evals/modal_pull.py --only 2025-02-20 --out test.npz   (chosen days)
+#         --ndays 9 keeps 9 days of each forecast (the time machine needs the day after a flood 7 days out)
 # Writes evals/ens-daily.npz: inits (n), places (lat, lon), mm (n, places, 8 days, 51 members).
 import json, os
 import modal
@@ -19,7 +20,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 
 
 @app.function(image=image, timeout=1800, retries=2, cpu=1.0, memory=2048)
-def pull(inits: list[str], places: list[list[float]]):
+def pull(inits: list[str], places: list[list[float]], ndays: int = 8):
     import numpy as np, pandas as pd, dynamical_catalog
     ds = dynamical_catalog.open('ecmwf-ifs-ens-forecast-15-day-0-25-degree', chunks=None)
     p = ds['precipitation_surface']
@@ -35,7 +36,7 @@ def pull(inits: list[str], places: list[list[float]]):
         v = p.sel(init_time=t).isel(latitude=xr_dim(lats), longitude=xr_dim(lons)).values  # (lead, member, place)
         mm = np.nan_to_num(v) * step_s[:, None, None]
         ends = t + pd.to_timedelta(leads_h, unit='h') - pd.Timedelta(minutes=1)
-        days = np.stack([mm[(ends >= t + pd.Timedelta(days=d)) & (ends < t + pd.Timedelta(days=d + 1))].sum(axis=0) for d in range(8)])  # (day, member, place)
+        days = np.stack([mm[(ends >= t + pd.Timedelta(days=d)) & (ends < t + pd.Timedelta(days=d + 1))].sum(axis=0) for d in range(ndays)])  # (day, member, place)
         out.append(np.round(days.transpose(2, 0, 1), 1).astype('float32'))  # (place, day, member)
     return np.stack(out)
 
@@ -51,7 +52,7 @@ def xr_dim(idx):
 
 
 @app.local_entrypoint()
-def main(limit: int = 0, batch: int = 20, only: str = '', out: str = 'ens-daily.npz'):
+def main(limit: int = 0, batch: int = 20, only: str = '', out: str = 'ens-daily.npz', ndays: int = 8):
     import numpy as np
     floods = json.load(open(os.path.join(HERE, '..', 'app', 'public', 'past', 'floods.json')))['floods']
     # one place per flood (repeats kept: the same place can flood twice)
@@ -60,7 +61,7 @@ def main(limit: int = 0, batch: int = 20, only: str = '', out: str = 'ens-daily.
     if only: inits = [i for i in inits if i[:10] in only.split(',')]
     if limit: inits = inits[-limit:]
     chunks = [inits[i:i + batch] for i in range(0, len(inits), batch)]
-    parts = list(pull.map(chunks, kwargs={'places': places}))
+    parts = list(pull.map(chunks, kwargs={'places': places, 'ndays': ndays}))
     mm = np.concatenate(parts)
     np.savez_compressed(os.path.join(HERE, out), inits=np.array(inits), places=np.array([[f['lat'], f['lon']] for f in floods]), mm=mm)
     print(f'{len(inits)} forecasts, {len(places)} places -> evals/{out} {mm.shape}')

@@ -2,8 +2,8 @@
  "lead": 3,
  "model": "open",
  "question": "Will it flood here in the next few days?",
- "at": "2026-10-28T12:52:58.938Z",
- "pass": 36,
+ "at": "2026-10-28T15:15:31.597Z",
+ "pass": 35,
  "of": 36,
  "results": [
   {
@@ -14,36 +14,36 @@
    "levelOk": true,
    "checked": true,
    "pass": true,
-   "ms": 3437,
+   "ms": 3936,
    "retried": false,
    "badNumbers": [],
-   "text": "Flooding looks unlikely here for the next few days.\nThe riskiest day is Tuesday: about 1 in 20 forecasts bring more than 33.1 mm, more than the worst day of the 5 to 8 March 2026 storm, with a middle forecast of 11.1 mm and wettest of 38.5 mm.\nThe ground is not soaked: 154 mm in the last 30 days, close to normal."
+   "text": "Flooding looks unlikely for the next few days here. The riskiest day is Wednesday: about 1 in 5 forecasts bring 50 mm or more over the 3 days to that day. The ground is not soaked: 154 mm in the last 30 days, close to normal."
   },
   {
    "id": 1,
    "flood": "Cape Town, 2024-07-10",
+   "want": "likely",
+   "said": "likely",
+   "levelOk": true,
+   "checked": true,
+   "pass": true,
+   "ms": 5160,
+   "retried": false,
+   "badNumbers": [],
+   "text": "Flooding looks likely here in the next few days. The riskiest is Tuesday with Wednesday and Thursday also high: about 9 in 10 forecasts bring 50 mm or more over the 3 days to Tuesday, and about 11 in 20 to Wednesday. The ground is not soaked with 67 mm in the last 30 days, drier than normal, but heavy rain can still flood quickly."
+  },
+  {
+   "id": 2,
+   "flood": "Lagos, 2024-07-03",
    "want": "possible",
    "said": "possible",
    "levelOk": true,
    "checked": true,
    "pass": true,
-   "ms": 5444,
+   "ms": 4633,
    "retried": false,
    "badNumbers": [],
-   "text": "Heavy rain is possible in the next few days, riskiest on Tuesday when about 1 in 2 forecasts bring more than 30 mm. Wednesday looks unlikely at about 1 in 5 and Thursday possible again at about 1 in 3. The ground is not soaked with 67 mm in the last 30 days, drier than normal, so water should drain normally."
-  },
-  {
-   "id": 2,
-   "flood": "Lagos, 2024-07-03",
-   "want": "unlikely",
-   "said": "unlikely",
-   "levelOk": true,
-   "checked": true,
-   "pass": true,
-   "ms": 3893,
-   "retried": false,
-   "badNumbers": [],
-   "text": "Flooding looks unlikely here for the next few days.\n\nThe riskiest is Tuesday: about 1 in 20 forecasts bring more than 37.9 mm, with a middle of 14.6 mm and wettest of 60.4 mm. Wednesday is similar and Thursday shows none of 51 forecasts over the line.\n\nThe ground is not soaked: 226 mm in the last 30 days, drier than normal, so it will not flood as quickly."
+   "text": "Flooding looks possible by Thursday with about 1 in 3 forecasts bringing 50 mm or more over the 3 days to then.\nTuesday and Wednesday look unlikely with about 1 in 10 and about 1 in 5 forecasts reaching that 3 day total.\nThe ground is not soaked with 226 mm in the last 30 days drier than normal so it should absorb more rain before flooding."
   },
   {
    "id": 3,
@@ -53,23 +53,23 @@
    "levelOk": true,
    "checked": true,
    "pass": true,
-   "ms": 3815,
+   "ms": 3182,
    "retried": false,
    "badNumbers": [],
-   "text": "Flooding looks unlikely here for the next few days. The riskiest is Tuesday: about 1 in 10 forecasts bring more than 30 mm, with the wettest reaching about 110 mm. The ground is soaked after 160 mm in the last 30 days, wetter than normal, so it would flood sooner if heavy rain does arrive."
+   "text": "Flooding looks unlikely for the next few days, but Wednesday is the riskiest with about 1 in 5 forecasts bringing 50 mm or more over the 3 days to Wednesday.\n\nMonday is about 1 in 20 and Tuesday about 1 in 10 to bring heavy rain over 30 mm.\n\nThe ground is soaked after 160 mm in the last 30 days, wetter than normal, so it floods sooner if heavy rain does come."
   },
   {
    "id": 4,
    "flood": "Machakos area (Kenya), 2024-04-26",
-   "want": "unlikely",
-   "said": "unlikely",
+   "want": "possible",
+   "said": "possible",
    "levelOk": true,
    "checked": true,
    "pass": true,
-   "ms": 2664,
+   "ms": 3883,
    "retried": false,
    "badNumbers": [],
-   "text": "Flooding looks unlikely here for the next few days. The riskiest is Thursday: about 1 in 10 forecasts bring more than 30 mm, with a middle forecast of 14.8 mm. The ground is not soaked with 120 mm in the last 30 days, close to normal, so it should absorb rain better."
+   "text": "Possible flooding here the next few days. Thursday and Friday about 1 in 4 forecasts bring 50 mm or more over 3 days, Saturday about 2 in 5 forecasts, with Thursday the wettest at 72.4 mm. The ground is not soaked with 120 mm in the last 30 days, close to normal, so it does not flood as quickly."
   },
   {
    "id": 5,
@@ -79,23 +79,23 @@
    "levelOk": true,
    "checked": true,
    "pass": true,
-   "ms": 3674,
+   "ms": 2990,
    "retried": false,
    "badNumbers": [],
-   "text": "Flooding looks unlikely here for the next few days.\nThe riskiest is Monday: about 1 in 50 forecasts bring more than 32.7 mm, above the June storm day, wettest run 41 mm.\nGround is not soaked: 163 mm in last 30 days, close to normal, so water should drain as usual."
+   "text": "Flooding looks unlikely here in the next few days. The riskiest is Wednesday: about 1 in 10 forecasts bring 50 mm or more over the 3 days to then, and only about 1 in 50 bring more than 32.7 mm in a day. The ground is not soaked with 163 mm in the last 30 days, close to normal, so it does not flood sooner."
   },
   {
    "id": 6,
    "flood": "Kisumu, 2024-05-04",
-   "want": "unlikely",
-   "said": "unlikely",
+   "want": "possible",
+   "said": "possible",
    "levelOk": true,
    "checked": true,
    "pass": true,
-   "ms": 2846,
+   "ms": 3487,
    "retried": false,
    "badNumbers": [],
-   "text": "Flooding looks unlikely here for the next few days.\nThe riskiest day is Saturday: about 1 in 10 forecasts bring more than 30 mm, with a middle forecast of 12.6 mm and wettest of 37 mm.\nThe ground is not soaked: 136 mm in the last 30 days, drier than normal, so it will take more rain to flood."
+   "text": "Flooding looks possible here Saturday with about 1 in 4 forecasts bringing 50 mm or more over the 3 days to Saturday. Friday and Sunday look unlikely with about 1 in 5 forecasts for 50 mm or more over 3 days. The ground is not soaked with 136 mm in the last 30 days, drier than normal, so it will not flood as quickly."
   },
   {
    "id": 7,
@@ -105,23 +105,23 @@
    "levelOk": true,
    "checked": true,
    "pass": true,
-   "ms": 4000,
+   "ms": 2952,
    "retried": false,
    "badNumbers": [],
-   "text": "Flooding from heavy rain looks likely here on Wednesday, with some risk carrying into Thursday.\n\nTuesday looks clear: none of 51 forecasts bring more than 30 mm. Wednesday is the riskiest day: about 2 in 3 forecasts bring more than 30 mm, with the middle forecast around 34.8 mm.\n\nThe ground is not soaked after 64 mm in the last 30 days, drier than normal, so it should absorb more water than when soaked."
+   "text": "Flooding from heavy rain looks likely on Wednesday: about 2 in 3 forecasts bring more than 30 mm, with the middle forecast at 34.8 mm and the wettest at 64.7 mm.\n\nTuesday looks unlikely with no forecasts over the line, and Thursday is possible at about 2 in 5 forecasts for 50 mm or more over 3 days to that day.\n\nThe ground is not soaked with 64 mm in the last 30 days, drier than normal, but that heavy rain can still flood low spots."
   },
   {
    "id": 8,
    "flood": "Murang'a / Kirinyaga area (Kenya), 2024-04-30",
-   "want": "unlikely",
-   "said": "unlikely",
+   "want": "possible",
+   "said": "possible",
    "levelOk": true,
    "checked": true,
    "pass": true,
-   "ms": 3434,
+   "ms": 3355,
    "retried": false,
    "badNumbers": [],
-   "text": "Flooding looks unlikely here for the next few days.\n\nThe riskiest day is Wednesday: about 1 in 20 forecasts bring more than 34.5 mm, above the 30 mm heavy rain line. Monday and Tuesday look drier, with middle forecasts around 7 to 9 mm.\n\nThe ground is not soaked: 256 mm in the last 30 days, close to normal."
+   "text": "Flooding through heavy rain looks possible here for the next few days, worst on Tuesday with about 1 in 3 forecasts bringing 50 mm or more over the 3 days to Tuesday.\n\nMonday is also possible with about 1 in 4 forecasts over that 3 day line, Wednesday drops to unlikely with about 1 in 10.\n\nThe ground is not soaked with 256 mm in the last 30 days, close to normal, but heavy bursts can still flood quickly."
   },
   {
    "id": 9,
@@ -131,10 +131,10 @@
    "levelOk": true,
    "checked": true,
    "pass": true,
-   "ms": 3375,
+   "ms": 3261,
    "retried": false,
    "badNumbers": [],
-   "text": "Flooding from heavy rain looks unlikely here for the next few days.\n\nThe riskiest day is Sunday: about 1 in 20 forecasts bring more than 30 mm, with a middle forecast of 8.2 mm.\n\nThe ground is not soaked: 108 mm in the last 30 days, close to normal, so it does not flood sooner."
+   "text": "Flooding looks unlikely here for the next few days.\nThe riskiest is Monday: about 1 in 10 forecasts bring more than 50 mm over the 3 days to then. Saturday and Sunday are lower, about 1 in 50 and 1 in 20 forecasts over the heavy rain line.\nThe ground is not soaked, 108 mm in the last 30 days, close to normal, so it does not flood sooner."
   },
   {
    "id": 10,
@@ -144,10 +144,10 @@
    "levelOk": true,
    "checked": true,
    "pass": true,
-   "ms": 3083,
+   "ms": 4015,
    "retried": false,
    "badNumbers": [],
-   "text": "Flooding looks unlikely here for the next few days, none of 51 forecasts pass the heavy rain line of 30 mm.\nThe wettest outlook is Thursday with about 29.5 mm at most, but middle amounts stay near 3 to 5 mm.\nThe ground is not soaked: 166 mm in the last 30 days, drier than normal, so it will not flood as quickly."
+   "text": "Flooding looks unlikely here for the next few days.\nThe riskiest is Wednesday: none of 51 forecasts bring more than 30 mm, with about 4.8 mm in the middle forecast.\nThe ground is not soaked: 166 mm in the last 30 days, drier than normal, so it does not flood as quickly."
   },
   {
    "id": 11,
@@ -157,10 +157,10 @@
    "levelOk": true,
    "checked": true,
    "pass": true,
-   "ms": 3027,
+   "ms": 4353,
    "retried": false,
    "badNumbers": [],
-   "text": "Flooding is possible here Monday, about 9 in 20 forecasts show more than 30 mm, with a middle of 25.7 mm and wettest of 84 mm.\nSunday looks unlikely with none of 51 forecasts over the line and Tuesday about 1 in 50.\nThe ground is not soaked with 69 mm in the last 30 days, close to normal, so it should not flood sooner."
+   "text": "Flooding looks possible here in the next few days.\n\nThe riskiest day is Monday: about 9 in 20 forecasts bring more than 30 mm that day, with a middle forecast of 25.7 mm and up to 84 mm.\n\nThe ground is not soaked with 69 mm in the last 30 days, close to normal, and Tuesday stays possible with about 1 in 5 forecasts bringing 50 mm or more over the 3 days to that day."
   },
   {
    "id": 12,
@@ -170,10 +170,10 @@
    "levelOk": true,
    "checked": true,
    "pass": true,
-   "ms": 3177,
+   "ms": 5533,
    "retried": false,
    "badNumbers": [],
-   "text": "Flooding looks unlikely here for the next 3 days. The riskiest day is Monday: about 1 in 10 forecasts bring more than 30 mm, with a wettest of 48 mm, while Saturday and Sunday show no forecasts over the line. The ground is not soaked with 97 mm in the last 30 days, much drier than normal, so it would take heavier rain to flood."
+   "text": "Flooding looks unlikely here for the next few days. The riskiest day is Monday: about 1 in 10 forecasts bring more than 30 mm, which is the heavy rain line here. The ground is not soaked: 97 mm in the last 30 days, much drier than normal, so it should drain well."
   },
   {
    "id": 13,
@@ -183,10 +183,10 @@
    "levelOk": true,
    "checked": true,
    "pass": true,
-   "ms": 3039,
+   "ms": 4398,
    "retried": false,
    "badNumbers": [],
-   "text": "Flooding looks unlikely Sunday and Monday and possible on Tuesday for Gqeberha.\nThe riskiest day is Tuesday: about 1 in 5 forecasts bring more than 30 mm, with a middle forecast of 9.7 mm and wettest of 109.5 mm.\nThe ground is not soaked with 24 mm in the last 30 days, drier than normal, so it will soak up rain better."
+   "text": "Possible early next week, unlikely on Sunday.\n\nSunday looks unlikely with about 1 in 10 forecasts over 30 mm in a day. Monday and Tuesday look possible with about 1 in 4 and about 1 in 3 forecasts bringing 50 mm or more over the 3 days to that day, worst is Tuesday.\n\nThe ground is not soaked with 24 mm in the last 30 days, drier than normal."
   },
   {
    "id": 14,
@@ -196,10 +196,10 @@
    "levelOk": true,
    "checked": true,
    "pass": true,
-   "ms": 3857,
+   "ms": 3184,
    "retried": false,
    "badNumbers": [],
-   "text": "Flooding looks unlikely for the next 3 days: none of 51 forecasts reach the 30 mm heavy rain line.\n\nThe wettest forecast is Monday with up to 18 mm and Tuesday and Wednesday also stay below the line.\n\nThe ground is soaked after 285 mm in the last 30 days, wetter than normal, so it would flood sooner if heavier rain appears."
+   "text": "Flooding looks unlikely here for Monday through Wednesday: none of 51 forecasts bring more than 30 mm in a day.\n\nThe ground is soaked from 285 mm in the last 30 days, wetter than normal, so it could flood sooner than usual if heavier rain does come."
   },
   {
    "id": 15,
@@ -209,10 +209,10 @@
    "levelOk": true,
    "checked": true,
    "pass": true,
-   "ms": 2794,
+   "ms": 3649,
    "retried": false,
    "badNumbers": [],
-   "text": "Flooding looks unlikely here in the next few days: none of 51 forecasts reach the heavy rain line of 30 mm.\n\nThe wettest forecast is only 8.9 to 12.3 mm from Tuesday to Thursday, with middle amounts around 2 mm.\n\nThe ground is soaked and floods sooner than normal, with 216 mm in the last 30 days, more than twice the usual 98 mm."
+   "text": "Flooding looks unlikely here for Tuesday through Thursday: none of 51 forecasts bring more than 30 mm in a day.\n\nThe wettest run is only 12.3 mm on Thursday.\n\nThe ground is soaked with 216 mm in the last 30 days, more than twice normal, so it would flood sooner if heavier rain arrives."
   },
   {
    "id": 17,
@@ -222,10 +222,10 @@
    "levelOk": true,
    "checked": true,
    "pass": true,
-   "ms": 3919,
+   "ms": 3385,
    "retried": false,
    "badNumbers": [],
-   "text": "Flooding looks unlikely here for the next 3 days. The riskiest day is Friday: about 1 in 20 forecasts bring more than 30 mm, with a middle forecast of 10.2 mm and wettest at 39.6 mm. The ground is not soaked: 214 mm in the last 30 days, close to normal, so it does not add extra risk."
+   "text": "Flooding looks unlikely here for the next 3 days.\n\nThe riskiest is Thursday: about 1 in 10 forecasts bring 50 mm or more over the 3 days to that day, Friday about 1 in 20 bring more than 30 mm in a day.\n\nThe ground is not soaked: 214 mm in the last 30 days, close to normal."
   },
   {
    "id": 18,
@@ -235,10 +235,10 @@
    "levelOk": true,
    "checked": true,
    "pass": true,
-   "ms": 3773,
+   "ms": 3903,
    "retried": false,
    "badNumbers": [],
-   "text": "Flooding looks unlikely here for the next few days: none of the 51 forecasts bring more than 30 mm.\n\nThe wettest chance is Saturday with up to 11.4 mm, well below that heavy rain line.\n\nThe ground is soaked from 368 mm in the last 30 days, so it would flood sooner if heavier rain does appear."
+   "text": "Flooding looks unlikely here for the next few days. The riskiest is Saturday: about 1 in 20 forecasts bring 50 mm or more over the 3 days to then. Ground is soaked from 368 mm in the last 30 days, so it would flood sooner if heavy rain comes."
   },
   {
    "id": 19,
@@ -248,23 +248,23 @@
    "levelOk": true,
    "checked": true,
    "pass": true,
-   "ms": 2751,
+   "ms": 5943,
    "retried": false,
    "badNumbers": [],
-   "text": "Flooding looks unlikely here for the next few days. The riskiest is Sunday: about 1 in 50 forecasts bring more than 30 mm, with middle 6.2 mm and wettest 32 mm. The ground is not soaked: 228 mm in the last 30 days, close to normal."
+   "text": "Flooding looks unlikely here for the next few days. Saturday to Monday all stay unlikely at about 1 in 50 forecasts, with Saturday and Monday counting 50 mm or more over 3 days.\nThe ground is not soaked, with 228 mm in the last 30 days, close to normal."
   },
   {
    "id": 20,
    "flood": "Gqeberha, 2024-06-01",
-   "want": "possible",
-   "said": "possible",
-   "levelOk": true,
+   "want": "likely",
+   "said": null,
+   "levelOk": false,
    "checked": true,
-   "pass": true,
-   "ms": 3139,
+   "pass": false,
+   "ms": 2777,
    "retried": false,
    "badNumbers": [],
-   "text": "Flooding looks possible here for the next few days, most on Saturday: about 1 in 2 forecasts bring more than 30 mm of heavy rain.\n\nFriday looks unlikely with about 1 in 10 forecasts over that line, and Sunday about 1 in 5.\n\nThe ground is not soaked: 6 mm in the last 30 days, much drier than normal, so floods less quickly."
+   "text": "The next few days could bring heavy rain, with the highest risk on Sunday: about 3 in 5 forecasts bring 50 mm or more over the 3 days to Sunday, and Saturday is also risky with about 1 in 2 forecasts over 30 mm in a day.\n\nFriday looks calmer with about 1 in 10 forecasts over 30 mm in a day, but Saturday to Sunday the forecast is much wetter.\n\nThe ground is not soaked with 6 mm in the last 30 days, much drier than normal, so it will take more rain to flood, but take care on Saturday and Sunday."
   },
   {
    "id": 21,
@@ -274,10 +274,10 @@
    "levelOk": true,
    "checked": true,
    "pass": true,
-   "ms": 4792,
+   "ms": 2918,
    "retried": false,
    "badNumbers": [],
-   "text": "Flooding looks unlikely here for the next few days: none of 51 forecasts bring more than 30 mm.\n\nThe wettest chance is Thursday with up to 19.4 mm, still below the heavy rain line. The ground is soaked after 124 mm in the last 30 days, so it would flood sooner if rain increases."
+   "text": "Flooding looks unlikely here for the next 3 days to Thursday: none of 51 forecasts bring more than 30 mm in a day. The wettest is Tuesday at up to 9.2 mm, below heavy rain, and ground is soaked after 124 mm in the last 30 days. Soaked ground floods sooner, so stay alert near the river even with light rain."
   },
   {
    "id": 22,
@@ -287,23 +287,23 @@
    "levelOk": true,
    "checked": true,
    "pass": true,
-   "ms": 4997,
+   "ms": 2705,
    "retried": false,
    "badNumbers": [],
-   "text": "Heavy rain is likely Monday around Nabeul, about 3 in 5 forecasts bring more than 30 mm, with a middle amount of 36.8 mm and up to 122 mm in the wettest run.\nSunday and Tuesday look unlikely to reach that line.\nThe ground is not soaked, 69 mm in the last 30 days which is close to normal, but Monday still brings a strong heavy rain signal."
+   "text": "Flooding from heavy rain looks likely here for the next few days, worst on Monday with about 3 in 5 forecasts bringing more than 30 mm in a day.\n\nSunday looks calm but Tuesday stays possible with about 2 in 5 forecasts bringing 50 mm or more over the 3 days to Tuesday.\n\nThe ground is not soaked with 69 mm in the last 30 days, close to normal, but take care as heavy rain can still flood quickly."
   },
   {
    "id": 23,
    "flood": "Kaduna, 2025-09-04",
-   "want": "unlikely",
-   "said": "unlikely",
+   "want": "possible",
+   "said": "possible",
    "levelOk": true,
    "checked": true,
    "pass": true,
-   "ms": 4206,
+   "ms": 2800,
    "retried": false,
    "badNumbers": [],
-   "text": "Flooding looks unlikely here for the next 3 days, with heavy rain unlikely.\nThe riskiest day is Friday: about 1 in 10 forecasts bring more than 30 mm, middle forecast 16 mm and wettest 128.2 mm.\nThe ground is not soaked: 198 mm in the last 30 days, drier than normal."
+   "text": "Flooding chance is possible but low the next few days, highest Friday: about 1 in 4 forecasts bring 50 mm or more over the 3 days to Friday.\n\nWednesday and Thursday look unlikely: about 1 in 20 and about 1 in 10 for that 3-day heavy rain.\n\nThe ground is not soaked: 198 mm in the last 30 days, drier than normal, so it will not flood as quickly."
   },
   {
    "id": 24,
@@ -313,10 +313,10 @@
    "levelOk": true,
    "checked": true,
    "pass": true,
-   "ms": 3090,
+   "ms": 5657,
    "retried": false,
    "badNumbers": [],
-   "text": "Flooding looks unlikely here for the next few days. Sunday shows the most rain: none of 51 forecasts go above the heavy rain line of 30 mm, with a wettest of 8.5 mm, and Monday and Tuesday even lower. The ground is not soaked: 139 mm in the last 30 days, close to normal, so it should not flood sooner."
+   "text": "Flooding looks unlikely here for the next few days. The riskiest is Sunday: about 3 in 20 forecasts bring 50 mm or more over the 3 days to Sunday, none reach the 30 mm heavy rain line in a day. The ground is not soaked: 139 mm in the last 30 days, close to normal."
   },
   {
    "id": 26,
@@ -326,10 +326,10 @@
    "levelOk": true,
    "checked": true,
    "pass": true,
-   "ms": 2685,
+   "ms": 2724,
    "retried": false,
    "badNumbers": [],
-   "text": "Flooding looks unlikely here for the next few days, about none of 51 forecasts reach heavy rain.\n\nThe wettest chance is Thursday with up to 29.3 mm, just under the 30 mm heavy rain line, with Tuesday and Wednesday lower.\n\nThe ground is not soaked with 71 mm in the last 30 days, drier than normal, so it should drain more easily."
+   "text": "Flooding looks unlikely here for the next few days. Tuesday to Thursday show none of 51 forecasts bringing more than 30 mm in a day, with the wettest run reaching about 29 mm on Thursday. The ground is not soaked: 71 mm in the last 30 days, drier than normal, so it should absorb rain better."
   },
   {
    "id": 27,
@@ -339,36 +339,36 @@
    "levelOk": true,
    "checked": true,
    "pass": true,
-   "ms": 4086,
+   "ms": 3023,
    "retried": false,
    "badNumbers": [],
-   "text": "Heavy rain looks likely here on Friday: about 2 in 3 forecasts bring more than 30 mm in a day.\n\nThe middle forecast for Friday is 33.1 mm and the wettest is 68.6 mm, while Thursday and Saturday look unlikely.\n\nThe ground is not soaked with 113 mm in the last 30 days, close to normal."
+   "text": "Flooding looks likely here Friday and Saturday: about 3 in 4 forecasts bring 50 mm or more over the 3 days to each day. Thursday looks unlikely at about 1 in 20 for the same 3 day total. The ground is not soaked with 113 mm in the last 30 days, close to normal, but take care on low roads Friday."
   },
   {
    "id": 28,
    "flood": "Antananarivo, 2025-02-14",
-   "want": "unlikely",
-   "said": "unlikely",
+   "want": "likely",
+   "said": "likely",
    "levelOk": true,
    "checked": true,
    "pass": true,
-   "ms": 3138,
+   "ms": 4308,
    "retried": false,
    "badNumbers": [],
-   "text": "Flooding looks unlikely here for the next few days.\nThe riskiest day is Saturday: about 1 in 5 forecasts bring more than 30 mm, the heavy rain line, with up to 72.1 mm in the wettest run.\nThe ground is not soaked: 352 mm in the last 30 days, close to normal, so it should not flood sooner."
+   "text": "Flooding risk rises through the week here, as heavy rain over 3 days builds up.\n\nThursday looks unlikely: about 1 in 10 forecasts bring 50 mm or more over the 3 days to then. Friday looks possible at about 2 in 5, and Saturday likely at about 3 in 5 with up to 72.1 mm in the wettest run.\n\nThe ground is not soaked: 352 mm in the last 30 days, close to normal, but heavy bursts could still flood low spots."
   },
   {
    "id": 29,
    "flood": "South Africa, 413 km from Maputo, 2026-01-20",
-   "want": "unlikely",
-   "said": "unlikely",
+   "want": "likely",
+   "said": "likely",
    "levelOk": true,
    "checked": true,
    "pass": true,
-   "ms": 3726,
+   "ms": 4343,
    "retried": false,
    "badNumbers": [],
-   "text": "Flooding looks unlikely here for the next few days but the risk is not zero. The riskiest day is Monday: about 1 in 5 forecasts bring more than 30 mm, with a middle amount of 21 mm and wettest of 112.1 mm. The ground is soaked and floods sooner: 504 mm in the last 30 days, much wetter than normal."
+   "text": "Flooding looks likely here, riskiest is Monday with about 9 in 10 forecasts bringing 50 mm or more over the 3 days to Monday. Tuesday is also likely with about 1 in 2 forecasts bringing that much, Wednesday is unlikely with about 1 in 5. The ground is soaked with 504 mm in the last 30 days, much wetter than normal, so it will flood sooner."
   },
   {
    "id": 30,
@@ -378,23 +378,23 @@
    "levelOk": true,
    "checked": true,
    "pass": true,
-   "ms": 3001,
+   "ms": 2888,
    "retried": false,
    "badNumbers": [],
-   "text": "Flooding looks unlikely here for the next few days.\n\nThe riskiest day is Tuesday: about 1 in 20 forecasts bring more than 30 mm, the heavy rain line here, with a middle forecast of 6.3 mm.\n\nThe ground is not soaked: 122 mm in the last 30 days, drier than normal, so it should not flood sooner."
+   "text": "Flooding looks unlikely here for the next few days.\n\nThe riskiest day is Tuesday: about 1 in 20 forecasts bring more than 30 mm, with up to 51.3 mm in the wettest run.\n\nThe ground is not soaked with 122 mm in the last 30 days, drier than normal, so it should drain better."
   },
   {
    "id": 31,
    "flood": "Pretoria, 2025-02-18",
-   "want": "possible",
-   "said": "possible",
+   "want": "likely",
+   "said": "likely",
    "levelOk": true,
    "checked": true,
    "pass": true,
-   "ms": 3265,
+   "ms": 4349,
    "retried": false,
    "badNumbers": [],
-   "text": "Flooding looks possible in the next few days and riskiest is Wednesday with about 9 in 20 forecasts over 30 mm.\n\nWednesday shows a middle of 28.5 mm and a wettest of 115.3 mm, while Monday and Tuesday look unlikely with about 1 in 10 and about 3 in 20 over the line.\n\nThe ground is not soaked with 43 mm in the last 30 days, much drier than normal, so it will not flood as quickly as when soaked."
+   "text": "Heavy rain is likely here by Wednesday with about 2 in 3 forecasts bringing 50 mm or more over the 3 days to Wednesday.\n\nTuesday is possible with about 1 in 3 forecasts bringing 50 mm or more over the 3 days to Tuesday, Monday is unlikely with about 1 in 10 forecasts reaching the 30 mm heavy rain line.\n\nThe ground is not soaked with 43 mm in the last 30 days, much drier than normal, so it may absorb more at first."
   },
   {
    "id": 33,
@@ -404,10 +404,10 @@
    "levelOk": true,
    "checked": true,
    "pass": true,
-   "ms": 4006,
+   "ms": 2584,
    "retried": false,
    "badNumbers": [],
-   "text": "Flooding looks unlikely here for the next few days. No forecast brings more than the 30 mm heavy rain line, with at most 7.3 mm on Saturday in the wettest run. The ground is not soaked: 4 mm in the last 30 days, close to normal."
+   "text": "Flooding looks unlikely here for the next few days. The forecast for Thursday, Friday and Saturday shows none of 51 forecasts reach 30 mm in a day, with the wettest at 7.3 mm on Saturday. The ground is not soaked with 4 mm in the last 30 days, close to normal, which also keeps risk low."
   },
   {
    "id": 34,
@@ -417,10 +417,10 @@
    "levelOk": true,
    "checked": true,
    "pass": true,
-   "ms": 3495,
+   "ms": 2849,
    "retried": false,
    "badNumbers": [],
-   "text": "Flooding looks unlikely here for the next few days.\n\nSaturday through Monday show none of 51 forecasts bring more than 30 mm, the heavy rain line here, with even the wettest run only 24 mm on Sunday.\n\nThe ground is not soaked with 366 mm in the last 30 days, close to normal, so it should not flood sooner."
+   "text": "Flooding looks unlikely here for the next few days, none of 51 forecasts pass the heavy rain line of 30 mm in a day.\n\nSaturday is the wettest of the three with about 2.1 mm in the middle forecast and 9 mm at most, then Sunday and Monday even lower.\n\nThe ground is not soaked: 366 mm in the last 30 days, close to normal, so it should not flood sooner."
   },
   {
    "id": 35,
@@ -430,10 +430,10 @@
    "levelOk": true,
    "checked": true,
    "pass": true,
-   "ms": 3034,
+   "ms": 2434,
    "retried": false,
    "badNumbers": [],
-   "text": "Flooding looks unlikely here for the next few days.\n\nTuesday to Thursday all show none of 51 forecasts reaching the heavy rain line of 30 mm. The wettest forecast is Thursday with about 11 mm at most, well below that line."
+   "text": "Flooding looks unlikely here for the next few days.\n\nTuesday to Thursday all show unlikely: none of 51 forecasts reach the heavy rain line of 30 mm in a day, with at most 11.3 mm on the wettest run.\n\nThe ground is not soaked: 100 mm in the last 30 days, drier than normal."
   },
   {
    "id": 36,
@@ -443,10 +443,10 @@
    "levelOk": true,
    "checked": true,
    "pass": true,
-   "ms": 3252,
+   "ms": 3113,
    "retried": false,
    "badNumbers": [],
-   "text": "Flooding looks unlikely here for the next few days.\n\nNone of the 51 forecasts bring more than 30 mm on Thursday, Friday or Saturday, the heaviest run is only 7.6 mm on Saturday.\n\nThe ground is not soaked with 6 mm in the last 30 days."
+   "text": "Flooding looks unlikely here for Thursday to Saturday: none of 51 forecasts bring more than 30 mm in a day.\n\nThe wettest run is only 7.6 mm on Saturday, well below the heavy-rain line.\n\nThe ground is not soaked: 6 mm in the last 30 days, much wetter than normal but not enough to flood sooner."
   },
   {
    "id": 37,
@@ -456,10 +456,10 @@
    "levelOk": true,
    "checked": true,
    "pass": true,
-   "ms": 4000,
+   "ms": 3314,
    "retried": false,
    "badNumbers": [],
-   "text": "Flooding looks unlikely here for the next 3 days.\n\nThe riskiest day is Friday: about 1 in 20 forecasts bring more than 30 mm, with a wettest of 59.2 mm.\n\nThe ground is not soaked: 132 mm in the last 30 days, close to normal, so it does not add extra risk."
+   "text": "Flooding looks unlikely here for the next few days. The riskiest day is Friday: about 1 in 10 forecasts bring 50 mm or more over the 3 days to Friday, more than the heavy rain line of 30 mm in a day. The ground is not soaked: 132 mm in the last 30 days, close to normal, so it should absorb rain better."
   },
   {
    "id": 39,
@@ -469,10 +469,10 @@
    "levelOk": true,
    "checked": true,
    "pass": true,
-   "ms": 3574,
+   "ms": 4149,
    "retried": false,
    "badNumbers": [],
-   "text": "Flooding looks unlikely here for the next few days. The riskiest is Saturday: none of 51 forecasts bring more than 30 mm, the heavy rain line, with wettest 18.6 mm and middle 1.6 mm. The ground is not soaked: 144 mm in the last 30 days, drier than normal, so it is less likely to flood quickly."
+   "text": "Flooding looks unlikely here for the next few days.\n\nThe riskiest is Saturday with about 1 in 10 forecasts bringing 50 mm or more over 3 days, and Sunday about 1 in 20, both below the heavy rain line of 30 mm in a day.\n\nThe ground is not soaked with 144 mm in the last 30 days, drier than normal, so it should absorb rain better."
   }
  ]
 }

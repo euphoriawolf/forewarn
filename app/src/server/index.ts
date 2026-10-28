@@ -14,7 +14,7 @@ import { AIChatAgent } from '@cloudflare/ai-chat';
 import { streamText, convertToModelMessages } from 'ai';
 import { model, system, makeTools, checkNumbers, answer, loopOptions, noEmDash, followUps, OPENING, FROM_PAGE, type Env, type Place } from './harness';
 import { readForecast, outlookWeeks } from './forecast';
-import { replay, scorecard, pastView } from './past';
+import { replay, scorecard, pastView, PAST_VERSION } from './past';
 import { floodLine, search, placeName } from './place';
 import { packFor, nearestFlood } from './packs';
 import { Logbook, stepsOf, bookOf } from './logbook';
@@ -166,7 +166,7 @@ export default {
       if (url.pathname === '/api/past' || url.pathname.startsWith('/api/past/')) {
         // the time machine: the whole scorecard, or one flood. The answer only changes with the data or
         // the rules, so it is kept for a day (the scorecard reads 40 places from two services).
-        const cache = (caches as unknown as { default: Cache }).default, key = new Request(url.origin + url.pathname);
+        const cache = (caches as unknown as { default: Cache }).default, key = new Request(`${url.origin}${url.pathname}?v=${PAST_VERSION}`);
         const hit = await cache.match(key);
         if (hit) return hit;
         const id = url.pathname === '/api/past' ? null : Number(url.pathname.slice('/api/past/'.length));

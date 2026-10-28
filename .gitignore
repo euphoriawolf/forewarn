@@ -21,3 +21,4 @@ CLAUDE.md
 PLAN.md
 evals/false-alarms-rain.npy
 evals/ens-daily.npz
+evals/ens-floods.npz

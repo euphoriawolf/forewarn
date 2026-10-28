@@ -41,6 +41,7 @@ ${p ? `The person's place is ${p.name}${p.where ? `, ${p.where}` : ''}. Every to
 - If a tool returns an error, say in one plain sentence which information you could not get right now, then answer with what you do have. Never guess what the missing data would have said.
 - Water depths from last_flood are a model estimate (Flood Check), not measurements. Say "the model shows", never "measured".
 - Say the level as a word (unlikely, possible, likely) with its chance in words, for example "about 1 in 4 forecasts".
+- When a day's why is "3 days", its chance counts forecasts with 50 mm or more over the 3 days to that day: say that, not the flood line.
 - The forecast is for the area around the place (blended from 28 km squares). Say so only when they ask about one street or road.
 - Beyond 14 days only the weekly outlook exists: say wetter, near or drier than normal, never that it will or will not flood.
 - Name days with the "when" field of each day ("today", "Thursday", or "Wednesday 4 November" beyond a week), never as 2026-10-29. Do not name the levels by colour.
@@ -73,7 +74,7 @@ export function makeTools(env: Env, place: Place | null, results: unknown[], pas
   const pack = place ? packFor(place.lat, place.lon) : null;
   return {
     read_forecast: tool({
-      description: "Read the 51-run ECMWF rain forecast for the next 14 days at the person's place, plus a weekly outlook to about a month (only wetter or drier than normal, never a flood chance), blended from the four nearest 28 km squares. Per day: how many runs reach the place's flood line, the middle and the wettest run in mm, the level and the chance in words.",
+      description: "Read the 51-run ECMWF rain forecast for the next 14 days at the person's place, plus a weekly outlook to about a month (only wetter or drier than normal, never a flood chance), blended from the four nearest 28 km squares. Per day: how many runs reach the place's flood line in that day (runsOverLine), how many bring 50 mm or more over the 3 days that end on it (runsOver3Days), the middle and the wettest run in mm, the level and the chance in words. `why` says which count gave the level and the chance.",
       inputSchema: z.object({}),
       execute: () => (past ? once('read_forecast', async () => past.forecast) : place ? once('read_forecast', async () => {
         const l = await lineOf(), f = await readForecast(place.lat, place.lon, l.mm);
