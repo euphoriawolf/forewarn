@@ -1,11 +1,11 @@
 // The map for places outside Lagos and Nairobi (no 3D there yet): the satellite map with the pin, the
-// forecast squares the answer blends, and the points from "Near your place". A point off the screen
+// forecast squares the answer blends, and the points from the "near" list. A point off the screen
 // shows as an arrow on the edge with its distance; a tap on the arrow flies there.
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import * as maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url';
-import type { Place } from './types';
+import { pinLabel, type Place } from './types';
 import { distance, type NearPoint } from './Near';
 
 maplibregl.setWorkerUrl(workerUrl);
@@ -27,7 +27,7 @@ export const Map2D = forwardRef<Map2DApi, { place: Place; points: NearPoint[]; s
   useEffect(() => {
     const m = new maplibregl.Map({ container: box.current!, style: SATELLITE, center: [place.lon, place.lat], zoom: 13, maxZoom: 18, attributionControl: { compact: true } });
     map.current = m;
-    const pin = document.createElement('div'); pin.className = 'mk pin'; pin.innerHTML = '<i>Your place</i>';
+    const pin = document.createElement('div'); pin.className = 'mk pin'; pin.innerHTML = '<i></i>'; pin.querySelector('i')!.textContent = pinLabel(place.name);
     new maplibregl.Marker({ element: pin, anchor: 'bottom' }).setLngLat([place.lon, place.lat]).addTo(m);
     m.on('load', () => {
       // the forecast squares (about 28 km) the answer blends: the area a level is for
@@ -56,7 +56,7 @@ export const Map2D = forwardRef<Map2DApi, { place: Place; points: NearPoint[]; s
     const edges = () => {
       cancelAnimationFrame(raf);
       raf = requestAnimationFrame(() => {
-        // the visible box: below the "Near your place" button, above the sheet
+        // the visible box: below the "near" button, above the sheet
         const w = m.getContainer().clientWidth, top = 64, bottom = m.getContainer().clientHeight - inset - 24, side = 34;
         const cx = w / 2, cy = (top + bottom) / 2, hw = cx - side, hh = (bottom - top) / 2;
         const out = pts.flatMap((p, i) => {

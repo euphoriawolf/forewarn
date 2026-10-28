@@ -1,4 +1,4 @@
-// Two screens: find your place, then its answer. The place is kept in the address (?lat&lon&name),
+// Two screens: find a place, then its answer. The place is kept in the address (?lat&lon&name),
 // so a link to an answer can be shared.
 import { useEffect, useState } from 'react';
 import { lazy, Suspense } from 'react';
@@ -11,7 +11,7 @@ import type { Place } from './types';
 
 function fromUrl(): Place | null {
   const q = new URLSearchParams(location.search), lat = Number(q.get('lat')), lon = Number(q.get('lon'));
-  return q.has('lat') && q.has('lon') && Number.isFinite(lat) && Number.isFinite(lon) ? { name: q.get('name') ?? 'Your place', where: q.get('where') ?? '', lat, lon } : null;
+  return q.has('lat') && q.has('lon') && Number.isFinite(lat) && Number.isFinite(lon) ? { name: q.get('name') ?? 'This place', where: q.get('where') ?? '', lat, lon } : null;
 }
 
 // the time machine: ?past for the list, ?past=<n> for one flood

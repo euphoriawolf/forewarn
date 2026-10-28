@@ -1,6 +1,6 @@
 // Put the pin on your door: a sharp satellite map you drag under a fixed pin.
 import { useEffect, useRef } from 'react';
-import type { Place } from './types';
+import { pinLabel, type Place } from './types';
 import * as maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url';
@@ -27,7 +27,7 @@ export function Pin({ place, onBack, onDone }: { place: Place; onBack: () => voi
   return (
     <div className="screen">
       <div className="top"><div><b>{place.name}</b><small>{place.where}</small></div><button className="chip" type="button" onClick={onBack}>Change</button></div>
-      <div className="map"><div className="ml" ref={box} /><div className="pin"><i>Your place</i></div><div className="hint">Drag the map to put the pin on your door</div></div>
+      <div className="map"><div className="ml" ref={box} /><div className="pin"><i>{pinLabel(place.name)}</i></div><div className="hint">Drag the map to put the pin on your door</div></div>
       <button className="btn dark" type="button" onClick={done}>This is my place</button>
     </div>
   );

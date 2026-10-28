@@ -28,7 +28,7 @@ const when = (start: string, h: number) => {
   return `${t.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' })}, ${String(t.getUTCHours()).padStart(2, '0')}:00`;
 };
 
-export const Stage = forwardRef<StageApi, { pack: PackPin; nearby?: Nearby | null; onNote?: (text: string) => void; film?: boolean; inset?: number }>(function Stage({ pack: start, nearby, onNote, film, inset = 0 }, ref) {
+export const Stage = forwardRef<StageApi, { pack: PackPin; nearby?: Nearby | null; onNote?: (text: string) => void; film?: boolean; inset?: number; label?: string }>(function Stage({ pack: start, nearby, onNote, film, inset = 0, label = 'The pin' }, ref) {
   // the area on screen: starts around the pin, moves when the person pans more than 1 km away
   const [pack, setPack] = useState(start);
   useEffect(() => setPack(start), [`${start.region}:${start.cx}:${start.cz}:${start.dx}:${start.dz}`]);
@@ -54,7 +54,7 @@ export const Stage = forwardRef<StageApi, { pack: PackPin; nearby?: Nearby | nul
         scene.current = s;
         if (!nextCamera.current) s.view('overview', { tx: pack.dx, tz: pack.dz });
         nextCamera.current = null;
-        pin.current = s.tag('Your place', pack.dx, pack.dz, 'green', 8);
+        pin.current = s.tag(label, pack.dx, pack.dz, 'green', 8);
         s.setInset(insetRef.current);
         for (const a of queued.current.splice(0)) run(a);
       })
@@ -80,7 +80,7 @@ export const Stage = forwardRef<StageApi, { pack: PackPin; nearby?: Nearby | nul
     const s = scene.current!;
     s.onFrame(null); s.setWater(null); s.lightRoads(null); setClock(''); setLegend(''); setOn('');
     for (const t of roadTags.current.splice(0)) t.remove();
-    if (pin.current) { pin.current.textContent = 'Your place'; pin.current.className = 'tag green'; }
+    if (pin.current) { pin.current.textContent = label; pin.current.className = 'tag green'; }
   };
 
   function run(a: Record<string, unknown>) {
@@ -99,7 +99,7 @@ export const Stage = forwardRef<StageApi, { pack: PackPin; nearby?: Nearby | nul
       let h = start, last = 0;
       const show = (k: number) => {
         s.setWater(s.cmAt(k)); setClock(when(pack.start, k));
-        if (pin.current) { pin.current.textContent = atPin[k] >= 4 ? `${atPin[k]} cm here` : 'Your place'; pin.current.className = 'tag ' + (atPin[k] >= 4 ? 'blue' : 'green'); }
+        if (pin.current) { pin.current.textContent = atPin[k] >= 4 ? `${atPin[k]} cm here` : label; pin.current.className = 'tag ' + (atPin[k] >= 4 ? 'blue' : 'green'); }
       };
       s.onFrame((t) => { if (t - last < 350) return; last = t; show(h); if (h >= end) s.onFrame(null); else h++; });
     }
@@ -112,7 +112,7 @@ export const Stage = forwardRef<StageApi, { pack: PackPin; nearby?: Nearby | nul
       const c = s.camera(); roadTags.current.push(s.tag(String(a.text), c.tx, c.tz, 'blue', 6));
     }
     if (a.action === 'show_point') {
-      // a point from "Near your place" (a flood report): tag it and look at it
+      // a point from the "near" list (a flood report): tag it and look at it
       clear(); const x = Number(a.x), z = Number(a.z);
       roadTags.current.push(s.tag(String(a.text), x, z, 'blue', 6));
       s.view('street', { tx: x, tz: z, dist: 420, pitch: 0.6 });
@@ -153,12 +153,12 @@ export const Stage = forwardRef<StageApi, { pack: PackPin; nearby?: Nearby | nul
       run({ action });
       if (s) {
         const top = Math.max(...Array.from({ length: s.hours }, (_, h) => s.depthAt(s.cmAt(h), pack.dx, pack.dz)));
-        onNote?.(`Playing the ${storm}, hour by hour. ${top >= 4 ? `The model shows water reached ${top} cm at your spot.` : 'The model shows your spot stayed dry.'}${near}`);
+        onNote?.(`Playing the ${storm}, hour by hour. ${top >= 4 ? `The model shows water reached ${top} cm at the pin.` : 'The model shows the pin stayed dry.'}${near}`);
       }
     } else if (action === 'show_spot') {
       if (!nearby) { onNote?.(`No spot in the 4 km around you flooded in the ${storm}, in the model.`); return; }
       run({ action, ...nearby });
-      onNote?.(nearby.here ? `Your spot flooded in the ${storm}: the model shows ${nearby.peakCm} cm.` : `The nearest spot that flooded in the ${month} storm is ${nearby.distanceM} m ${nearby.direction}. The model shows ${nearby.peakCm} cm there.`);
+      onNote?.(nearby.here ? `The pin flooded in the ${storm}: the model shows ${nearby.peakCm} cm.` : `The nearest spot that flooded in the ${month} storm is ${nearby.distanceM} m ${nearby.direction}. The model shows ${nearby.peakCm} cm there.`);
     } else run({ action });
   }
 

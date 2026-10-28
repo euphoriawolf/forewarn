@@ -1,5 +1,7 @@
 // Shapes shared by the screens. They match what /api/place returns (src/server).
 export interface Place { name: string; where: string; lat: number; lon: number }
+// the place's name on a map tag, short enough to fit
+export const pinLabel = (name: string) => (name.length > 26 ? `${name.slice(0, 25).trimEnd()}…` : name);
 export type Level = 'green' | 'amber' | 'red';
 export interface Day { day: string; weekday: string; when: string; runs: number; runsOverLine: number; middleMm: number; wettestMm: number; level: Level; chance: string }
 export interface FloodLine {

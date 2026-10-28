@@ -191,7 +191,7 @@ export function Find({ onPlace }: { onPlace: (p: Place) => void }) {
             <div className="viz dots51" role="img" aria-label="3 of 51 forecasts lit">{Array.from({ length: 51 }, (_, i) => <i key={i} className={i < 3 ? 'on' : ''} />)}<b>about 1 in 20</b></div>
             <span className="model">ECMWF forecast</span>
             <h3>14 days ahead</h3>
-            <p>51 versions of the European forecast for your spot, counted for you.</p>
+            <p>51 versions of the European forecast for the spot you pick, counted for you.</p>
           </article>
           <article className="feat">
             <div className="viz minibars" role="img" aria-label="Last 30 days 46 mm, normal 43 mm"><div><b style={{ width: '92%' }} /><span>Last 30 days, 46 mm</span></div><div><b className="n" style={{ width: '86%' }} /><span>Normal, 43 mm</span></div></div>

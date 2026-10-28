@@ -142,7 +142,7 @@ export default {
         const email = String(b.email ?? '').trim().toLowerCase(), lat = num(String(b.lat)), lon = num(String(b.lon));
         if (!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/.test(email) || email.length > 120) return Response.json({ error: 'That email address does not look right.' }, { status: 400 });
         if (lat === null || lon === null) return Response.json({ error: 'Pick a place first.' }, { status: 400 });
-        const area: Area = { key: areaKey(lat, lon), name: String(b.name ?? 'Your place').slice(0, 80), where: String(b.where ?? '').slice(0, 120), lat, lon };
+        const area: Area = { key: areaKey(lat, lon), name: String(b.name ?? 'This place').slice(0, 80), where: String(b.where ?? '').slice(0, 120), lat, lon };
         const store = alertsOf(env.Alerts), f = await store.follow(email, area);
         if (f.already) return Response.json({ status: 'already' });
         if (!(await store.mayConfirm(email))) return Response.json({ status: 'wait' });

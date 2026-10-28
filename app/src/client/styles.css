@@ -360,7 +360,7 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--water); out
 @media (min-width: 860px) { .tested .nums { grid-template-columns: repeat(3, 1fr); } .tested .num b { font-size: clamp(56px, 6vw, 80px); } }
 .btn.inline { display: inline-flex; width: auto; padding: 0 24px; text-decoration: none; }
 
-/* "Near your place" (Near.tsx): a list over the top of the map, nearest first */
+/* what is near the place (Near.tsx): a list over the top of the map, nearest first */
 .near { position: absolute; left: 10px; top: 10px; z-index: 4; max-width: min(340px, calc(100% - 70px)); }
 .near .head { display: flex; align-items: center; gap: 6px; border: 0; background: rgba(248,249,246,.96); border-radius: 12px; padding: 8px 12px; font-weight: 600; font-size: 13px; box-shadow: 0 2px 10px rgba(0,0,0,.18); }
 .near .head svg { width: 16px; height: 16px; color: var(--water); }

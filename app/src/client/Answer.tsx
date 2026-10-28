@@ -16,7 +16,7 @@ const Chat = lazy(() => import('./Chat').then((m) => ({ default: m.Chat })));
 import { Safe } from './Safe';
 import { ReportPlace, type Spot } from './ReportPlace';
 import { Follow } from './Follow';
-import type { Answer as A, Place } from './types';
+import { pinLabel, type Answer as A, type Place } from './types';
 import type { Note } from './Chat';
 // the same words as FROM_PAGE in Chat.tsx (Chat loads on its own, so it is not imported from there)
 const FROM_PAGE = '[from the page]';
@@ -157,7 +157,7 @@ export function Answer({ place, onChange }: { place: Place; onChange: () => void
       stage.current?.run({ action: 'reports', list: list.map((r) => ({ x: pk.dx + (r.lon - place.lon) * kx, z: pk.dz + (place.lat - r.lat) * ky, text: `Report, ${ago(r.at)}: water to ${r.reaches}` })) });
     }).catch(() => {});
   }, [a]);
-  // "Near your place": reports and past floods from /api/nearby, plus the nearest street that flooded in 3D
+  // What is near the place: reports and past floods from /api/nearby, plus the nearest street that flooded in 3D
   useEffect(() => {
     setNear(null);
     fetch(`/api/nearby?lat=${place.lat}&lon=${place.lon}`).then((r) => (r.ok ? (r.json() as Promise<NearPoint[]>) : [])).then((list) => setNear(Array.isArray(list) ? list : [])).catch(() => setNear([]));
@@ -182,14 +182,14 @@ export function Answer({ place, onChange }: { place: Place; onChange: () => void
   }, [place]);
   return (
     <div className="place">
-      <div className="top"><div><b>{place.name}</b><small>{place.where || 'Your place'}</small></div><div className="tops"><button className="chip alert" type="button" onClick={follow}>Get alerts</button><button className="chip" type="button" onClick={onChange}>Change</button></div></div>
+      <div className="top"><div><b>{place.name}</b><small>{place.where}</small></div><div className="tops"><button className="chip alert" type="button" onClick={follow}>Get alerts</button><button className="chip" type="button" onClick={onChange}>Change</button></div></div>
       <div className="body" ref={body}>
         <div className="mapbox">
-          {!a && !error && <div className="stage"><div className="load"><span>Loading your place</span></div></div>}
+          {!a && !error && <div className="stage"><div className="load"><span>Loading {place.name}</span></div></div>}
           {error && <div className="stage none"><p>{error}</p></div>}
           {a && !a.pack && <Safe note="The map could not load on this connection. The chat still works."><Suspense fallback={<div className="stage"><div className="load"><span>Loading the map</span></div></div>}><Map2D ref={flat} place={place} points={points ?? []} squares={a.forecast.squares} inset={inset} /></Suspense></Safe>}
-          {a?.pack && <Safe note="The 3D view could not load on this connection. The chat still works."><Suspense fallback={<div className="stage"><div className="load"><span>Loading the 3D</span></div></div>}><Stage ref={stage} pack={a.pack} nearby={a.nearby} inset={inset} onNote={(t) => setNotes((n) => [...n, { id: Date.now(), text: t }])} /></Suspense></Safe>}
-          {a && <Near points={points} onPick={pick} room={inset ? (body.current?.clientHeight ?? 0) - inset : undefined} />}
+          {a?.pack && <Safe note="The 3D view could not load on this connection. The chat still works."><Suspense fallback={<div className="stage"><div className="load"><span>Loading the 3D</span></div></div>}><Stage ref={stage} pack={a.pack} nearby={a.nearby} inset={inset} label={pinLabel(place.name)} onNote={(t) => setNotes((n) => [...n, { id: Date.now(), text: t }])} /></Suspense></Safe>}
+          {a && <Near points={points} name={place.name} onPick={pick} room={inset ? (body.current?.clientHeight ?? 0) - inset : undefined} />}
         </div>
         <div className="sheet" ref={sheet}>
           <div className="grab" onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerCancel={up} role="separator" aria-label="Drag to show more map or more chat"><i /></div>

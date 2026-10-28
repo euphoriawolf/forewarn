@@ -42,7 +42,7 @@ function sources(parts: { type: string; state?: string; output?: unknown }[]): s
     if (!p.type.startsWith('tool-') || p.state !== 'output-available' || !p.output || typeof p.output !== 'object') continue;
     const name = p.type.slice(5), o = p.output as Out;
     if (seen.has(name) || o.error) continue; seen.add(name);
-    if (name === 'read_forecast' && o.days) out.push(`Rain forecast: 51 runs of the ECMWF ensemble through Open-Meteo${o.issued ? `, read ${at(o.issued)}` : ''}, blended from the ${o.squares?.length ?? 4} forecast squares (about 28 km) around your place. A day counts runs with ${o.floodLineMm} mm in the day or 50 mm over 3 days.${o.floodLine?.note ? ` ${o.floodLine.note}` : ''}`);
+    if (name === 'read_forecast' && o.days) out.push(`Rain forecast: 51 runs of the ECMWF ensemble through Open-Meteo${o.issued ? `, read ${at(o.issued)}` : ''}, blended from the ${o.squares?.length ?? 4} forecast squares (about 28 km) around the place. A day counts runs with ${o.floodLineMm} mm in the day or 50 mm over 3 days.${o.floodLine?.note ? ` ${o.floodLine.note}` : ''}`);
     if (name === 'read_last_30_days' && o.mm !== undefined) out.push(`Last 30 days: ${o.mm} mm from ${day(o.from)} to ${day(o.to)}, against a normal ${o.normalMm} mm. ${o.source ?? ''}`.trim());
     if (name === 'flood_reports' && Array.isArray(o.reports)) out.push(o.reports.length ? `Flood reports: ${o.reports.length} from people within 5 km in the last 48 hours, each checked by a person.` : 'Flood reports: none within 5 km in the last 48 hours.');
     if (['last_flood', 'show_last_flood', 'light_roads', 'show_nearest_flood'].includes(name) && !seen.has('flood check')) { seen.add('flood check'); out.push('Street water: the Flood Check model of the last big storm, a model estimate, not a measurement.'); }
@@ -167,7 +167,7 @@ export function Chat({ place, onAction, notes, onPhoto, say, logging }: { place:
     <div className="talk">
       <div className="chat" ref={box}>
         {/* before the chat has connected, and while the model thinks before its first step, say so */}
-        {messages.length === 0 && <div className="steps"><div><span className="spin" />Checking your place</div></div>}
+        {messages.length === 0 && <div className="steps"><div><span className="spin" />Checking {place.name}</div></div>}
         {messages.map((m, k) => (
           <div key={m.id} className="turn">
             {noteAt(k)}
@@ -182,7 +182,7 @@ export function Chat({ place, onAction, notes, onPhoto, say, logging }: { place:
                     })}
                   </div>
                   {busy && k === messages.length - 1 && !textOf(m) && !m.parts.some((p) => p.type.startsWith('tool-') && !('state' in p && p.state === 'output-available')) && (
-                    <div className="steps"><div><span className="spin" />{m.parts.some((p) => p.type.startsWith('tool-')) ? 'Writing the answer' : asked ? 'Thinking' : 'Checking your place'}</div></div>
+                    <div className="steps"><div><span className="spin" />{m.parts.some((p) => p.type.startsWith('tool-')) ? 'Writing the answer' : asked ? 'Thinking' : `Checking ${place.name}`}</div></div>
                   )}
                   {textOf(m) && <p className="bot">{textOf(m)}</p>}
                   {textOf(m) && !(busy && k === messages.length - 1) && (() => {
@@ -196,7 +196,7 @@ export function Chat({ place, onAction, notes, onPhoto, say, logging }: { place:
         ))}
         {noteAt(messages.length)}
         {status === 'error' && <div className="note"><div><span>{error?.message?.match(/time|abort/i) ? 'That answer took too long and was stopped. Ask again in a moment.' : 'Something went wrong with that answer. Ask again.'}</span></div></div>}
-        {status === 'submitted' && <div className="steps"><div><span className="spin" />{asked ? 'Thinking' : 'Checking your place'}</div></div>}
+        {status === 'submitted' && <div className="steps"><div><span className="spin" />{asked ? 'Thinking' : `Checking ${place.name}`}</div></div>}
         {!busy && messages.at(-1)?.role === 'assistant' && !!textOf(messages.at(-1)!) && (
           <div className="suggest">
             {(suggestions.length ? suggestions : asked ? [] : ['What floods near me?', 'Which day is wettest?', 'Show me the last flood here']).map((q) => <button key={q} className="chip" type="button" onClick={() => tapChip(q)}>{q}</button>)}
@@ -208,7 +208,7 @@ export function Chat({ place, onAction, notes, onPhoto, say, logging }: { place:
         <form className="ask" onSubmit={(e) => { e.preventDefault(); ask(text); }}>
           <button type="button" className="cam" aria-label="Add a photo of a flood" title="Add a photo of a flood" onClick={() => file.current?.click()}><I.Camera /></button>
           {voice === 'rec' && <div className="wave" aria-hidden="true">{levels.map((l, i) => <i key={i} style={{ height: `${Math.max(8, l * 100)}%` }} />)}</div>}
-          <input ref={input} value={text} onChange={(e) => setText(e.target.value)} placeholder={voice === 'rec' ? 'Listening' : voice === 'text' ? 'Writing down your words' : 'Ask about your place'} aria-label="Ask about your place" disabled={busy || voice !== ''} />
+          <input ref={input} value={text} onChange={(e) => setText(e.target.value)} placeholder={voice === 'rec' ? 'Listening' : voice === 'text' ? 'Writing down your words' : `Ask about ${place.name}`} aria-label={`Ask about ${place.name}`} disabled={busy || voice !== ''} />
           {voice === 'rec' ? <button type="button" className="rec" aria-label="Stop and write it down" onClick={stopVoice}><I.Stop /></button>
             : voice === 'text' ? <button type="button" disabled aria-label="Writing down your words"><span className="spin" /></button>
             : text.trim() ? <button type="submit" aria-label="Send" disabled={busy}><I.Send /></button>
