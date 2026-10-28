@@ -1,0 +1,589 @@
+{
+ "pass": "median WER at most 25%",
+ "source": "Google FLEURS test split (CC BY 4.0)",
+ "model": "omniASR_CTC_1B",
+ "langs": {
+  "en_us": {
+   "medianWer": 0.091,
+   "medianCer": 0.019,
+   "pass": true,
+   "failed": 0,
+   "clips": [
+    {
+     "said": "However, due to the slow communication channels, styles in the west could lag behind by 25 to 30 year.",
+     "heard": "however due to the slow communication channels styles in the west could lag behind by to years",
+     "wer": 0.158,
+     "cer": 0.071
+    },
+    {
+     "said": "All nouns, alongside the word Sie for you, always begin with a capital letter, even in the middle of a sentence.",
+     "heard": "all nowns alongside the world's say for you always begin with a capital letter even in the middle of a sentence",
+     "wer": 0.19,
+     "cer": 0.056
+    },
+    {
+     "said": "To the north and within easy reach is the romantic and fascinating town of Sintra and which was made famous to foreigners after a glowing account of its splendours recorded by Lord Byron.",
+     "heard": "to the north and within easy reach is the romantic and fascinating town of cintra and which was made famous to foreigners after a glowing account of its splendouress recorded by lord byron",
+     "wer": 0.061,
+     "cer": 0.016
+    },
+    {
+     "said": "The cabbage juice changes color depending on how acidic or basic (alkaline) the chemical is.",
+     "heard": "the cabage juice changes color depending on how astetic basic alcoline the chemical is",
+     "wer": 0.267,
+     "cer": 0.112
+    },
+    {
+     "said": "Many people don't think about them as dinosaurs because they have feathers and can fly.",
+     "heard": "many people don't think about ther mess diner stores because they have feathers and can fly",
+     "wer": 0.25,
+     "cer": 0.116
+    },
+    {
+     "said": "The hospital has followed protocol for infection control, including separating the patient from others to prevent possible infection of others.",
+     "heard": "the hospitle has followed protocol for infection control including separating the patient from others to prevent possible infection of others",
+     "wer": 0.05,
+     "cer": 0.014
+    },
+    {
+     "said": "The Northern Marianas emergency management office said that there were no damages reported in the nation.",
+     "heard": "the northern marianna's emergency management office said that there were no damages reported in the nation",
+     "wer": 0.125,
+     "cer": 0.019
+    },
+    {
+     "said": "Twentieth century research has shown that there are two pools of genetic variation: hidden and expressed.",
+     "heard": "wentieth century research has shown that there are two pools of genetic variation hidden and expressed",
+     "wer": 0.062,
+     "cer": 0.01
+    },
+    {
+     "said": "The aspect ratio of this format (dividing by twelve to obtain the simplest whole-number ratio) is therefore said to be 3:2.",
+     "heard": "the aspect ratio of this format dividing by twelve to obtain the simplest whole number ratio is therefore said to be free to two",
+     "wer": 0.13,
+     "cer": 0.083
+    },
+    {
+     "said": "As light pollution in their heyday was not the kind of problem it is today, they are usually located in cities or at campuses, easier to reach than those built in modern times.",
+     "heard": "as likt pollution in their hayday was not the kind of problem it is today they are usually located in cities or at campuses easier to reach than those built in modern times",
+     "wer": 0.061,
+     "cer": 0.017
+    },
+    {
+     "said": "Through the night between 150 and 200 copies were made, now known as \"Dunlap broadsides\".",
+     "heard": "to the night between and copies were made now known as dunlap broadsides",
+     "wer": 0.2,
+     "cer": 0.153
+    },
+    {
+     "said": "For example, each year students from Bennet School in North Carolina design a website about their trip to the State Capital, each year the website gets remodeled, but old versions are kept online to serve as a scrapbook.",
+     "heard": "for example each year students from bennet school in north carolina design a website about their trip to the state capital each year the website gets remodelled but old versions are kept online to serve as a scrap book",
+     "wer": 0.079,
+     "cer": 0.009
+    },
+    {
+     "said": "Lion prides act much like packs of wolves or dogs, animals surprisingly similar to lions (but not other big cats) in behavior, and also very deadly to their prey.",
+     "heard": "lion prides acts much like packs of wolves or dogs animals surprisingly similar to lions but not other big cats in behaviour and also very deadly to their prey",
+     "wer": 0.069,
+     "cer": 0.013
+    },
+    {
+     "said": "The city is also the base to climb the Nyiragongo volcano along with some of the cheapest Mountain Gorilla tracking in Africa.",
+     "heard": "the city is also the base to climb the nairaigango volcano along with some of the cheapest mountain gorilla trafficking in africa",
+     "wer": 0.091,
+     "cer": 0.048
+    },
+    {
+     "said": "The Internet combines elements of both mass and interpersonal communication.",
+     "heard": "the internet combines elements of both mass and interpersonal communication",
+     "wer": 0.0,
+     "cer": 0.0
+    }
+   ]
+  },
+  "sw_ke": {
+   "medianWer": 0.069,
+   "medianCer": 0.024,
+   "pass": true,
+   "failed": 0,
+   "clips": [
+    {
+     "said": "Katika miaka yote ya 1960, Brzezinski alimfanyia kazi John F. Kennedy kama mshauri wake na pia utawala wa Lyndon B. Johnson.",
+     "heard": "katika miaka yote ya jenziski alimfanyia kazi john f kennedy kama mshauri wake na pia utawala wa leonord b johnson",
+     "wer": 0.143,
+     "cer": 0.125
+    },
+    {
+     "said": "Sauti ya piramidi na onyesho la nuru ni mojawapo ya mambo yanayofurahisha zaidi katika eneo la watoto.",
+     "heard": "sauti ya piramidi na onyesho la nuru ni mojawapo ya mambo yanayofurahisha zaidi katika eneo la watoto",
+     "wer": 0.0,
+     "cer": 0.0
+    },
+    {
+     "said": "Wana miguu yenye magamba na makucha, hutaga mayai na hutembea kwa miguu yake miwili ya nyuma kama T-Rex.",
+     "heard": "wana miguu yenye magamba na makucha hutaga mayai na hutembea kwa miguu yake miwili ya nyuma kama tirex",
+     "wer": 0.105,
+     "cer": 0.01
+    },
+    {
+     "said": "Piramidi Kuu iliyojengwa na Wamisri katika karne ya tatu BCE ni mojawapo ya majengo makubwa yaliyojengwa kwa heshima ya Firauni waliofariki.",
+     "heard": "piramidi kuu iliyojengwa na wamisiri katika karne ya tatu dwaka e ni mojawapo ya majengo makubwa yaliyojengwa kwa heshma ya firaoni waliofariki",
+     "wer": 0.238,
+     "cer": 0.065
+    },
+    {
+     "said": "Siku hizi, wadudu pekee ambao hawawezi kukunja mabawa yao kwenda nyuma ni kerengende na kipupe.",
+     "heard": "siku hizi wadudu pekee ambao hawawezi kukunja mabawa yao kwenda nyuma ni keregende na kipupe",
+     "wer": 0.067,
+     "cer": 0.011
+    },
+    {
+     "said": "Layton alikuwa ameomba mabadiliko ya mswada wa kimazingira wa wahafidhina wakati wa mkutano na PM, akiomba “uandishi upya wa undani na mkamilifu” wa mswada wa kimazingira wa chama cha Wahafidhina.",
+     "heard": "leyton alikuwa ameomba mabadiliko ya mswada wa kimazingira wa waaifidhina wakati wa mkutano wa pm akiomba uandishi upya wa undani na mkamilifu wa msuada wa kimazingira wa chama cha waifidhina",
+     "wer": 0.167,
+     "cer": 0.036
+    },
+    {
+     "said": "Uandishi blogi ni kifaa kinachochochea ushirikiano, na kuhimiza wanafunzi kupanua usomaji zaidi ya siku ya kawaida ya masomo shuleni.",
+     "heard": "uandishi blogi ni kifaa kinachochochea ushirikiano na kuhimiza wanafunzi kupanua usomaji zaidi ya siku ya kawaida ya masomo shuleni",
+     "wer": 0.0,
+     "cer": 0.0
+    },
+    {
+     "said": "Kungali kuna wanaume na wanawake wengi walio hai walioishi muda wao hapa, na wengine wengi ambao wapendwa wao waliuawa au walifanyishwa kazi hadi kufa, Wayahudi na wasio Wayahudi vilevile.",
+     "heard": "kungali kuna wanaume na wanawake wengi walio hai walioishi muda wao hapa na wengine wengi ambao wampendwa wao waliwawa au walifanyishwa kazi hadi kufa wayahudi na wasio wayahudi vilevile",
+     "wer": 0.069,
+     "cer": 0.011
+    },
+    {
+     "said": "Kila kitu katika ulimwengu kimeundwa kutokana na dutu. Dutu zote zimeundwa kutokana na chembe ndogo ndogo zinazoitwa atomi.",
+     "heard": "kila kitu katika ulimwengu kimeundwa kutokana na ndutu ndutu zote zimeundwa kutokana na chembe ndogondogo zinazoitwa atomi",
+     "wer": 0.222,
+     "cer": 0.025
+    },
+    {
+     "said": "Mshabaha uliopo kati ya patholojia ya ubongo na tabia inaunga mkono wanasayansi katika utafiti wao.",
+     "heard": "shabaha uliopo kati ya patholojia ya ubongo na tabia inaunga mkono wanasayansi katika utafiti wao",
+     "wer": 0.067,
+     "cer": 0.01
+    },
+    {
+     "said": "Hata hivyo, asilimia ya XDR-TB katika kikundi kizima cha watu wenye kifua kikuu bado inaonekana kuwa chini, watu 6,000 kati ya 330,000 walioambukizwa kwa wakati wowote maalumu katika Afrika Kusini.",
+     "heard": "hata hivyo asilimia ya xdrtb katika kikundi kizima cha watu wenye kifua kikuu bado inaonekana kuwa chini watu kati ya walioambukizwa wakati wowote maalum katika afrika kusini",
+     "wer": 0.242,
+     "cer": 0.103
+    },
+    {
+     "said": "Ofisi ya udhibiti wa dharura ya Marianas Kaskazini ilisema kwamba hakuna madhara yaliyoripotiwa katika taifa.",
+     "heard": "ofisi ya udipiti ya darura ya marianas kaskasini ilisema kwamba hakuna madara yaliyoripotiwa katika taifa",
+     "wer": 0.333,
+     "cer": 0.056
+    },
+    {
+     "said": "Mtandao unachanganya vitu vya mawasiliano ya kundi la watu na ya kati ya mtu na mtu.",
+     "heard": "mtandao unatanganya vitu vya mawasiliano ya kundi la watu na ya kati ya mtu na mtu",
+     "wer": 0.062,
+     "cer": 0.024
+    },
+    {
+     "said": "Perry alisema, \"Nitarudi Texas ili kutathmini matokeo ya mkutano wa usiku wa leo, kuamua kama kuna njia yangu ya kusonga mbele katika mbio hizi\", lakini baadaye akasema kwamba angebaki kwenye mbio na kushindana katika uchaguzi wa msingi wa Carolina Kusini mnamo Januari 21.",
+     "heard": "perry alisema nitarudi texas ili kutathmini matokeo ya mkutano wa usiku wa leo kuamua kama kuna njia yangu ya kusonga mbele katika mbio hizi lakini baadaye akasema kwamba angebaki kwenye mbio na kushindana katika uchaguzi wa msingi wa karolina kusini mnamo januari",
+     "wer": 0.047,
+     "cer": 0.015
+    },
+    {
+     "said": "Ili kujionea Hong Kong vizuri zaidi, ondoka kiswani kisha uelekee upande wa mwambao wa Kowloon ulio mkabala.",
+     "heard": "ili kujionea hong kong vizuri zaidi ondoka kiswani kisha uelekee upande wa mwambao wa koulun ulio mkabala",
+     "wer": 0.059,
+     "cer": 0.028
+    }
+   ]
+  },
+  "yo_ng": {
+   "medianWer": 0.222,
+   "medianCer": 0.052,
+   "pass": true,
+   "failed": 0,
+   "clips": [
+    {
+     "said": "Àwọn èyàn ti mọ̀ nípa àwọn kemika pepe bí wúrà, fàdákà àti kọ́pa àtijọ́, torípé a lè rí wọn ní ìṣẹ̀dá ní ipò àdáyéba wọn, kò dẹ̀ le jù láti wú wọn jáda láti inú ilẹ̀ pẹ̀lú irinṣẹ́ àtilẹ̀bá.",
+     "heard": "àwọn èyàn ti mọ̀ nípa wọn kemica pépè bí wúrà fàdákà àti kópa àtijọ́ torí pé a lè rí wọn ní ìsẹ̀dá ní ipò ajáyéba wọn kò dẹ̀lé ju láti wù wọn jáda láti nú ilẹ̀ pẹ̀lú ìriṣẹ́ àti ilẹ̀ bá",
+     "wer": 0.308,
+     "cer": 0.057
+    },
+    {
+     "said": "Àwọn ara Ìrano lo kọ́kọ́ bẹ̀rẹ̀ si ni sin ewure ní bíi ọdún 15,0000 sẹ́yìn ní Oke Sagrosi.",
+     "heard": "àwọn ara irano lókọkọ bẹ̀rè sí ni sin ewúrẹ́ níbí ọdún sẹ́yìn ní okè sagrosi",
+     "wer": 0.316,
+     "cer": 0.131
+    },
+    {
+     "said": "Fotosintesisi ni ọ̀nà tí àwọn ewé ma n gbà gi ṣe ounje wọn láti orun. Wọ́n dẹ̀ ma n pèsè àbò.",
+     "heard": "fotosyntesisi ni ọ̀nà tí àwọn iwé ma ń gba gi se oúnjẹ wọn láti orùn wọn dẹ má ń pèsè abo",
+     "wer": 0.095,
+     "cer": 0.023
+    },
+    {
+     "said": "Ibùdó àṣàrò Tibetan ni Òòṣà Yoga. Látara lílo àfihàn àwọn onírúurú òòṣà, wọ́n ń sàtúnfọ̀ agbára, wọ́n pe àwọn chakras síta, ìtají sì wáyé.",
+     "heard": "ibùdó àsàro tìbẹtan ní òòsà yóga látàrí lílo àfihàn àwọn onírúrú òòsà wọ́n ń sà tún fọ agbára wọ́n ń pe àwọn kakras síta ìtajísì wáyé",
+     "wer": 0.375,
+     "cer": 0.069
+    },
+    {
+     "said": "Awon ewe lo n se eemi ti awon omo eyan maa n mi sinu, won si ma n gba eemi ti awon eyan ma n mi si ta (eyi to je, .",
+     "heard": "àwọn ewé ló má ń ṣe èémí tí àwọn omọ ènìyàn ma mi símú wọn a sì máa gba èémi tí àwọn ènìyàn ma u misíta èyí tó le jẹ",
+     "wer": 0.452,
+     "cer": 0.191
+    },
+    {
+     "said": "Tí èyan bá pín ìrìn àjò ní orí amóhùnmáwòrán ó jẹ́ ọ̀nà tó dára láti lò fi pín àwọn iriri èyàn pẹ̀lú àkẹ́ẹ̀kọ́ ọjọ́ iwájú.",
+     "heard": "tí èyàn bá pin ìrìn àjò ní orí amọhùn máwòrán ó jẹ ọ̀nà tó dára láti lò fi pín àwọn ìrírí èèyàn pẹ̀lú wa kẹ́kọ ọjọ iwájú",
+     "wer": 0.2,
+     "cer": 0.044
+    },
+    {
+     "said": "Ní ọ̀sẹ̀ méjì péré ikọ̀ ológun ilẹ̀ Americans àti Free France ti dóòlà ẹkùn gúúsù ilẹ̀ France, wọ́n sì ń padà sí ilẹ̀ Germany.",
+     "heard": "ní ọ̀sẹ̀ méjì péré ikọ ológun ilẹ̀ american àti free france ti dola ẹkungúsù ilẹ̀ france wọ́n sì ń padà sí ilẹ̀ germany",
+     "wer": 0.167,
+     "cer": 0.034
+    },
+    {
+     "said": "Èyí yíò fún ní àǹfànni láti padà sẹ́yìn pẹ̀lú 802.11a, 802.11b àti 802.11g, èyí tó pèsè ibùdó o ní rádíò méjì.",
+     "heard": "èyí yíò fúnun ní àǹfàní láti padà sẹ́yìn pẹ̀lú a b àti g èyí tó pèsè ibùdó oní radío méjìì",
+     "wer": 0.458,
+     "cer": 0.219
+    },
+    {
+     "said": "Roland Mendoza yin ìbọn rẹ M16re mọ́ àwọn arìnrìnàjò.",
+     "heard": "roland mendosa yun ìbọn rẹ̀ msstn rẹ̀ mọ́ àwọn arìnrìn àjò",
+     "wer": 0.667,
+     "cer": 0.157
+    },
+    {
+     "said": "Sibe si, gba imoran awon alase, ma ru fin gbogbo ami, se akiyesi gbogbo ikilo ipamo.",
+     "heard": "síbẹ̀ sí  gba ìmọ̀ran àwọn alásẹ má rú fin gbogbo àmì se àkíyèsí gbogbo ìkìlọ̀ ìpamọ́",
+     "wer": 0.0,
+     "cer": 0.0
+    },
+    {
+     "said": "Ìtàkùn Blog náà lè se ìrànwọ́ fún ìkọ̀wé àwọn akẹ́ẹ̀kọ́. Nígbàtí àwọn akẹ́ẹ̀kọ́ bẹ̀rẹ̀ ìrírí ìtàkùn blog ti wọn pẹ̀lú ìlo èdè àti àkọtọ́ tó wọ́, wíwà nílẹ̀ àwọn èrò ma ń yí èyí padà.",
+     "heard": "ìtàkún blog náà le se ìrànwọ́ fún ìkọ̀wé àwọn akẹ́kọ́ nígbàtí àwọn akẹ́kọ́ bẹ́rẹ̀ ìrírí ìtàkun blog tí wọnn pẹ̀lú ìlò èdè àti àkọ́tọ́ tó wọ̀ wíwà nílẹ̀ àwọn èrò má ń yí èyípadà",
+     "wer": 0.143,
+     "cer": 0.024
+    },
+    {
+     "said": "Wọ́n tí gba àwọn arìnrìn àjò ní mọ̀ràn láti ṣọ́ra fún ewu ojú ọja tó lè ní ipa ní agbègbè wọ́n nítorí ó lè ní ipa fún ènikẹni tó bá ní ètò láti rìnrìn àjò.",
+     "heard": "wọ́n ti gba àwọn arìnrìn àjò nímọ́ràn láti sọ́ra fún ewu ọjà tó le ní ipa ní agbègbè wọn nítorí ó le ní ipa fún ẹnikẹ́ni tó bá ní ètò láti rìnrìn àjò",
+     "wer": 0.086,
+     "cer": 0.033
+    },
+    {
+     "said": "Lóòótọ́, Al ni ìtumọ̀ ìtàn sáyẹnsì, Al ṣe ìdásílẹ̀ ẹ̀ka Kọǹpúta Sayẹǹsì kan tí ó ṣe pàtàkì púpọ̀, tí ó ń ní ṣe pẹ̀lú ìwà, ẹkọ́ àti ìlò ọgbọn inú ẹni pẹ̀lú ẹ̀rọ.",
+     "heard": "lóòótọ́ aàlí ní ìtumọ̀ ìtàn sáyẹnsì aàlíṣe ìdásílẹ̀ ẹ̀ka kọmpútà sáyẹnsì kan tí o sì patàkì púpọ̀ tí ó ní ṣe pẹ̀lú ìwà ẹ̀kọ àti ìlò ọgbọn irú ẹni pẹ̀lú èrò",
+     "wer": 0.212,
+     "cer": 0.062
+    },
+    {
+     "said": "Ẹ̀gbẹ́ tó n dari ìlú Egbe Guusu Iwo Oorun (SWAPO) nílo èyàn púpọ̀ ní ìbò ìgbìmọ̀ àwọn aṣòfin.",
+     "heard": "ẹgbẹ́ tó ń darí ìlú ẹgbẹ́ gúsù ìwọ̀hòòrun swápò nílò èèyàn púpọ̀ ní ìbò ìgbìmọ àwọn asòfin",
+     "wer": 0.222,
+     "cer": 0.035
+    },
+    {
+     "said": "Ní alẹ́ ọjọ́ àìkú, àrẹ oríll èdè Amẹ́ríkà Donald Trump, ní ọ̀rọ̀ rẹ̀ tí ó sọ nípasẹ̀ ọ̀gá oníròyìn, kéde pé àwọn ọmọ ogun US ma fi ìlú Syria sílẹ̀.",
+     "heard": "ní alẹ ọjọ́ àìkó ààrí orílẹ èdè america donald trump ní ọ̀rọ rẹ̀ tí ó sọ nípasẹ̀ ọ̀gá oníròyìn kéde pé àwọn ọmọ ogun u s má fi ìlú siria sílẹ",
+     "wer": 0.233,
+     "cer": 0.052
+    }
+   ]
+  },
+  "ha_ng": {
+   "medianWer": 0.299,
+   "medianCer": 0.055,
+   "pass": false,
+   "failed": 0,
+   "clips": [
+    {
+     "said": "An kwatanta faretin gine-ginen da ke yin sararin samaniyar Hong Kong da ginshiƙi mai walƙiya wanda aka bayyana ta gaban ruwan Victoria Harbor.",
+     "heard": "an kwatanta feretin gine ginan da ke yin sararin samania hong kong da ginshiki mai walkiya wanda aka bayyana ta gaban ruwan victoria harbo",
+     "wer": 0.25,
+     "cer": 0.05
+    },
+    {
+     "said": "Aristotle, masanin falsafa ne, yayi tunanin cewa komai ya kunshi cakuda daya ko fiye daga abubuwa hudu. Sun kasance ƙasa, ruwa, iska, da wuta.",
+     "heard": "aristotel masanin falsafa ne yayi tunanin cewa komen yaƙun sha kuda ɗaya kofiye daga abubuwa hudu sun kasance ƙasa ruwa iska da wuta",
+     "wer": 0.333,
+     "cer": 0.089
+    },
+    {
+     "said": "Tsibirin na kwanciye 120 km arewa da sashin kasa mai shiga teku. Mafi girma shine King George Island mai dauke da mazauna na Villa Estrellas.",
+     "heard": "tsibirin nakwancie mai kilomita arewa da sashin kasa mai shiga teku mafi girma shiniking george iseland mai dauke da mazauna na villa estrilas",
+     "wer": 0.32,
+     "cer": 0.115
+    },
+    {
+     "said": "A hakika akwai matukar wahalar gano wajen ko ma ka idan ka san ya kasance. Kana shiga cikin kogon zaka ji kadaita ta kama ka.",
+     "heard": "a hakiƙa akwai matsukar wahalar gano wajen komaka idan ka san ya kasance kana shiga cikin kogon za ka ji kadai ta ta kama ka",
+     "wer": 0.36,
+     "cer": 0.049
+    },
+    {
+     "said": "Kwatancin 802.11n na aiki duk akan mita 2.4Ghz da 5.0Ghz.",
+     "heard": "kwatancin  na aiki duk akan mita gh da gh",
+     "wer": 0.462,
+     "cer": 0.286
+    },
+    {
+     "said": "Wasu kwayar zarra suna da nuclei mai canzawa wanda ya nuna cewa suna iya rabewa da ‘yar ƙarfafawa ko babu .",
+     "heard": "wasu kwayar zarra suna da nukle mai canzawa wanda ya nuna cewa suna iya rabewa da yar karfaffawa ko babu",
+     "wer": 0.1,
+     "cer": 0.038
+    },
+    {
+     "said": "A wannan lokaci na tarihin Tarayyan Turai, cocin Katolika, wadda ta yi karfi da arziki, ta fuskanci bincike.",
+     "heard": "a wannan lokaci na tarihin tarayyan turai chocin catolika wadda ta yi karfi da arziki ta fuskanci bincike",
+     "wer": 0.111,
+     "cer": 0.019
+    },
+    {
+     "said": "Halin da ke tsakanin cututtukan kwakwalwa da halayyar yana tallafawa masana kimiyya a cikin binciken su.",
+     "heard": "halin da ke tsakanin cututtukan gwakwalwa da haraya yana tallafawa masana kimiyya a cikin bincikensu",
+     "wer": 0.25,
+     "cer": 0.049
+    },
+    {
+     "said": "Amfani da rikodin bidiyo ya haifar da bincike mai mahimmanci a cikin fassara bayanan fuska, motsin fuska waɗanda ba sa wuce lokaci ƙalilan.",
+     "heard": "amfani da recording videyo ya haifar da bincike mai mahimmanci a cikin fassarar bayanin fuska botsen fuska wadanda ba sa wuce lokaci kalilan",
+     "wer": 0.304,
+     "cer": 0.088
+    },
+    {
+     "said": "Musamman ma kamar, ikirarin da ya yi cewa zai gano ko mutum yana karyar fassarar/fahimtar kananan maganganu yadda suke.",
+     "heard": "musamman ma kamar ikirarin da ya yi cewa zai gano ko mutum yana karya fassarar ko fahimtar kananan maganganu yadda suke",
+     "wer": 0.1,
+     "cer": 0.034
+    },
+    {
+     "said": "Cibiyar Tabbatar da Adalci da Demokradiyya ta ƙasar Haiti ta nakalto waɗansu ayyukan nazari masu zaman kansu waɗanda ke tsammanin bataliyar kiyaye zaman lafiya ta Majalisar Ɗinkin Duniya da ke Nepal ce ta kawo cutar Haiti bisa rashin sani.",
+     "heard": "cibiyar tabbatar da adalci da demokradiya ta kasar eti ta nakanta wadansu ayyukan nazari masu zaman kansu wadanda ke tsammanin bataliyyar kiyaye zaman laifiya ta majalisar dinkin duniya da kenafance ta kawo cutar haiti bisa rashin sani",
+     "wer": 0.308,
+     "cer": 0.071
+    },
+    {
+     "said": "Tabbas da akwai bayanai daga koyarwar addinin Kirista kan wannan al’adar, amma dai yana iya kasancewa Shekaru ne gabanin bayyanar Kiristanci.",
+     "heard": "tabbas da akwai bayanai daga koyarwar addinin krista kan wannan al adar amma dai yana iya kasancewa shekaru ne gabannin bayanar kristanci",
+     "wer": 0.182,
+     "cer": 0.029
+    },
+    {
+     "said": "A kan iyakar tsibirin da ke kusa da alama ba za a karɓa ba, kodayake ana iya karɓar kuɗin Birtaniya da Amurka; bincika tare da masu shi don sanin menene hanyar biyan kuɗi da za a karɓa.",
+     "heard": "akan iyakar tsibirin da ke kusa da alama ba za a karba ba koda yake ana iya karbar kudin birtaniya da amurka bincike tare da masu shi don sanin maine ne hanyar biyan kudi da za a karba",
+     "wer": 0.324,
+     "cer": 0.06
+    },
+    {
+     "said": "Motar Giancarlo Fisichella ta kwace masa inda hakan ya jawo fitarsa daga tseren jim kaɗan bayan farawa.",
+     "heard": "motar gen cado fisicana ta kwace masa inda hakan ya jawo fitarsa daga tseron jim kadan bayan farawa",
+     "wer": 0.294,
+     "cer": 0.108
+    }
+   ]
+  },
+  "ig_ng": {
+   "medianWer": 0.5,
+   "medianCer": 0.101,
+   "pass": false,
+   "failed": 0,
+   "clips": [
+    {
+     "said": "Ka akara Rossby na-adị obere karịa, ka arụmarụ na-adịkwu obere nke kpakpando n’ikwanye ugwu nye ụmụ ntụgharị nke ihendọta.",
+     "heard": "a kara rozbi na adị obere karịa ka arụmarụ na adịkwa obere nke kpakpa ndụ n' ekwanyị ugwu nye ụmụntụgharị nke ihe ndọta",
+     "wer": 0.5,
+     "cer": 0.1
+    },
+    {
+     "said": "Ka agha dara, mba Britenị jiri ndị agha elu mmiri gbochie ndị Jamani inweta enyemaka",
+     "heard": "ka ah dara mba briten jiri ndị aha elu mmiri gboche ndị jamanị inweta enyemaka",
+     "wer": 0.267,
+     "cer": 0.06
+    },
+    {
+     "said": "Na mbụ, ọtụtụ n’ime ndị na-anya na-eyi akpụkpọ ụkwụ ọnyịnya ndị nwere kọị kọị na okpuru dị nrọ ma pee mpe.",
+     "heard": "nambụ otutụ ni me ndị na anyani ihi abụbo okuonyi ne ndị nwere koekoe na bụrodịro ma pempe",
+     "wer": 0.708,
+     "cer": 0.279
+    },
+    {
+     "said": "A na-egosipụta ihe ngosi ndị ahụ na piramidi ndị ahụ ma mere ka piramidi ndị ahụ dị iche iche na-enwukepụ.",
+     "heard": "a na egosipụta ihe ngọzi ndị ahụ na piramidi ndị ahụrụma mere ka piramidi ndị ahụ dị iche iche na enwekepu",
+     "wer": 0.182,
+     "cer": 0.038
+    },
+    {
+     "said": "Ụmụaka azụghịazụ nwere ike ha e nweela ahụmihe nke mmetọ ụmụaka ma ọ bụ ahụmihe mkpasasị uche nke ukwuu tupu agbahapụ ha ma ọ bụ ha na-agbalaga.",
+     "heard": "ụmụaka azụghị azụ mere ike ha enweele ahụm ihe nke mmetọ ụmụaka maọbụ ahụm ihe mkpaswichi nke ukwu utụpụ agbaha pụ ha maọbụ na agbalaga",
+     "wer": 0.714,
+     "cer": 0.154
+    },
+    {
+     "said": "Kemgbe 1988, ụmụ igbe ntuli aka ga-abụrịrị ngafe-ahụ-ụzọ ka ndị ntụli aka na ndị nnyota ga-agba akaebe na o nweghị envelopu nọ na ya mgbe a na-ebido ntuli aka nakwa o nweghị envelopu etinyere ewezụga nke ndị agụgwere ọnụ ma nye ikikere nke ọma.",
+     "heard": "ke gbe ụwụ igbe ntụluaka ga abụrịri ngafe ahụ ozọ ka ndị ntuliaka na ndị nyota ga agba aka ebe na onweihi envelopụ na nọna ya mgbe ọ gbaa na ebido ntuli aka naka onweihi envelopụ etiniri eweziga nke ndị a kụukwere anụ ma yị ikikere nke ọma",
+     "wer": 0.531,
+     "cer": 0.153
+    },
+    {
+     "said": "Mgbe 1976 ruru, e mezigharịala pasent iri atọ nke Machu Pichu; mmezi a ka na-aga n'ihu ruo taa.",
+     "heard": "mgbe iruru emezi harị ala pasentị iri atọ nke maachụ piach mmezi aka na aga n'ihu ruota",
+     "wer": 0.55,
+     "cer": 0.163
+    },
+    {
+     "said": "N'ihi nke a, usoro nke otu ụlọọrụ ịrụkọta ọrụ ọnụ iji merie otu ihe mgbochi nwere ike idunyeru otu usoro nkpepụta ihe ọhụrụ iji jee ozi nke mkpa onye ahịa.",
+     "heard": "n'ihi nke a usoro nke otu ụlọ ọrụ ịrukọta ọrụ ọnụ iji merie otu ihe mbọchị were ike ịdụnyeru otu usoro mkpepụta ihe ọhụrụ iji jee ozi nke mkpa onye ahị ya",
+     "wer": 0.226,
+     "cer": 0.039
+    },
+    {
+     "said": "Anyi kwere na ihe USOC dere na odimma ndi egwuregwu anyi na klob ha nakwa egwuregwu ga enweta uru n’ihu karia ma o buru na enwe mgbanwe n’ulo oru anyi kama inapu ndi mmadu asambodo ha.",
+     "heard": "anyịkere na ihe usoc dere na ọdị mma ndị egwuregwu anyị na klub haa nakwa egwuregwu ga eweta uru nihu karịa mabụrụ na eweghị mgwanwe nụlọ ọrụ anyị ka ma ịnapụ ndị mmadụ asa mbodo ha",
+     "wer": 0.526,
+     "cer": 0.098
+    },
+    {
+     "said": "Osisi na-eme ikuku oksigin nke mmadụ na-ekuru, ma ha na e kubanye carbon-dioxide nke mmadụ na-ekufu ume (ya bụ, na-ekufu ume).",
+     "heard": "otisi na eme ikukwu ọksijin nke mmadụ na ekuru ma ha na eku banye kabọndaiọxaidị nke mmadụ na ekufu ume ya abụ na ekufu ume",
+     "wer": 0.308,
+     "cer": 0.099
+    },
+    {
+     "said": "Ufodu ndi mmadu chere na ihe o na-ekwu bu eziokwu mana ufodu ekweghi; na mbara igwe na-agba uwa okirikiri ma anyanwu(ma kwa kpakpando ndi ozo)",
+     "heard": "ụfọdụ ndị mmadochiro n ihe ọ na ekwubu eziokwu mana ụfọdụ ekweghị na mbara igwe na agba ụwọ okirikiri ma anyanwụ makwa kpakpa ndụ ndị ọzọ",
+     "wer": 0.321,
+     "cer": 0.071
+    },
+    {
+     "said": "E kwupụtawo na Sundarbans bụ otu Ebe Nketa Keụwa UNESCO. Akụkụ nke oke ọhịa n'ime ókèala nke Indịa ka a na-akpọ Obianụọhịa Kemba Sundarbans.",
+     "heard": "ekwupụtawụ na sundabans bụ otu ebe nketa keụwa unesco akụkụ nke a oke ohịa nime okeala nke a india ka a na akpọ ọbịa nuọhịa ka mba sudan bans",
+     "wer": 0.5,
+     "cer": 0.101
+    },
+    {
+     "said": "A na-akpọ nke a PH nke kemịkal. I nwere ike ịme ihe ngosi site na iji mmiri kabeeji na-acha ọbara ọbara",
+     "heard": "a na akpọ nke a pụ ihi eji nke kemikal i nwere ike ime ihe nge osisite niji mmiri kaba eji n' acha ọbara ọbara",
+     "wer": 0.435,
+     "cer": 0.157
+    },
+    {
+     "said": "Ogologo ahụ ya kwụ-ọtọ nke akwa mmiri ahụ bụ mita 15. A rụchara ọrụrụ ya n'Ọgọọst 2011, e mepeghị ya nye ụgbọala ruo Maachị 2017.",
+     "heard": "ogolo go ahụ ya kwụọ ọtọ nke akwa mmiri ahụ bụ mitaarụchara ọrụrụ ya n'ọgọst emepeghi ya ye ụgbọala ruo maachị",
+     "wer": 0.481,
+     "cer": 0.159
+    },
+    {
+     "said": "N’ikpeazụ, e nwere ọtụtụ obere nwamba (gụnyere anụ ụlọ nwamba furu efu) na-eri ọtụtụ obere ụmụ anụmanụ dị ka ụmụ ahụhụ, oke, ngwere, na nnụnụ.",
+     "heard": "na ịkpọ azụ enwere ọtụtụ obere nwa mba gunyere ana ụlọ nwa mba furu efu n'ighe ọtụtụ obere ụmụ anụmara dịka ụmụ ahụhụ oke ngwere na nnọnụ",
+     "wer": 0.556,
+     "cer": 0.119
+    }
+   ]
+  },
+  "am_et": {
+   "medianWer": 0.278,
+   "medianCer": 0.058,
+   "pass": false,
+   "failed": 0,
+   "clips": [
+    {
+     "said": "በሴቶች ቡድን ውስጥ አራት የበረዶ ተንሸራታቾች ሩጫቸውን መጨረስ አልቻሉም፣ በግዙፉ ስላሎም ካሉት ከ117ቱ የበረዶ ተንሸራታቾች 45ቱ በውድድሩ ደረጃ ማግኘት አልቻሉም።",
+     "heard": "በሴቶች ቡድን ውስጥ አራት የበረዶ ተንሸራታቾች ሩጫቸውን መጨረስ አልቻሉም በግዙፉ ስላሎም ካሉት ከቱ የበረዶ ተንሸራታቾች አቱበውድድሩ ደረጃ ማግኘት አልቻሉም",
+     "wer": 0.15,
+     "cer": 0.058
+    },
+    {
+     "said": "እነዚህ አንዳንዴ የሚጨናነቁ የተለያዩ ዓይነት የባሕር ዳርቻውን የከበቡ ሱቆች የሚገኙባቸው የቤተሰብ የባሕር ዳርቻዎች ናቸው። መዋኘት የሚያስተማምን ነው።",
+     "heard": "እነዚህ አንዳንዴ የሚጨናንቁ የተለያዩ አይነት የባህር ዳርቻውን የከበቡ ስቆች የሚገኙባቸው የቤተሰብ የባህር ዳርቻዎች ናቸው መዋኘት የሚያስተማምን ነው",
+     "wer": 0.294,
+     "cer": 0.053
+    },
+    {
+     "said": "ውጥረቱ ዝቅተኛ በሆነ ቁጥር ፣ የሕይወት ኃይል የበለጠ አዎንታዊ ይሆናል። እያንዳንዱ ሰው ፍጹም ሰላምን እና እርካታን የማግኘት አቅም አለው።",
+     "heard": "ውጥረቱ ዝቅተኛ በሆነ ቁጥር የሕይወት ኃይል የበለጠ አወንታዊ ይሆናል እያንዳንዱ ሰው ፍጹም ሰላም እና አርካታ ነኝ ማግኘት አቀሟለሁ",
+     "wer": 0.333,
+     "cer": 0.141
+    },
+    {
+     "said": "ሕፃናትንና አዛውንትን ጨምሮ ስድስት ታጋቾች፣ እንዲሁም የፊሊፒኖ ፎቶ ባለሞያዎች ቀደም ብለው ተለቀዋል።",
+     "heard": "ህጻነት ንና አዛውንትን ጨምሮ ስድስት ታጋቾች እንዲሁም የ ፊሊፒኖ ፎቶ ባለሙያዎች ቀደም እብላው ተለቀዋል",
+     "wer": 0.5,
+     "cer": 0.127
+    },
+    {
+     "said": "አፒያ የሳሞአ ዋና ከተማ ናት። ከተማዋ በኡፖሉ ደሴት ላይ ናት እና ለትንሽ ከ40,000 ያነሰ የህዝብ ቁጥር አላት።",
+     "heard": "አፒያ የ ሰሙዓ ዋና ከተማ ናት ከተማዋ በኡፖሉ ደሴት ላይ ናት እና ለትንሽ ከ አ ያነሳ የህዝብ ቁጥር አላት",
+     "wer": 0.278,
+     "cer": 0.141
+    },
+    {
+     "said": "ስለዚህ ፣ ማስታወሻው እንደ መለያ ብቻ የታከለ ሊሆን ይችላል።",
+     "heard": "ስለዚህ ማስታወሻው እንደ መለያ ብቻ የ ታከለ ሊሆን ይችላል",
+     "wer": 0.25,
+     "cer": 0.028
+    },
+    {
+     "said": "ቤቶቻችንን ከእጽዋት እናደርጋለን እንዲሁም ከእጽዋት ልብሶችን እንሰራለን። የምንበላቸው አብዛኛዎቹ ምግቦች እፅዋቶች ናቸው። ያለ ዕፅዋት እንስሳት መኖር አይችሉም።",
+     "heard": "ቤቶቻችንን ከእጽዋት እናደርጋለን እንዲሁም ከእጽዋት ልብሶችን እንሰራለን የምን በላቸው አብዛኛዎቹ ምግቦች እጽዋቶች ናቸው ያለ እጽዋት እንስሳት መኖር አይችሉም",
+     "wer": 0.235,
+     "cer": 0.04
+    },
+    {
+     "said": "በተሞከረው ኬሚካል ውስጥ ያለው የpH መጠን በሃይድሮጂን (H በ pH ውስጥ) አዮኖች መጠን ያመለክታል።",
+     "heard": "በተሞኮረ ኬሚካል ውስጥ ያለው የፒኤች መጠብ በሃይድሮጅን ኤች በፒኤች ውስጥ አያኖች መጠን ያመለክታል",
+     "wer": 0.571,
+     "cer": 0.21
+    },
+    {
+     "said": "ዩናይትድ ስቴትስ ውስጥ የፕሪንስተን ዩኒቨርሲቲ እና የስዊድን ውስጥ አፕሳላ ዩኒቨርሲቲ ጥናት አድራጊዎች በብርቅዬ ዳርዊን ፊንች፣ ጂኦስፒዛ ፎርቴስ፣ እና በውጩ ካክተስ ፊንች፣ ጂኦስፒዛ ኮኒሮስትሪስ መካከል መራባት ምክንያት፣ ይህ ሂደት የበለጠ ረጅም ጊዜ እንደሚወስድ ይገመት የነበረ ቢሆንም፣ አዲሱ ዝርያ በሁለት ትውልዶች ብቻ መፈጠሩን ዘግበዋል።",
+     "heard": "ዩናይትድ ስቴትስ ውስጥ የፕሪንስተን ዩኒቨርሲቲ እና የስዊድን ውስጥ አብሳላ ዩኒቨርሲቲ ጥናት አድራጊዎች በብርቅዬ ዳርዊን ፊንጅ ጂኦስፒዛ ፎርቴስ እና በውጩ ካክተስ ፊንች ጂኦስፒዛ ኮኒሮስትሪስ መካከል መራባት ምክንያት ይህ ሂደት የበለጠ ረጅም ጊዜ እንደሚወስድ ይገመት የነበረ ቢሆንም አዲሱ ዝርያ በሁለት ትልዶች ብቻ መፈጠሩን ዘግበዋል",
+     "wer": 0.071,
+     "cer": 0.014
+    },
+    {
+     "said": "ሆኖም፣ ያ እውነት አይደለም። በሰነዱ ጀርባ ላይ የተጻፈ ነገር ቢኖርም፣ ይህ የ ሀብት ካርታ አይደለም።",
+     "heard": "ሆኖ የአውነት አይደለም በሰነዱ ዘርቧ ላይ ጻፈ ነገር ቢኖርም ይህ የሀብት ካርተ አይደለም",
+     "wer": 0.533,
+     "cer": 0.164
+    },
+    {
+     "said": "ሰዎች ከጥንት ጀምሮ እንደ ወርቅ ፣ ብር እና ናስ ያሉ መሠረታዊ ኬሚካላዊ ንጥረ ነገሮችን ያውቃሉ ፣ እነዚህ ሁሉ በተፈጥሮ ውስጥ ሊገኙ ስለሚችሉ በጥንታዊ መሣሪያዎች ለማዕድን ቁፋሮ ቀላል ናቸው።",
+     "heard": "ሰዎች ከጥንት ጀምሮ እንደ ወርቅ ብር እና ናስ ያሉ መሠረታዊ ኬሚካላዊ ንጥላ ነገሮችን ያውቃሉ እነዚህ ሁሉ በተፈጥሮ ውስጥ ሊገኙ ስለሚችሉ በጥንታዊ መሳሪያዎች ልማድን ቁፋሮ ቀላል ናቸው",
+     "wer": 0.115,
+     "cer": 0.034
+    },
+    {
+     "said": "ይህ ምክንያታዊ ይመስላል፣ ምክንያቱም ምድር የምትንቀሳቀስ አይመስልም፣ አይደል?",
+     "heard": "የህት ምክንያታው ይመስላል ምክንያቱ መደርምት እንቀሳቀስ አይመስለም አይደል",
+     "wer": 0.75,
+     "cer": 0.234
+    },
+    {
+     "said": "መሐመድ ከዚህ ተራ ከሆነ ሕይወት ባሻገር ባሉ ጉዳዮች ላይ ጥልቅ ፍላጎት ነበረው። ለማሰላሰል በ “ኑር” (ብርሃን) ተራራ “ሂራ’ ”በመባል የሚታወቀው ዋሻ ላይ መሄድ ያዘወትር ነበር።",
+     "heard": "መሐመድ ከዚህ ተራ ከሆነ ህይወት ባሻገር ባሉ ጉዳዮች ላይ ጥልቅ ፍላጎት ነበረው ለማሰላሰል በኑር ብርሃን ተራራ ሂራ በመባሉ የሚታወቀው ዋሻላይ መሄድ ያዘወትር ነበር",
+     "wer": 0.24,
+     "cer": 0.038
+    },
+    {
+     "said": "ግድቡ በ 1963 ከተገነባ በኋላ በየአመቱ በወንዙን አቧራ የሚዘራውን የጎርፍ መጥለቅለቅ አቆመ።",
+     "heard": "ግድቡ በ አ   ስ ከተገነባ በኋላ በየ አመቱ በወንዙን አቧራ የሚዘራው ን የጎርፍ መጥለቅለቅ አቆመ",
+     "wer": 0.5,
+     "cer": 0.102
+    },
+    {
+     "said": "የቤተክርስቲያኑ መካከለኛው ባለሥልጣን ከአንድ ሺህ ዓመታት በላይ በሮም ውስጥ ነበር እናም ይህ የኃይል እና የገንዘብ ክምችት ብዙዎች መሠረታዊ የመመሪያ እምነቱ እየተሞላ እንደሆነ እንዲጠይቁ አድርጓቸዋል።",
+     "heard": "የቤተ ክርስቲያኑ መካከለኛው ባለስልጣን ከአንድ ህ ዓመታት በላይ በሮም ውስጥ ነበር እናም ይህ የኃይል ና የገንዘብ ክምችት ብዙዎች መሠረታዊ የመመሪያ እምነቱ እያተሞላ እንደሆነ እንዲጠይቁ አድርጓቸዋል",
+     "wer": 0.25,
+     "cer": 0.039
+    }
+   ]
+  }
+ }
+}

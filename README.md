@@ -116,6 +116,7 @@ The dev server must run first (`npm run dev` in `app/`).
 | `modal run evals/modal_pull.py`, then `python3 evals/rules.py` | Every daily forecast since April 2024 at the flood places, pulled on Modal. Each alert rule is tuned on half the floods, checked on the other half, and scored for alerts with no flood after them. This chose the 3-day rule. |
 | `python3 evals/false-alarms.py` | How often soaked ground came with no flood after it, at the same places from 2000 to 2025. |
 | `modal run evals/modal_fleurs.py`, then `python3 evals/voice-langs.py` | 15 native-speaker clips per language from Google FLEURS (CC BY 4.0) through the voice route's model. A language passes at a median of 25% of words wrong or less. 28 Oct: English 5%, French 8%, Swahili 19% pass; Yoruba 37%, Hausa 48%, Igbo 61%, Amharic 73% fail. |
+| `modal run evals/modal_omni.py --cpu --model omniASR_CTC_1B`, then `python3 evals/voice-langs.py --heard evals/omni-heard.json` | The same clips through Meta's open Omnilingual ASR on Modal. 28 Oct, 1B CTC model on CPU: Swahili 7%, Yoruba 22% pass; Amharic 28%, Hausa 30%, Igbo 50% fail. Its training data may include FLEURS, which would flatter it. On CPU a clip takes 24 to 70 s, too slow to use live: live use needs a GPU. |
 | `node evals/compare-models.mjs` | The same 10 questions to Muse Spark Open and Muse Spark 1.3: speed, the checker and the tools called. |
 
 ## Privacy and safety

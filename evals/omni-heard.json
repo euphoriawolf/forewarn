@@ -1,0 +1,129 @@
+{
+ "model": "omniASR_CTC_1B",
+ "device": "cpu",
+ "langs": {
+  "en_us": {
+   "heard": [
+    "however due to the slow communication channels styles in the west could lag behind by to years",
+    "all nowns alongside the world's say for you always begin with a capital letter even in the middle of a sentence",
+    "to the north and within easy reach is the romantic and fascinating town of cintra and which was made famous to foreigners after a glowing account of its splendouress recorded by lord byron",
+    "the cabage juice changes color depending on how astetic basic alcoline the chemical is",
+    "many people don't think about ther mess diner stores because they have feathers and can fly",
+    "the hospitle has followed protocol for infection control including separating the patient from others to prevent possible infection of others",
+    "the northern marianna's emergency management office said that there were no damages reported in the nation",
+    "wentieth century research has shown that there are two pools of genetic variation hidden and expressed",
+    "the aspect ratio of this format dividing by twelve to obtain the simplest whole number ratio is therefore said to be free to two",
+    "as likt pollution in their hayday was not the kind of problem it is today they are usually located in cities or at campuses easier to reach than those built in modern times",
+    "to the night between and copies were made now known as dunlap broadsides",
+    "for example each year students from bennet school in north carolina design a website about their trip to the state capital each year the website gets remodelled but old versions are kept online to serve as a scrap book",
+    "lion prides acts much like packs of wolves or dogs animals surprisingly similar to lions but not other big cats in behaviour and also very deadly to their prey",
+    "the city is also the base to climb the nairaigango volcano along with some of the cheapest mountain gorilla trafficking in africa",
+    "the internet combines elements of both mass and interpersonal communication"
+   ],
+   "seconds": 357.9
+  },
+  "sw_ke": {
+   "heard": [
+    "katika miaka yote ya jenziski alimfanyia kazi john f kennedy kama mshauri wake na pia utawala wa leonord b johnson",
+    "sauti ya piramidi na onyesho la nuru ni mojawapo ya mambo yanayofurahisha zaidi katika eneo la watoto",
+    "wana miguu yenye magamba na makucha hutaga mayai na hutembea kwa miguu yake miwili ya nyuma kama tirex",
+    "piramidi kuu iliyojengwa na wamisiri katika karne ya tatu dwaka e ni mojawapo ya majengo makubwa yaliyojengwa kwa heshma ya firaoni waliofariki",
+    "siku hizi wadudu pekee ambao hawawezi kukunja mabawa yao kwenda nyuma ni keregende na kipupe",
+    "leyton alikuwa ameomba mabadiliko ya mswada wa kimazingira wa waaifidhina wakati wa mkutano wa pm akiomba uandishi upya wa undani na mkamilifu wa msuada wa kimazingira wa chama cha waifidhina",
+    "uandishi blogi ni kifaa kinachochochea ushirikiano na kuhimiza wanafunzi kupanua usomaji zaidi ya siku ya kawaida ya masomo shuleni",
+    "kungali kuna wanaume na wanawake wengi walio hai walioishi muda wao hapa na wengine wengi ambao wampendwa wao waliwawa au walifanyishwa kazi hadi kufa wayahudi na wasio wayahudi vilevile",
+    "kila kitu katika ulimwengu kimeundwa kutokana na ndutu ndutu zote zimeundwa kutokana na chembe ndogondogo zinazoitwa atomi",
+    "shabaha uliopo kati ya patholojia ya ubongo na tabia inaunga mkono wanasayansi katika utafiti wao",
+    "hata hivyo asilimia ya xdrtb katika kikundi kizima cha watu wenye kifua kikuu bado inaonekana kuwa chini watu kati ya walioambukizwa wakati wowote maalum katika afrika kusini",
+    "ofisi ya udipiti ya darura ya marianas kaskasini ilisema kwamba hakuna madara yaliyoripotiwa katika taifa",
+    "mtandao unatanganya vitu vya mawasiliano ya kundi la watu na ya kati ya mtu na mtu",
+    "perry alisema nitarudi texas ili kutathmini matokeo ya mkutano wa usiku wa leo kuamua kama kuna njia yangu ya kusonga mbele katika mbio hizi lakini baadaye akasema kwamba angebaki kwenye mbio na kushindana katika uchaguzi wa msingi wa karolina kusini mnamo januari",
+    "ili kujionea hong kong vizuri zaidi ondoka kiswani kisha uelekee upande wa mwambao wa koulun ulio mkabala"
+   ],
+   "seconds": 686.0
+  },
+  "yo_ng": {
+   "heard": [
+    "àwọn èyàn ti mọ̀ nípa wọn kemica pépè bí wúrà fàdákà àti kópa àtijọ́ torí pé a lè rí wọn ní ìsẹ̀dá ní ipò ajáyéba wọn kò dẹ̀lé ju láti wù wọn jáda láti nú ilẹ̀ pẹ̀lú ìriṣẹ́ àti ilẹ̀ bá",
+    "àwọn ara irano lókọkọ bẹ̀rè sí ni sin ewúrẹ́ níbí ọdún sẹ́yìn ní okè sagrosi",
+    "fotosyntesisi ni ọ̀nà tí àwọn iwé ma ń gba gi se oúnjẹ wọn láti orùn wọn dẹ má ń pèsè abo",
+    "ibùdó àsàro tìbẹtan ní òòsà yóga látàrí lílo àfihàn àwọn onírúrú òòsà wọ́n ń sà tún fọ agbára wọ́n ń pe àwọn kakras síta ìtajísì wáyé",
+    "àwọn ewé ló má ń ṣe èémí tí àwọn omọ ènìyàn ma mi símú wọn a sì máa gba èémi tí àwọn ènìyàn ma u misíta èyí tó le jẹ",
+    "tí èyàn bá pin ìrìn àjò ní orí amọhùn máwòrán ó jẹ ọ̀nà tó dára láti lò fi pín àwọn ìrírí èèyàn pẹ̀lú wa kẹ́kọ ọjọ iwájú",
+    "ní ọ̀sẹ̀ méjì péré ikọ ológun ilẹ̀ american àti free france ti dola ẹkungúsù ilẹ̀ france wọ́n sì ń padà sí ilẹ̀ germany",
+    "èyí yíò fúnun ní àǹfàní láti padà sẹ́yìn pẹ̀lú a b àti g èyí tó pèsè ibùdó oní radío méjìì",
+    "roland mendosa yun ìbọn rẹ̀ msstn rẹ̀ mọ́ àwọn arìnrìn àjò",
+    "síbẹ̀ sí  gba ìmọ̀ran àwọn alásẹ má rú fin gbogbo àmì se àkíyèsí gbogbo ìkìlọ̀ ìpamọ́",
+    "ìtàkún blog náà le se ìrànwọ́ fún ìkọ̀wé àwọn akẹ́kọ́ nígbàtí àwọn akẹ́kọ́ bẹ́rẹ̀ ìrírí ìtàkun blog tí wọnn pẹ̀lú ìlò èdè àti àkọ́tọ́ tó wọ̀ wíwà nílẹ̀ àwọn èrò má ń yí èyípadà",
+    "wọ́n ti gba àwọn arìnrìn àjò nímọ́ràn láti sọ́ra fún ewu ọjà tó le ní ipa ní agbègbè wọn nítorí ó le ní ipa fún ẹnikẹ́ni tó bá ní ètò láti rìnrìn àjò",
+    "lóòótọ́ aàlí ní ìtumọ̀ ìtàn sáyẹnsì aàlíṣe ìdásílẹ̀ ẹ̀ka kọmpútà sáyẹnsì kan tí o sì patàkì púpọ̀ tí ó ní ṣe pẹ̀lú ìwà ẹ̀kọ àti ìlò ọgbọn irú ẹni pẹ̀lú èrò",
+    "ẹgbẹ́ tó ń darí ìlú ẹgbẹ́ gúsù ìwọ̀hòòrun swápò nílò èèyàn púpọ̀ ní ìbò ìgbìmọ àwọn asòfin",
+    "ní alẹ ọjọ́ àìkó ààrí orílẹ èdè america donald trump ní ọ̀rọ rẹ̀ tí ó sọ nípasẹ̀ ọ̀gá oníròyìn kéde pé àwọn ọmọ ogun u s má fi ìlú siria sílẹ"
+   ],
+   "seconds": 705.3
+  },
+  "ig_ng": {
+   "heard": [
+    "a kara rozbi na adị obere karịa ka arụmarụ na adịkwa obere nke kpakpa ndụ n' ekwanyị ugwu nye ụmụntụgharị nke ihe ndọta",
+    "ka ah dara mba briten jiri ndị aha elu mmiri gboche ndị jamanị inweta enyemaka",
+    "nambụ otutụ ni me ndị na anyani ihi abụbo okuonyi ne ndị nwere koekoe na bụrodịro ma pempe",
+    "a na egosipụta ihe ngọzi ndị ahụ na piramidi ndị ahụrụma mere ka piramidi ndị ahụ dị iche iche na enwekepu",
+    "ụmụaka azụghị azụ mere ike ha enweele ahụm ihe nke mmetọ ụmụaka maọbụ ahụm ihe mkpaswichi nke ukwu utụpụ agbaha pụ ha maọbụ na agbalaga",
+    "ke gbe ụwụ igbe ntụluaka ga abụrịri ngafe ahụ ozọ ka ndị ntuliaka na ndị nyota ga agba aka ebe na onweihi envelopụ na nọna ya mgbe ọ gbaa na ebido ntuli aka naka onweihi envelopụ etiniri eweziga nke ndị a kụukwere anụ ma yị ikikere nke ọma",
+    "mgbe iruru emezi harị ala pasentị iri atọ nke maachụ piach mmezi aka na aga n'ihu ruota",
+    "n'ihi nke a usoro nke otu ụlọ ọrụ ịrukọta ọrụ ọnụ iji merie otu ihe mbọchị were ike ịdụnyeru otu usoro mkpepụta ihe ọhụrụ iji jee ozi nke mkpa onye ahị ya",
+    "anyịkere na ihe usoc dere na ọdị mma ndị egwuregwu anyị na klub haa nakwa egwuregwu ga eweta uru nihu karịa mabụrụ na eweghị mgwanwe nụlọ ọrụ anyị ka ma ịnapụ ndị mmadụ asa mbodo ha",
+    "otisi na eme ikukwu ọksijin nke mmadụ na ekuru ma ha na eku banye kabọndaiọxaidị nke mmadụ na ekufu ume ya abụ na ekufu ume",
+    "ụfọdụ ndị mmadochiro n ihe ọ na ekwubu eziokwu mana ụfọdụ ekweghị na mbara igwe na agba ụwọ okirikiri ma anyanwụ makwa kpakpa ndụ ndị ọzọ",
+    "ekwupụtawụ na sundabans bụ otu ebe nketa keụwa unesco akụkụ nke a oke ohịa nime okeala nke a india ka a na akpọ ọbịa nuọhịa ka mba sudan bans",
+    "a na akpọ nke a pụ ihi eji nke kemikal i nwere ike ime ihe nge osisite niji mmiri kaba eji n' acha ọbara ọbara",
+    "ogolo go ahụ ya kwụọ ọtọ nke akwa mmiri ahụ bụ mitaarụchara ọrụrụ ya n'ọgọst emepeghi ya ye ụgbọala ruo maachị",
+    "na ịkpọ azụ enwere ọtụtụ obere nwa mba gunyere ana ụlọ nwa mba furu efu n'ighe ọtụtụ obere ụmụ anụmara dịka ụmụ ahụhụ oke ngwere na nnọnụ"
+   ],
+   "seconds": 1038.2
+  },
+  "am_et": {
+   "heard": [
+    "በሴቶች ቡድን ውስጥ አራት የበረዶ ተንሸራታቾች ሩጫቸውን መጨረስ አልቻሉም በግዙፉ ስላሎም ካሉት ከቱ የበረዶ ተንሸራታቾች አቱበውድድሩ ደረጃ ማግኘት አልቻሉም",
+    "እነዚህ አንዳንዴ የሚጨናንቁ የተለያዩ አይነት የባህር ዳርቻውን የከበቡ ስቆች የሚገኙባቸው የቤተሰብ የባህር ዳርቻዎች ናቸው መዋኘት የሚያስተማምን ነው",
+    "ውጥረቱ ዝቅተኛ በሆነ ቁጥር የሕይወት ኃይል የበለጠ አወንታዊ ይሆናል እያንዳንዱ ሰው ፍጹም ሰላም እና አርካታ ነኝ ማግኘት አቀሟለሁ",
+    "ህጻነት ንና አዛውንትን ጨምሮ ስድስት ታጋቾች እንዲሁም የ ፊሊፒኖ ፎቶ ባለሙያዎች ቀደም እብላው ተለቀዋል",
+    "አፒያ የ ሰሙዓ ዋና ከተማ ናት ከተማዋ በኡፖሉ ደሴት ላይ ናት እና ለትንሽ ከ አ ያነሳ የህዝብ ቁጥር አላት",
+    "ስለዚህ ማስታወሻው እንደ መለያ ብቻ የ ታከለ ሊሆን ይችላል",
+    "ቤቶቻችንን ከእጽዋት እናደርጋለን እንዲሁም ከእጽዋት ልብሶችን እንሰራለን የምን በላቸው አብዛኛዎቹ ምግቦች እጽዋቶች ናቸው ያለ እጽዋት እንስሳት መኖር አይችሉም",
+    "በተሞኮረ ኬሚካል ውስጥ ያለው የፒኤች መጠብ በሃይድሮጅን ኤች በፒኤች ውስጥ አያኖች መጠን ያመለክታል",
+    "ዩናይትድ ስቴትስ ውስጥ የፕሪንስተን ዩኒቨርሲቲ እና የስዊድን ውስጥ አብሳላ ዩኒቨርሲቲ ጥናት አድራጊዎች በብርቅዬ ዳርዊን ፊንጅ ጂኦስፒዛ ፎርቴስ እና በውጩ ካክተስ ፊንች ጂኦስፒዛ ኮኒሮስትሪስ መካከል መራባት ምክንያት ይህ ሂደት የበለጠ ረጅም ጊዜ እንደሚወስድ ይገመት የነበረ ቢሆንም አዲሱ ዝርያ በሁለት ትልዶች ብቻ መፈጠሩን ዘግበዋል",
+    "ሆኖ የአውነት አይደለም በሰነዱ ዘርቧ ላይ ጻፈ ነገር ቢኖርም ይህ የሀብት ካርተ አይደለም",
+    "ሰዎች ከጥንት ጀምሮ እንደ ወርቅ ብር እና ናስ ያሉ መሠረታዊ ኬሚካላዊ ንጥላ ነገሮችን ያውቃሉ እነዚህ ሁሉ በተፈጥሮ ውስጥ ሊገኙ ስለሚችሉ በጥንታዊ መሳሪያዎች ልማድን ቁፋሮ ቀላል ናቸው",
+    "የህት ምክንያታው ይመስላል ምክንያቱ መደርምት እንቀሳቀስ አይመስለም አይደል",
+    "መሐመድ ከዚህ ተራ ከሆነ ህይወት ባሻገር ባሉ ጉዳዮች ላይ ጥልቅ ፍላጎት ነበረው ለማሰላሰል በኑር ብርሃን ተራራ ሂራ በመባሉ የሚታወቀው ዋሻላይ መሄድ ያዘወትር ነበር",
+    "ግድቡ በ አ   ስ ከተገነባ በኋላ በየ አመቱ በወንዙን አቧራ የሚዘራው ን የጎርፍ መጥለቅለቅ አቆመ",
+    "የቤተ ክርስቲያኑ መካከለኛው ባለስልጣን ከአንድ ህ ዓመታት በላይ በሮም ውስጥ ነበር እናም ይህ የኃይል ና የገንዘብ ክምችት ብዙዎች መሠረታዊ የመመሪያ እምነቱ እያተሞላ እንደሆነ እንዲጠይቁ አድርጓቸዋል"
+   ],
+   "seconds": 886.2
+  },
+  "ha_ng": {
+   "heard": [
+    "an kwatanta feretin gine ginan da ke yin sararin samania hong kong da ginshiki mai walkiya wanda aka bayyana ta gaban ruwan victoria harbo",
+    "aristotel masanin falsafa ne yayi tunanin cewa komen yaƙun sha kuda ɗaya kofiye daga abubuwa hudu sun kasance ƙasa ruwa iska da wuta",
+    "tsibirin nakwancie mai kilomita arewa da sashin kasa mai shiga teku mafi girma shiniking george iseland mai dauke da mazauna na villa estrilas",
+    "a hakiƙa akwai matsukar wahalar gano wajen komaka idan ka san ya kasance kana shiga cikin kogon za ka ji kadai ta ta kama ka",
+    "kwatancin  na aiki duk akan mita gh da gh",
+    "wasu kwayar zarra suna da nukle mai canzawa wanda ya nuna cewa suna iya rabewa da yar karfaffawa ko babu",
+    "a wannan lokaci na tarihin tarayyan turai chocin catolika wadda ta yi karfi da arziki ta fuskanci bincike",
+    "halin da ke tsakanin cututtukan gwakwalwa da haraya yana tallafawa masana kimiyya a cikin bincikensu",
+    "amfani da recording videyo ya haifar da bincike mai mahimmanci a cikin fassarar bayanin fuska botsen fuska wadanda ba sa wuce lokaci kalilan",
+    "musamman ma kamar ikirarin da ya yi cewa zai gano ko mutum yana karya fassarar ko fahimtar kananan maganganu yadda suke",
+    "cibiyar tabbatar da adalci da demokradiya ta kasar eti ta nakanta wadansu ayyukan nazari masu zaman kansu wadanda ke tsammanin bataliyyar kiyaye zaman laifiya ta majalisar dinkin duniya da kenafance ta kawo cutar haiti bisa rashin sani",
+    "tabbas da akwai bayanai daga koyarwar addinin krista kan wannan al adar amma dai yana iya kasancewa shekaru ne gabannin bayanar kristanci",
+    "akan iyakar tsibirin da ke kusa da alama ba za a karba ba koda yake ana iya karbar kudin birtaniya da amurka bincike tare da masu shi don sanin maine ne hanyar biyan kudi da za a karba",
+    null,
+    "motar gen cado fisicana ta kwace masa inda hakan ya jawo fitarsa daga tseron jim kadan bayan farawa"
+   ],
+   "seconds": 707.2
+  }
+ },
+ "errors": [],
+ "loadSeconds": 24.4,
+ "missingLangCodes": []
+}
