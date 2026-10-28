@@ -26,6 +26,12 @@ export function App() {
     setPlace(p);
     history.pushState(null, '', p ? `?${new URLSearchParams({ lat: String(p.lat), lon: String(p.lon), name: p.name, where: p.where })}` : '/');
   };
+  // the time machine has its own title and address for search engines and shares
+  useEffect(() => {
+    const canon = document.querySelector('link[rel=canonical]');
+    document.title = past === undefined ? 'Forewarn: flood and disaster early warning for your area in Africa' : 'The time machine: 36 past African floods replayed | Forewarn';
+    canon?.setAttribute('href', `https://forewarn.dawnstackai.com/${past === undefined ? '' : past === null ? '?past' : `?past=${past}`}`);
+  }, [past]);
   if (past !== undefined) return <Suspense fallback={null}><Past id={past} onPick={pick} onHome={() => { setPast(undefined); go(null); }} /></Suspense>;
   if (place && new URLSearchParams(location.search).has('film')) return <Suspense fallback={null}><Film lat={place.lat} lon={place.lon} /></Suspense>;
   return place ? <Answer place={place} onChange={() => go(null)} /> : <Suspense fallback={null}><Find onPlace={go} /></Suspense>;

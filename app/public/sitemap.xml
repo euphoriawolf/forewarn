@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
   <url>
     <loc>https://forewarn.dawnstackai.com/</loc>
-    <lastmod>2026-10-27</lastmod>
+    <lastmod>2026-10-28</lastmod>
     <video:video>
       <video:thumbnail_loc>https://forewarn.dawnstackai.com/flood-poster.jpg</video:thumbnail_loc>
       <video:title>A flood fills a Nairobi neighbourhood, hour by hour</video:title>
@@ -10,5 +10,9 @@
       <video:content_loc>https://forewarn.dawnstackai.com/og-video.mp4</video:content_loc>
       <video:duration>14</video:duration>
     </video:video>
+  </url>
+  <url>
+    <loc>https://forewarn.dawnstackai.com/?past</loc>
+    <lastmod>2026-10-28</lastmod>
   </url>
 </urlset>

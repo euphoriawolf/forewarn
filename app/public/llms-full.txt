@@ -1,0 +1,90 @@
+# Forewarn: full text
+
+Forewarn is a free flood early warning app for Africa, at https://forewarn.dawnstackai.com. It tells you what the rain will do to your street, farm or village before it comes. Floods first.
+
+It was built for the Meta Global AI Developer Hackathon (Indie track), from 26 October 2026, by Derrick Ikenga (https://derrickikenga.com). It uses Meta's Muse Spark Open, Muse Spark 1.3 and SAM 3.1.
+
+## The problem
+
+For most people in Africa, the flood warning is the water itself. The World Meteorological Organization counted 40% of Africans covered by an early warning system in 2023, the lowest of any region. Its Early Warnings for All plan for Africa says 24 hours of notice can cut the damage from a flood or storm by up to 30%.
+
+In Mathare, Nairobi, on the night of 23 April 2024, people woke to their neighbours shouting "Maji! Maji!" (Water! Water!) as the river rose into their homes. In the 30 days before, Nairobi got 340 mm of rain against a normal 161 mm (CHIRPS). Only 1 year from 1991 to 2020 was wetter.
+
+## What Forewarn does
+
+- Ask in plain words. Put a pin on your door and ask "will it flood here this week?". The answer gives a level (unlikely, possible or likely), the chance in words ("about 1 in 4 forecasts") and what to do.
+- 14 days ahead. The answer counts how many of 51 ECMWF forecast runs bring the rain that floods your place, for each of the next 14 days. A weekly outlook covers about a month, as wetter or drier than normal only.
+- How wet the ground is. The rain of the last 30 days against 30 years of normal (CHIRPS 1991 to 2020). Soaked ground floods sooner. On a farm, far below normal means a dry season.
+- The last flood in 3D. In Lagos and Nairobi, the agent plays the water of the last big storm on real ground, buildings and trees, and can light the roads that took water.
+- Send a photo of the water. SAM 3.1 marks the water and the people. Muse Spark 1.3 says what the water reaches and what to do. The page pixelates the people.
+- Flood reports. A person checks each photo report. Approved reports show for 48 hours on maps within 5 km, and the agent uses them.
+- Alerts for your area. Give an email and confirm it. An agent for your area checks the forecast every 6 hours and drafts an alert when flooding looks possible or likely in the next 7 days. A person approves each alert before it goes out. At most 2 alerts a day, with a stop link in each.
+- Warn your family. The agent writes a short message from the forecast. You send it on WhatsApp from your own phone.
+- The time machine. Pick one of 36 past African floods and see what Forewarn would have said 7 days to 1 day before.
+
+## How the agent works
+
+Code makes every number. The model explains the numbers and picks what to show.
+
+1. Fixed steps run first, in code: find the place, read the 51 forecast runs, blend the four nearest forecast squares (each about 28 km wide) and apply the flood line for the place.
+2. Muse Spark Open picks optional tools: the 3D view, reports, the ground, the alerts form, the family message.
+3. A checker compares every number and day in an answer with the tool results. If one does not match, the model writes the answer again.
+4. Each followed area has its own agent (Cloudflare Agents SDK). It keeps its last reading, wakes every 6 hours, and a rule in code decides: no change, an update, or an alert draft.
+5. A person approves every warning that goes to someone else.
+
+The flood line is the rain in one day that floods the place. In Lagos and Nairobi it comes from the Flood Check model runs of the June 2026 Lagos and March 2026 Nairobi storms. Elsewhere it is 30 mm.
+
+The levels: likely when at least half of the 51 runs reach the flood line, possible when at least 1 in 5 do, unlikely below that.
+
+## Test results
+
+The time machine replays 36 past African floods (from Google Groundsource news reports) with the ECMWF forecasts made 1 to 7 days before each one, and applies today's alert rule.
+
+- 14 of 36 floods got a warning. 11 of them got it 3 days or more ahead.
+- 22 were missed, including Nairobi on 23 April 2024 and two Lagos floods. All are listed on the page.
+- Why most are missed: a storm that floods one district is often far smaller than a 28 km forecast square, so few runs show heavy rain there.
+- Agent test: for each of the 36 floods, the agent answered from the forecast made 3 days before. 36 of 36 answers passed the number checker and gave the level that code computed.
+- Ground test, 2000 to 2025 at the same places: after a day with soaked ground, a flood report followed within 7 days about 3 times as often as after other days, but 87% of soaked days had no flood after them. So soaked ground is context in the answer, not a trigger for alerts.
+
+## Models
+
+- Muse Spark Open (meta-models/muse-spark-open-1026, on Baseten): the chat agent, its tool calls, the alert text.
+- Muse Spark 1.3 (Meta Model API): reads a flood photo in words.
+- SAM 3.1 (Meta Model API): finds the water and the people in a photo.
+
+Forewarn does not use Meta's "-contributor" models, which let Meta train on what is sent.
+
+## Data
+
+- Rain forecast: ECMWF IFS ensemble, 51 runs, through Open-Meteo (CC BY 4.0).
+- Rain of the last 30 days: Open-Meteo. Normal rain: CHIRPS 1991 to 2020, Climate Hazards Center, UC Santa Barbara.
+- Past floods: Google Groundsource (CC BY 4.0). Past forecasts: ECMWF IFS ensemble archive from dynamical.org (CC BY 4.0).
+- Street-level water in Lagos and Nairobi: Flood Check, a model estimate, not a measurement.
+- Place search: Photon and Nominatim on OpenStreetMap data (ODbL). Imagery: Esri World Imagery, EOX Sentinel-2 cloudless.
+
+## Privacy
+
+- To read a photo, the app sends it to the Meta Model API and keeps nothing. A report keeps only the pixelated photo.
+- An email gets alerts only after its owner opens the confirm link.
+- The family message goes from the person's own phone. Forewarn sends nothing to the family.
+
+## Limits
+
+- The 3D flood replay covers Lagos and Nairobi only.
+- Forecast squares are about 28 km wide. A level for a street is a level for the area around it.
+- Outside Lagos and Nairobi the flood line is a fixed 30 mm.
+- Forewarn is not an official warning service. If your local officials say leave, leave.
+
+## Questions
+
+Is Forewarn free? Yes. No account is needed to check a place.
+
+Where does it work? Anywhere in Africa. The 3D replay is for Lagos and Nairobi.
+
+How far ahead does it look? 14 days of flood chance, then a weekly outlook to about a month.
+
+How accurate is it? On 36 past floods, today's rules gave a warning for 14. The time machine at https://forewarn.dawnstackai.com/?past shows every flood, hits and misses.
+
+Does a person check the alerts? Yes. Every alert is approved by a person before it is sent.
+
+Does the AI make up numbers? No. Code computes the numbers, and a checker blocks any number in an answer that is not in the data.

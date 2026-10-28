@@ -1,6 +1,8 @@
 User-agent: *
 Allow: /
+Allow: /api/past
 Disallow: /api/
 Disallow: /agents/
+Disallow: /review
 
 Sitemap: https://forewarn.dawnstackai.com/sitemap.xml

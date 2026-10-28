@@ -59,12 +59,37 @@
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
     "areaServed": { "@type": "Continent", "name": "Africa" },
     "image": "https://forewarn.dawnstackai.com/og.jpg",
-    "author": { "@type": "Person", "name": "Derrick Ikenga", "url": "https://derrickikenga.com" }
+    "author": { "@type": "Person", "name": "Derrick Ikenga", "url": "https://derrickikenga.com" },
+    "featureList": ["Flood chance for the next 14 days at any place in Africa, from 51 ECMWF forecast runs", "An AI agent on Meta Muse Spark Open that explains the forecast, with every number checked against the data", "The last 30 days of rain against 30 years of normal", "3D replay of the last flood in Lagos and Nairobi", "Flood photo reading with Meta SAM 3.1, people pixelated", "Email alerts that a person approves, checked every 6 hours", "A time machine of 36 past African floods, misses included"],
+    "inLanguage": "en"
   }
   </script>
 </head>
 <body>
-  <div id="root"></div>
+  <div id="root">
+    <!-- What a reader without JavaScript sees (search engines, AI tools, slow phones). React replaces it on load. Keep it in step with the page and public/llms-full.txt. -->
+    <main style="max-width:680px;margin:0 auto;padding:24px 16px;font:16px/1.55 system-ui,sans-serif;color:#16201b;background:#f8f9f6">
+      <h1>For most people in Africa, the flood warning is the water itself.</h1>
+      <p>Forewarn warns you days before a flood reaches your area: your street, your farm, your village. Free, anywhere in Africa, no account needed.</p>
+      <h2>How Forewarn warns you</h2>
+      <ul>
+        <li><b>Ask in plain words.</b> Put a pin on your door and ask if it will flood. The answer gives a level (unlikely, possible or likely) and the chance in words, such as "about 1 in 4 forecasts".</li>
+        <li><b>14 days ahead.</b> 51 runs of the European (ECMWF) forecast for your spot, counted for you.</li>
+        <li><b>How wet the ground is.</b> The last 30 days of rain against 30 years of records. Soaked ground floods sooner.</li>
+        <li><b>The last flood in 3D.</b> Lagos and Nairobi, street by street, with the water at each door.</li>
+        <li><b>Send a photo of the water.</b> Meta's SAM 3.1 marks the water and the people, Muse Spark says what the water reaches, and people are pixelated.</li>
+        <li><b>Alerts a person approves.</b> An agent checks your area every 6 hours and drafts an email alert when flooding looks possible. A person approves it before it goes out.</li>
+        <li><b>Warn your family.</b> The agent writes a short message, and you send it on WhatsApp from your own phone.</li>
+      </ul>
+      <h2>Every number has a source</h2>
+      <p>Code computes every number, and a checker compares each number the agent says with the data. The agent runs on Meta's Muse Spark Open.</p>
+      <p>We replayed 36 past African floods with today's rules: 14 got a warning and 22 were missed. <a href="/?past">See every flood in the time machine</a>.</p>
+      <p>Forewarn is not an official warning service. If your local officials say leave, leave.</p>
+      <p>For AI tools: <a href="/llms.txt">llms.txt</a> and the <a href="/llms-full.txt">full description</a>.</p>
+      <p>Built by <a href="https://derrickikenga.com">Derrick Ikenga</a> for the Meta Global AI Developer Hackathon.</p>
+      <noscript><p>Forewarn needs JavaScript to find your place and show the forecast.</p></noscript>
+    </main>
+  </div>
   <script type="module" src="/src/client/main.tsx"></script>
 </body>
 </html>
