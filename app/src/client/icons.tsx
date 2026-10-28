@@ -30,3 +30,4 @@ export const Blur = () => <svg viewBox="0 0 24 24" {...s} strokeWidth={2}><circl
 export const Flag = () => <svg viewBox="0 0 24 24" {...s} strokeWidth={2}><path d="M5 21V4h11l-2 4 2 4H5" /></svg>;
 export const Mic = () => <svg viewBox="0 0 24 24" {...s} strokeWidth={2.2}><rect x="9" y="3" width="6" height="11" rx="3" /><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21" /></svg>;
 export const Stop = () => <svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2.5" fill="currentColor" /></svg>;
+export const Speaker = () => <svg viewBox="0 0 24 24" {...s} strokeWidth={2.1}><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" /><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11" /></svg>;

@@ -49,6 +49,26 @@ function sources(parts: { type: string; state?: string; output?: unknown }[]): s
   }
   return out;
 }
+// Read aloud: the phone's own voice (no server, free). The language is guessed from the words, so a
+// Swahili or French answer is read with a Swahili or French voice when the phone has one.
+const guessLang = (t: string) => {
+  const w = t.toLowerCase().match(/[a-zàâçéèêëîïôûùü]+/g) ?? [], n = (list: string[]) => w.filter((x) => list.includes(x)).length;
+  const sw = n(['na', 'ya', 'wa', 'kwa', 'mvua', 'mafuriko', 'siku', 'leo', 'kesho', 'hapa', 'ni', 'za', 'katika']);
+  const fr = n(['le', 'la', 'les', 'des', 'pluie', 'inondation', 'jours', 'aujourd', 'est', 'une', 'pour', 'dans']);
+  return sw > 3 && sw > fr ? 'sw' : fr > 3 ? 'fr' : 'en';
+};
+// false when the phone has no voice for the answer's language (an English voice reading Swahili is worse than none)
+function speak(text: string, onEnd: () => void): boolean {
+  const lang = guessLang(text), unit = { en: 'millimetres', fr: 'millimètres', sw: 'milimita' }[lang];
+  // "30 mm" read as a word, not as "em em"
+  const u = new SpeechSynthesisUtterance(text.replace(/(\d)\s*mm\b/g, `$1 ${unit}`));
+  const voice = speechSynthesis.getVoices().find((v) => v.lang.toLowerCase().startsWith(lang));
+  if (!voice && lang !== 'en') return false;
+  u.lang = voice?.lang ?? lang; if (voice) u.voice = voice;
+  u.rate = 0.95; u.onend = onEnd; u.onerror = onEnd;
+  speechSynthesis.cancel(); speechSynthesis.speak(u);
+  return true;
+}
 const textOf = (m: { parts: { type: string; text?: string }[] }) => m.parts.map((p) => (p.type === 'text' ? p.text : '')).join('');
 
 export function Chat({ place, onAction, notes, onPhoto, say, logging }: { place: Place; onAction: (a: Record<string, unknown>) => void; notes: Note[]; onPhoto: (f: File) => void; say?: { id: number; text: string } | null; logging: boolean }) {
@@ -79,6 +99,16 @@ export function Chat({ place, onAction, notes, onPhoto, say, logging }: { place:
   const rec = useRef<Recording | null>(null), input = useRef<HTMLInputElement>(null), limit = useRef<number>(0);
   // the waveform while recording: the last 28 slices of sound, newest on the right
   const [levels, setLevels] = useState<number[]>([]);
+  // read aloud: the id of the answer being read, if any
+  const [reading, setReading] = useState('');
+  const canSpeak = typeof window !== 'undefined' && 'speechSynthesis' in window;
+  useEffect(() => () => { if (canSpeak) speechSynthesis.cancel(); }, []);
+  const listen = (id: string, text: string) => {
+    if (reading === id) { speechSynthesis.cancel(); setReading(''); return; }
+    setVoiceError('');
+    if (speak(text, () => setReading((r) => (r === id ? '' : r)))) setReading(id);
+    else setVoiceError(`This phone has no ${guessLang(text) === 'sw' ? 'Swahili' : 'French'} voice to read the answer aloud.`);
+  };
   const stopVoice = async () => {
     const r = rec.current; rec.current = null; clearTimeout(limit.current);
     if (!r) return;
@@ -157,7 +187,8 @@ export function Chat({ place, onAction, notes, onPhoto, say, logging }: { place:
                   {textOf(m) && <p className="bot">{textOf(m)}</p>}
                   {textOf(m) && !(busy && k === messages.length - 1) && (() => {
                     const list = sources(m.parts as { type: string; state?: string; output?: unknown }[]);
-                    return list.length ? <details className="checked"><summary>What I checked</summary><ul>{list.map((x, i) => <li key={i}>{x}</li>)}</ul><p>A checker compares every number in the answer with these results before you see it.</p></details> : null;
+                    const tools = <>{canSpeak && <button type="button" className={`listen ${reading === m.id ? 'on' : ''}`} onClick={() => listen(m.id, textOf(m))}>{reading === m.id ? <><I.Stop />Stop</> : <><I.Speaker />Listen</>}</button>}</>;
+                    return list.length ? <div className="after">{tools}<details className="checked"><summary>What I checked</summary><ul>{list.map((x, i) => <li key={i}>{x}</li>)}</ul><p>A checker compares every number in the answer with these results before you see it.</p></details></div> : <div className="after">{tools}</div>;
                   })()}
                 </>
               )}

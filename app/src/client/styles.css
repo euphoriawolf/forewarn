@@ -398,3 +398,9 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--water); out
 .checked[open] summary::after { content: '\2212'; }
 .checked ul { margin: 8px 0 0; padding-left: 18px; display: grid; gap: 6px; }
 .checked p { margin: 8px 0 0; }
+/* under an answer: Listen (read aloud) and What I checked */
+.after { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 6px 14px; margin-top: -4px; }
+.after .checked { margin-top: 2px; flex: 1 1 200px; }
+.listen { display: inline-flex; align-items: center; gap: 5px; border: 0; background: none; padding: 2px 0; font-size: 13px; font-weight: 600; color: var(--water); }
+.listen svg { width: 15px; height: 15px; }
+.listen.on { color: var(--ink); }

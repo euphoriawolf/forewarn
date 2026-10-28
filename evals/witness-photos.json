@@ -1,0 +1,8 @@
+{
+ "note": "Witness (SAM 3.1 and Muse Spark 1.3) on 3 real flood photos from Wikimedia Commons, 28 Oct 2026, through the same code path as the camera button. Waiting for Derrick to agree or not with each reading.",
+ "photos": [
+  {"name": "Accra, June 2022", "page": "https://commons.wikimedia.org/wiki/File:Flooding_Accra_4.jpg", "license": "CC BY-SA 4.0, Fquasie", "waterPct": 30, "people": 2, "reaches": "car wheels", "moving": "fast", "meaning": "The street is flooded and the water can stall cars and knock over bikes and people.", "advice": "Do not try to drive or ride through, move to higher ground.", "agrees": null},
+  {"name": "Kibra, Nairobi, June 2026", "page": "https://commons.wikimedia.org/wiki/File:Floods_in_Kibra_slums.jpg", "license": "CC BY-SA 4.0, Queen Asali", "waterPct": 23, "people": 0, "reaches": "house floors", "moving": "fast", "meaning": "Muddy water has filled homes and is flowing fast beside them.", "advice": "Stay out of the water and move to higher ground.", "agrees": null},
+  {"name": "Maiduguri, Sep 2024", "page": "https://commons.wikimedia.org/wiki/File:Maiduguri_flooding.jpg_07.jpg", "license": "CC0, Mr. Snatch", "waterPct": 13, "people": 1, "reaches": "house walls and doorways", "moving": "still", "meaning": "Floodwater is sitting around the homes and is dirty with mud and rubbish.", "advice": "Stay out of the water and keep away from the broken buildings.", "agrees": null}
+ ]
+}

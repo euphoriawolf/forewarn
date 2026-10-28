@@ -23,7 +23,9 @@ export async function rainLast30(assets: Fetcher, lat: number, lon: number): Pro
   const [grid, res] = await Promise.all([loadNormals(assets), fetchIn(url, 12000, 'The rain records service')]);
   if (!res.ok) throw new Error(`rain service answered ${res.status}`);
   const d = (await res.json()) as { daily: { time: string[]; precipitation_sum: (number | null)[] } };
-  return against(grid, lat, lon, d.daily.time.slice(0, 30), d.daily.precipitation_sum.slice(0, 30), 'Last 30 days: Open-Meteo. Normal: CHIRPS 1991 to 2020.');
+  // evals/rain-sources.py, 28 Oct: on 35 past floods this source and CHIRPS (stations and satellite) were more
+  // than 1.6 times apart 16 times, with no bias either way. So the reading says it is a model estimate.
+  return against(grid, lat, lon, d.daily.time.slice(0, 30), d.daily.precipitation_sum.slice(0, 30), 'Last 30 days: Open-Meteo weather models, an estimate that can differ from rain gauges by half or double. Normal: CHIRPS 1991 to 2020.');
 }
 
 // The same reading for a day in the past (the time machine): the 30 days that end on `last`, from the

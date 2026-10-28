@@ -1,0 +1,492 @@
+{
+ "summary": {
+  "floods": 40,
+  "medianLiveOverChirps": 0.89,
+  "medianEra5OverChirps": 0.92,
+  "soakedByChirps": 9,
+  "soakedByLive": 9,
+  "soakedByEra5": 10
+ },
+ "rows": [
+  {
+   "flood": "Nairobi 2024-04-23",
+   "normal": 148,
+   "chirps": 340,
+   "live": 163,
+   "era5": 163,
+   "soaked": {
+    "chirps": true,
+    "live": false,
+    "era5": false
+   }
+  },
+  {
+   "flood": "Cape Town 2024-07-10",
+   "normal": 95,
+   "chirps": 312,
+   "live": 145,
+   "era5": 145,
+   "soaked": {
+    "chirps": true,
+    "live": true,
+    "era5": true
+   }
+  },
+  {
+   "flood": "Lagos 2024-07-03",
+   "normal": 306,
+   "chirps": 366,
+   "live": 218,
+   "era5": 218,
+   "soaked": {
+    "chirps": false,
+    "live": false,
+    "era5": false
+   }
+  },
+  {
+   "flood": "Durban 2025-02-25",
+   "normal": 100,
+   "chirps": 95,
+   "live": 196,
+   "era5": 196,
+   "soaked": {
+    "chirps": false,
+    "live": true,
+    "era5": true
+   }
+  },
+  {
+   "flood": "Machakos area (Kenya) 2024-04-26",
+   "normal": 153,
+   "chirps": 384,
+   "live": 143,
+   "era5": 143,
+   "soaked": {
+    "chirps": true,
+    "live": false,
+    "era5": false
+   }
+  },
+  {
+   "flood": "Lagos 2025-09-23",
+   "normal": 172,
+   "chirps": 147,
+   "live": 164,
+   "era5": 164,
+   "soaked": {
+    "chirps": false,
+    "live": false,
+    "era5": false
+   }
+  },
+  {
+   "flood": "Kisumu 2024-05-04",
+   "normal": 232,
+   "chirps": 267,
+   "live": 121,
+   "era5": 121,
+   "soaked": {
+    "chirps": false,
+    "live": false,
+    "era5": false
+   }
+  },
+  {
+   "flood": "Cape Town 2025-06-25",
+   "normal": 93,
+   "chirps": 83,
+   "live": 71,
+   "era5": 71,
+   "soaked": {
+    "chirps": false,
+    "live": false,
+    "era5": false
+   }
+  },
+  {
+   "flood": "Murang'a / Kirinyaga area (Kenya) 2024-04-30",
+   "normal": 254,
+   "chirps": 601,
+   "live": 286,
+   "era5": 286,
+   "soaked": {
+    "chirps": true,
+    "live": false,
+    "era5": false
+   }
+  },
+  {
+   "flood": "Accra 2025-05-18",
+   "normal": 130,
+   "chirps": 163,
+   "live": 116,
+   "era5": 116,
+   "soaked": {
+    "chirps": false,
+    "live": false,
+    "era5": false
+   }
+  },
+  {
+   "flood": "Busia / Budalangi area (Kenya) 2024-05-09",
+   "normal": 221,
+   "chirps": 260,
+   "live": 123,
+   "era5": 123,
+   "soaked": {
+    "chirps": false,
+    "live": false,
+    "era5": false
+   }
+  },
+  {
+   "flood": "Tunis 2026-01-19",
+   "normal": 61,
+   "chirps": 33,
+   "live": 43,
+   "era5": 58,
+   "soaked": {
+    "chirps": false,
+    "live": false,
+    "era5": false
+   }
+  },
+  {
+   "flood": "Lagos 2025-08-03",
+   "normal": 197,
+   "chirps": 55,
+   "live": 86,
+   "era5": 86,
+   "soaked": {
+    "chirps": false,
+    "live": false,
+    "era5": false
+   }
+  },
+  {
+   "flood": "Gqeberha 2024-10-21",
+   "normal": 44,
+   "chirps": 53,
+   "live": 15,
+   "era5": 15,
+   "soaked": {
+    "chirps": false,
+    "live": false,
+    "era5": false
+   }
+  },
+  {
+   "flood": "Maiduguri 2024-09-10",
+   "normal": 179,
+   "chirps": 260,
+   "live": 281,
+   "era5": 281,
+   "soaked": {
+    "chirps": false,
+    "live": true,
+    "era5": true
+   }
+  },
+  {
+   "flood": "Johannesburg 2025-03-05",
+   "normal": 96,
+   "chirps": 132,
+   "live": 217,
+   "era5": 217,
+   "soaked": {
+    "chirps": false,
+    "live": true,
+    "era5": true
+   }
+  },
+  {
+   "flood": "Jijel / Bejaia area (Algeria) 2024-02-28",
+   "normal": 76,
+   "chirps": 98,
+   "live": 114,
+   "era5": 141,
+   "soaked": {
+    "chirps": false,
+    "live": false,
+    "era5": true
+   }
+  },
+  {
+   "flood": "Kinshasa 2025-04-04",
+   "normal": 180,
+   "chirps": 202,
+   "live": 227,
+   "era5": 227,
+   "soaked": {
+    "chirps": false,
+    "live": false,
+    "era5": false
+   }
+  },
+  {
+   "flood": "Murang'a / Kirinyaga area (Kenya) 2024-05-12",
+   "normal": 236,
+   "chirps": 753,
+   "live": 362,
+   "era5": 362,
+   "soaked": {
+    "chirps": true,
+    "live": true,
+    "era5": true
+   }
+  },
+  {
+   "flood": "Homa Bay area (Kenya) 2024-04-28",
+   "normal": 197,
+   "chirps": 257,
+   "live": 214,
+   "era5": 214,
+   "soaked": {
+    "chirps": false,
+    "live": false,
+    "era5": false
+   }
+  },
+  {
+   "flood": "Gqeberha 2024-06-01",
+   "normal": 26,
+   "chirps": 8,
+   "live": 8,
+   "era5": 8,
+   "soaked": {
+    "chirps": false,
+    "live": false,
+    "era5": false
+   }
+  },
+  {
+   "flood": "Matam (Senegal River) area (Senegal) 2024-10-16",
+   "normal": 57,
+   "chirps": 103,
+   "live": 115,
+   "era5": 115,
+   "soaked": {
+    "chirps": true,
+    "live": true,
+    "era5": true
+   }
+  },
+  {
+   "flood": "Nabeul area (Tunisia) 2026-01-19",
+   "normal": 60,
+   "chirps": 37,
+   "live": 43,
+   "era5": 54,
+   "soaked": {
+    "chirps": false,
+    "live": false,
+    "era5": false
+   }
+  },
+  {
+   "flood": "Kaduna 2025-09-04",
+   "normal": 307,
+   "chirps": 218,
+   "live": 199,
+   "era5": 199,
+   "soaked": {
+    "chirps": false,
+    "live": false,
+    "era5": false
+   }
+  },
+  {
+   "flood": "Senegal, 60 km from Dakar 2025-08-25",
+   "normal": 148,
+   "chirps": 289,
+   "live": 155,
+   "era5": 155,
+   "soaked": {
+    "chirps": true,
+    "live": false,
+    "era5": false
+   }
+  },
+  {
+   "flood": "Algeria, 286 km from Algiers 2024-02-28",
+   "normal": 90,
+   "chirps": 100,
+   "live": 112,
+   "era5": 123,
+   "soaked": {
+    "chirps": false,
+    "live": false,
+    "era5": false
+   }
+  },
+  {
+   "flood": "Kampala 2025-03-26",
+   "normal": 131,
+   "chirps": 135,
+   "live": 96,
+   "era5": 96,
+   "soaked": {
+    "chirps": false,
+    "live": false,
+    "era5": false
+   }
+  },
+  {
+   "flood": "Cape Town 2025-07-04",
+   "normal": 98,
+   "chirps": 142,
+   "live": 150,
+   "era5": 150,
+   "soaked": {
+    "chirps": false,
+    "live": true,
+    "era5": true
+   }
+  },
+  {
+   "flood": "Antananarivo 2025-02-14",
+   "normal": 350,
+   "chirps": 361,
+   "live": 315,
+   "era5": 315,
+   "soaked": {
+    "chirps": false,
+    "live": false,
+    "era5": false
+   }
+  },
+  {
+   "flood": "South Africa, 413 km from Maputo 2026-01-20",
+   "normal": 105,
+   "chirps": 279,
+   "live": 514,
+   "era5": 514,
+   "soaked": {
+    "chirps": true,
+    "live": true,
+    "era5": true
+   }
+  },
+  {
+   "flood": "Dakar 2025-09-16",
+   "normal": 156,
+   "chirps": 351,
+   "live": 99,
+   "era5": 99,
+   "soaked": {
+    "chirps": true,
+    "live": false,
+    "era5": false
+   }
+  },
+  {
+   "flood": "Pretoria 2025-02-18",
+   "normal": 108,
+   "chirps": 92,
+   "live": 95,
+   "era5": 95,
+   "soaked": {
+    "chirps": false,
+    "live": false,
+    "era5": false
+   }
+  },
+  {
+   "flood": "Nairobi 2024-03-24",
+   "normal": 83,
+   "chirps": 102,
+   "live": 27,
+   "era5": 27,
+   "soaked": {
+    "chirps": false,
+    "live": false,
+    "era5": false
+   }
+  },
+  {
+   "flood": "Morocco, 152 km from Marrakesh 2024-08-23",
+   "normal": 5,
+   "chirps": 2,
+   "live": 1,
+   "era5": 4,
+   "soaked": {
+    "chirps": false,
+    "live": false,
+    "era5": false
+   }
+  },
+  {
+   "flood": "Yenagoa 2024-11-03",
+   "normal": 330,
+   "chirps": 333,
+   "live": 307,
+   "era5": 307,
+   "soaked": {
+    "chirps": false,
+    "live": false,
+    "era5": false
+   }
+  },
+  {
+   "flood": "Accra 2024-05-22",
+   "normal": 137,
+   "chirps": 158,
+   "live": 95,
+   "era5": 95,
+   "soaked": {
+    "chirps": false,
+    "live": false,
+    "era5": false
+   }
+  },
+  {
+   "flood": "Alexandria 2025-05-30",
+   "normal": 1,
+   "chirps": 2,
+   "live": 2,
+   "era5": 6,
+   "soaked": {
+    "chirps": false,
+    "live": false,
+    "era5": false
+   }
+  },
+  {
+   "flood": "Kampala 2025-10-31",
+   "normal": 137,
+   "chirps": 113,
+   "live": 140,
+   "era5": 140,
+   "soaked": {
+    "chirps": false,
+    "live": false,
+    "era5": false
+   }
+  },
+  {
+   "flood": "Algeria, 136 km from Algiers 2024-02-28",
+   "normal": 88,
+   "chirps": 94,
+   "live": 154,
+   "era5": 167,
+   "soaked": {
+    "chirps": false,
+    "live": true,
+    "era5": true
+   }
+  },
+  {
+   "flood": "Yola 2025-07-27",
+   "normal": 202,
+   "chirps": 213,
+   "live": 173,
+   "era5": 173,
+   "soaked": {
+    "chirps": false,
+    "live": false,
+    "era5": false
+   }
+  }
+ ]
+}
