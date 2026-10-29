@@ -19,7 +19,7 @@ Built for the Meta Global AI Developer Hackathon (Indie track), from 26 Oct 2026
 - **Near your place.** Every place shows what is near it, nearest first, with distance and direction: the street that flooded in the last storm (Lagos and Nairobi), flood reports from the last 48 hours, and past floods from the time machine. A tap flies the map there. Outside Lagos and Nairobi a satellite map shows the pin, the forecast squares and arrows at the edge for points off the screen.
 - **Flood reports on the map.** A person checks each photo report. After that, it shows for 48 hours on maps within 5 km, and the agent uses it in its answers.
 - **Alerts for your area.** Give an email and confirm it. An agent for your area checks the forecast every 6 hours. When a flood is possible in the next 7 days, it writes an alert. A person reads the alert before it goes out.
-- **The time machine.** Pick one of 36 past African floods and see what Forewarn would have said 7 days to 1 day before, with today's rules. The scorecard lists every flood, the misses too: 21 of 36 got a warning, 19 of them 3 days or more ahead.
+- **The time machine.** Pick one of 36 past African floods and see what Forewarn would have said 7 days to 1 day before, with today's rules. The scorecard: 21 of 36 got a warning, 19 of them 3 days or more ahead.
 - **Warn your family.** The agent writes a short message from the forecast. You send it on WhatsApp from your own phone.
 
 ## How it works

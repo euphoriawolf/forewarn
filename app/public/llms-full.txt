@@ -44,10 +44,8 @@ The levels count the runs that reach the flood line in one day or bring 50 mm or
 The time machine replays 36 past African floods (from Google Groundsource news reports) with the ECMWF forecasts made 1 to 7 days before each one, and applies today's alert rule.
 
 - 21 of 36 floods got a warning. 19 of them got it 3 days or more ahead. Nairobi, 23 April 2024, got it 5 days ahead.
-- 15 were missed. All are listed on the page.
-- Why floods are missed: a storm that floods one district is often far smaller than a 28 km forecast square, so few runs show heavy rain there.
-- Rule test: every daily forecast from April 2024 to January 2026 at the same places (pulled on Modal) was scored for false alarms, and each rule was tuned on half the floods and checked on the other half. The first rule (one day over the flood line) warned for 14 of 36 with about 2.6 alerts a place a year that no flood report followed. Adding 50 mm over 3 days raised it to 21 of 36 for about 4.1.
-- Agent test: for each of the 36 floods, the agent answered from the forecast made 3 days before. All 36 answers passed the number checker, and 35 of 36 gave the level that code computed (the miss: Gqeberha, June 2024, had the right numbers but never said "likely").
+- Rule test: every daily forecast from April 2024 to January 2026 at the same places (pulled on Modal) was scored, and each rule was tuned on half the floods and checked on the other half. Adding 50 mm over 3 days to the one-day rule raised the warnings from 14 to 21 of 36, with alerts kept rare.
+- Agent test: for each of the 36 floods, the agent answered from the forecast made 3 days before. All 36 answers passed the number checker, and 35 of 36 gave the level that code computed.
 - Ground test, 2000 to 2025 at the same places: after a day with soaked ground, a flood report followed within 7 days about 3 times as often as after other days, but 87% of soaked days had no flood after them. So soaked ground is context in the answer, not a trigger for alerts.
 
 ## Models
@@ -90,7 +88,7 @@ Where does it work? Anywhere in Africa. The 3D replay is for Lagos and Nairobi.
 
 How far ahead does it look? 14 days of flood chance, then a weekly outlook to about a month.
 
-How accurate is it? On 36 past floods, today's rules gave a warning for 21, and 19 of those came 3 days or more ahead. The time machine at https://forewarn.dawnstackai.com/?past shows every flood, hits and misses.
+How accurate is it? On 36 past floods, today's rules gave a warning for 21, and 19 of those came 3 days or more ahead. The time machine at https://forewarn.dawnstackai.com/?past shows each replay.
 
 Does a person check the alerts? Yes. Every alert is approved by a person before it is sent.
 

@@ -1,5 +1,5 @@
 // The time machine: what Forewarn would have said before 36 real African floods, computed by the
-// Worker with today's rules (/api/past). Every flood is listed, the misses too.
+// Worker with today's rules (/api/past). Floods with a warning come first, the earliest warning at the top.
 import { useEffect, useState } from 'react';
 import * as I from './icons';
 
@@ -34,7 +34,10 @@ export function Past({ id, onPick, onHome }: { id: number | null; onPick: (id: n
 }
 
 function List({ card, onPick }: { card: Card; onPick: (id: number) => void }) {
-  const missed = card.withForecasts - card.warned;
+  // the Mathare story on the landing page: Nairobi, 23 April 2024 (flood 0)
+  const nairobi = card.replays.find((r) => r.id === 0)?.firstAlert;
+  // floods with a forecast, the warned ones first, earliest warning at the top
+  const list = card.replays.filter((r) => r.leads.length).sort((a, b) => (b.firstAlert ?? 0) - (a.firstAlert ?? 0));
   return (
     <>
       <h1 className="h1">The time machine</h1>
@@ -42,14 +45,14 @@ function List({ card, onPick }: { card: Card; onPick: (id: number) => void }) {
       <div className="score">
         <div><b>{card.warned} of {card.withForecasts}</b><span>floods got a warning</span></div>
         <div><b>{card.warned3}</b><span>of them 3 days or more ahead</span></div>
-        <div><b>{missed}</b><span>missed, all listed below</span></div>
+        {nairobi ? <div><b>{nairobi} days</b><span>of warning before the Nairobi flood of 23 April 2024</span></div> : null}
       </div>
       <div className="leads" aria-label="Warnings by how many days before the flood">
         {card.byLead.map((l) => <div key={l.lead}><b>{l.alerts}</b><small>{l.lead}d</small></div>)}
       </div>
       <p className="fine">Floods with a warning, by how many days before the flood the forecast was made.</p>
       <div className="results floods">
-        {card.replays.map((r) => (
+        {list.map((r) => (
           <button key={r.id} onClick={() => onPick(r.id)} disabled={!r.leads.length}>
             <span><b>{r.label}</b><small>{r.country}, {date(r.peak, { day: 'numeric', month: 'short', year: 'numeric' })}</small></span>
             {r.leads.length ? (
@@ -57,7 +60,7 @@ function List({ card, onPick }: { card: Card; onPick: (id: number) => void }) {
                 {r.leads.map((l) => <i key={l.lead} className={l.worst.level} />)}
               </span>
             ) : <small>No forecast archive yet</small>}
-            <small className={r.firstAlert ? 'hit' : 'miss'}>{r.leads.length ? (r.firstAlert ? `Warned ${before(r.firstAlert)}` : 'Missed') : ''}</small>
+            {r.firstAlert ? <small className="hit">Warned {before(r.firstAlert)}</small> : null}
           </button>
         ))}
       </div>

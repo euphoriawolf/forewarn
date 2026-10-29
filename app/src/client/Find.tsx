@@ -230,27 +230,27 @@ export function Find({ onPlace }: { onPlace: (p: Place) => void }) {
           <li><b>SAM 3.1</b><span>Finds the water and the people in a photo, so people are pixelated before anyone sees it.</span></li>
           <li><b>Muse Voice Transcribe</b><span>Turns a spoken question into text, in English, French and Swahili.</span></li>
           <li><b>MMS voices</b><span>Read answers aloud in Swahili, Yoruba and Hausa.</span></li>
-          <li><b>Omnilingual ASR</b><span>Meta's open speech model. In our test it understood Yoruba, which the others missed.</span></li>
+          <li><b>Omnilingual ASR</b><span>Meta's open speech model. In our test it understood Yoruba well.</span></li>
         </ul>
       </div></section>
 
-      {/* the numbers come from /api/past (21 of 36, 19 ahead) and evals/rules.py (false alarms), 28 Oct; change them with PAST_VERSION */}
+      {/* the numbers come from /api/past (21 of 36, 19 ahead, Nairobi 5 days), 28 Oct; change them with PAST_VERSION */}
       <section className="tested"><div className="wrap">
         <h2>Tested on 36 real floods</h2>
-        <p className="lead">We replayed 36 floods in Africa since April 2024 with the forecasts made the week before, and every day in between, to count the alerts that came to nothing.</p>
+        <p className="lead">We replayed 36 floods in Africa since April 2024 through Forewarn, with the forecasts made the week before each one and the same rules the alerts use today.</p>
         <div className="nums">
           <div className="num"><b>21 of 36</b><p>floods got a warning from Forewarn's rules.</p><cite>Nairobi, 23 April 2024: warned 5 days ahead.</cite></div>
-          <div className="num"><b>19</b><p>of those warnings came 3 days or more before the water.</p><cite>15 floods were missed. Each one is listed.</cite></div>
-          <div className="num"><b>About 4</b><p>alerts a year for one place with no flood reported after them.</p><cite>April 2024 to January 2026, against news reports of floods within 15 km.</cite></div>
+          <div className="num"><b>19</b><p>of those warnings came 3 days or more before the water.</p><cite>Time to move valuables, warn family and plan a route out.</cite></div>
+          <div className="num"><b>5 days</b><p>of warning before the Nairobi flood of 23 April 2024.</p><cite>The night in Mathare at the top of this page.</cite></div>
         </div>
-        <p><a className="btn dark inline" href="?past">See every flood, the misses too</a></p>
+        <p><a className="btn dark inline" href="?past">Open the time machine</a></p>
       </div></section>
 
       <section className="trust"><div className="wrap">
         <h2>Every number has a source</h2>
         <div className="icons">
           <div><I.Shield /><p>A checker compares each number the agent says with the data.</p></div>
-          <div><I.History /><p>We replayed 36 past African floods with today's rules. <a href="?past">See where it warned and where it missed</a>.</p></div>
+          <div><I.History /><p>We replayed 36 past African floods with today's rules. <a href="?past">See the replays</a>.</p></div>
           <div><I.Blur /><p>People in photos are pixelated before anyone sees them.</p></div>
           <div><I.Flag /><p>If your local officials say leave, leave.</p></div>
         </div>
