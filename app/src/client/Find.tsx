@@ -134,6 +134,7 @@ export function Find({ onPlace }: { onPlace: (p: Place) => void }) {
         <div>
           <h2>The rain had been coming for a month.</h2>
           <p className="lead">In the 30 days before that night, Nairobi got 340 mm of rain. A normal year brings 161 mm. The ground was full, so the next rain went straight into the river.</p>
+          <p className="payoff">We replayed that week's forecasts through Forewarn. It would have sent an alert 5 days before the water came. <a href="?past=0">See the replay</a></p>
         </div>
         <figure className="barfig">
           <div className="bars" role="img" aria-label="Rain in the 30 days before 23 April: 340 mm in 2024, against a normal of 161 mm">
@@ -160,7 +161,7 @@ export function Find({ onPlace }: { onPlace: (p: Place) => void }) {
 
       <section className="runs"><div className="wrap">
         <h2>How Forewarn warns you</h2>
-        <p className="lead">Meta's Muse Spark and SAM models, and three public data sources. Code works out every number.</p>
+        <p className="lead">Five Meta models and three public data sources. Code works out every number.</p>
         <div className="feats">
           <article className="feat wide">
             <div>
@@ -188,6 +189,18 @@ export function Find({ onPlace }: { onPlace: (p: Place) => void }) {
             <p>Tap the microphone and ask out loud in English, French or Swahili. Your words show first, so you can fix them before you send. We tested each language on recordings of native speakers before we turned it on. Tap Listen to hear an answer, in Swahili, Yoruba and Hausa too, with Meta's MMS voices.</p>
           </article>
           <article className="feat">
+            <div className="viz voice" role="img" aria-label="An alert email"><I.Bell /><span>Flooding possible in Eastleigh on Saturday</span></div>
+            <span className="model meta">Meta Muse Spark Open</span>
+            <h3>Alerts a person approves</h3>
+            <p>Follow an area by email. An agent checks it every 6 hours and writes an alert when flooding looks possible. A person reads it before it reaches you, and you get 2 a day at most.</p>
+          </article>
+          <article className="feat">
+            <div className="viz voice" role="img" aria-label="A message to send on WhatsApp"><I.Send /><span>Send on WhatsApp</span></div>
+            <span className="model meta">Meta Muse Spark Open</span>
+            <h3>Warn your family</h3>
+            <p>The agent writes a short message from the forecast. You send it to your family from your own phone.</p>
+          </article>
+          <article className="feat">
             <div className="viz dots51" role="img" aria-label="3 of 51 forecasts lit">{Array.from({ length: 51 }, (_, i) => <i key={i} className={i < 3 ? 'on' : ''} />)}<b>about 1 in 20</b></div>
             <span className="model">ECMWF forecast</span>
             <h3>14 days ahead</h3>
@@ -206,6 +219,19 @@ export function Find({ onPlace }: { onPlace: (p: Place) => void }) {
             <p>Lagos and Nairobi, street by street, with the water at each door.</p>
           </article>
         </div>
+      </div></section>
+
+      <section className="meta"><div className="wrap">
+        <h2>Built on Meta's models</h2>
+        <p className="lead">Meta's models read, see, listen and speak. Code does the maths, and a checker holds the words to the numbers.</p>
+        <ul className="metas">
+          <li><b>Muse Spark Open</b><span>The agent. It reads the forecast and the ground, moves the map, and writes answers, alerts and family messages.</span></li>
+          <li><b>Muse Spark 1.3</b><span>Reads a flood photo: what the water reaches, whether it moves, what to do.</span></li>
+          <li><b>SAM 3.1</b><span>Finds the water and the people in a photo, so people are pixelated before anyone sees it.</span></li>
+          <li><b>Muse Voice Transcribe</b><span>Turns a spoken question into text, in English, French and Swahili.</span></li>
+          <li><b>MMS voices</b><span>Read answers aloud in Swahili, Yoruba and Hausa.</span></li>
+          <li><b>Omnilingual ASR</b><span>Meta's open speech model. In our test it understood Yoruba, which the others missed.</span></li>
+        </ul>
       </div></section>
 
       {/* the numbers come from /api/past (21 of 36, 19 ahead) and evals/rules.py (false alarms), 28 Oct; change them with PAST_VERSION */}

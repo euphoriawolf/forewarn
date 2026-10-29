@@ -71,6 +71,7 @@
     <main style="max-width:680px;margin:0 auto;padding:24px 16px;font:16px/1.55 system-ui,sans-serif;color:#16201b;background:#f8f9f6">
       <h1>For most people in Africa, the flood warning is the water itself.</h1>
       <p>Forewarn warns you days before a flood reaches your area: your street, your farm, your village. Free, anywhere in Africa, no account needed.</p>
+      <p>We replayed the forecasts of the week before the Nairobi flood of 23 April 2024 through Forewarn. It would have sent an alert 5 days before the water came. <a href="/?past=0">See the replay</a>.</p>
       <h2>How Forewarn warns you</h2>
       <ul>
         <li><b>Ask in plain words.</b> Put a pin on your door and ask if it will flood. The answer gives a level (unlikely, possible or likely) and the chance in words, such as "about 1 in 4 forecasts".</li>
@@ -81,6 +82,15 @@
         <li><b>Send a photo of the water.</b> Meta's SAM 3.1 marks the water and the people, Muse Spark says what the water reaches, and people are pixelated.</li>
         <li><b>Alerts a person approves.</b> An agent checks your area every 6 hours and drafts an email alert when flooding looks possible. A person approves it before it goes out.</li>
         <li><b>Warn your family.</b> The agent writes a short message, and you send it on WhatsApp from your own phone.</li>
+      </ul>
+      <h2>Built on Meta's models</h2>
+      <ul>
+        <li><b>Muse Spark Open:</b> the agent. It reads the forecast and the ground, moves the map, and writes answers, alerts and family messages.</li>
+        <li><b>Muse Spark 1.3:</b> reads a flood photo: what the water reaches, whether it moves, what to do.</li>
+        <li><b>SAM 3.1:</b> finds the water and the people in a photo, so people are pixelated.</li>
+        <li><b>Muse Voice Transcribe:</b> turns a spoken question into text, in English, French and Swahili.</li>
+        <li><b>MMS voices:</b> read answers aloud in Swahili, Yoruba and Hausa.</li>
+        <li><b>Omnilingual ASR:</b> Meta's open speech model; in our test it understood Yoruba.</li>
       </ul>
       <h2>Every number has a source</h2>
       <p>Code computes every number, and a checker compares each number the agent says with the data. The agent runs on Meta's Muse Spark Open.</p>

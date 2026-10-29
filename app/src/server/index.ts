@@ -76,6 +76,7 @@ export default {
         // the private test log: needs the LOGS_TOKEN secret, as a Bearer header or ?token=
         const token = req.headers.get('Authorization')?.replace(/^Bearer /, '') ?? q.get('token');
         if (!env.LOGS_TOKEN || token !== env.LOGS_TOKEN) return new Response('Not found', { status: 404 });
+        if (req.method === 'DELETE') return Response.json({ deleted: await bookOf(env.Logbook).clear() });
         return Response.json(await bookOf(env.Logbook).list(Math.min(200, Number(q.get('limit') ?? 50)), q.get('session') ?? undefined));
       }
       if (url.pathname === '/api/witness' && req.method === 'POST') {

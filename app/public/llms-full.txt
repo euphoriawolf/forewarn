@@ -8,7 +8,7 @@ It was built for the Meta Global AI Developer Hackathon (Indie track), from 26 O
 
 For most people in Africa, the flood warning is the water itself. The World Meteorological Organization counted 40% of Africans covered by an early warning system in 2023, the lowest of any region. Its Early Warnings for All plan for Africa says 24 hours of notice can cut the damage from a flood or storm by up to 30%.
 
-In Mathare, Nairobi, on the night of 23 April 2024, people woke to their neighbours shouting "Maji! Maji!" (Water! Water!) as the river rose into their homes. In the 30 days before, Nairobi got 340 mm of rain against a normal 161 mm (CHIRPS). Only 1 year from 1991 to 2020 was wetter.
+In Mathare, Nairobi, on the night of 23 April 2024, people woke to their neighbours shouting "Maji! Maji!" (Water! Water!) as the river rose into their homes. In the 30 days before, Nairobi got 340 mm of rain against a normal 161 mm (CHIRPS). Only 1 year from 1991 to 2020 was wetter. Replayed through Forewarn, the forecasts of that week would have sent an alert 5 days before the water came.
 
 ## What Forewarn does
 
@@ -56,6 +56,8 @@ The time machine replays 36 past African floods (from Google Groundsource news r
 - Muse Spark 1.3 (Meta Model API): reads a flood photo in words.
 - SAM 3.1 (Meta Model API): finds the water and the people in a photo.
 - Muse Voice Transcribe (muse-voice-transcribe-1.0, Meta Model API): turns a spoken question into text. Nothing is kept.
+- MMS text-to-speech (facebook/mms-tts-swh, -yor, -hau, on Modal): reads answers aloud in Swahili, Yoruba and Hausa.
+- Omnilingual ASR (open, tested on Modal): understood Yoruba in our test; not live yet.
 
 Forewarn does not use Meta's "-contributor" models, which let Meta train on what is sent.
 

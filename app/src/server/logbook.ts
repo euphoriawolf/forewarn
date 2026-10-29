@@ -28,10 +28,17 @@ export class Logbook extends DurableObject {
       : this.ctx.storage.sql.exec('SELECT body FROM turns ORDER BY id DESC LIMIT ?', limit).toArray();
     return rows.map((r) => JSON.parse(String(r.body)) as Turn);
   }
+  // before launch: every logged turn goes (PLAN Day 7)
+  clear() {
+    this.init();
+    const n = Number(this.ctx.storage.sql.exec('SELECT COUNT(*) AS n FROM turns').one().n);
+    this.ctx.storage.sql.exec('DELETE FROM turns');
+    return n;
+  }
 }
 
 // What a call to the Logbook looks like from the Worker (every call over RPC is async).
-export interface BookStub { add(t: Turn): Promise<void>; list(limit?: number, session?: string): Promise<Turn[]> }
+export interface BookStub { add(t: Turn): Promise<void>; list(limit?: number, session?: string): Promise<Turn[]>; clear(): Promise<number> }
 export const bookOf = (ns: DurableObjectNamespace) => ns.get(ns.idFromName('main')) as unknown as BookStub;
 
 // The steps of a finished stream, trimmed so one turn stays small.

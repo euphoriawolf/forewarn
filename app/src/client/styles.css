@@ -404,3 +404,11 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--water); out
 .listen { display: inline-flex; align-items: center; gap: 5px; border: 0; background: none; padding: 2px 0; font-size: 13px; font-weight: 600; color: var(--water); }
 .listen svg { width: 15px; height: 15px; }
 .listen.on { color: var(--ink); }
+/* the landing: the payoff of the Mathare story, and "Built on Meta's models" */
+.landing .payoff { font-size: 19px; font-weight: 600; max-width: 34ch; margin-top: 18px; }
+.landing .payoff a { color: var(--water); white-space: nowrap; }
+.metas { list-style: none; padding: 0; margin: 28px 0 0; display: grid; gap: 0; border-top: 1px solid var(--line); }
+.metas li { display: grid; gap: 4px 24px; padding: 16px 0; border-bottom: 1px solid var(--line); }
+@media (min-width: 760px) { .metas li { grid-template-columns: 220px 1fr; align-items: baseline; } }
+.metas b { font: 800 20px/1.2 var(--display); color: var(--water); }
+.metas span { font-size: 16px; color: #2c3a33; }
