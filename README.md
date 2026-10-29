@@ -156,3 +156,7 @@ All code in this repository is new, written from 26 Oct 2026. Forewarn uses one 
 - The forecast squares are about 28 km wide. A level for a street is a level for the area around it, and each answer says so.
 - The flood line outside Lagos and Nairobi is a fixed 30 mm. The real line is different for each street.
 - Forewarn is not an official warning service. Follow what your local authorities say.
+
+## Licence
+
+The code is MIT licensed (see `LICENSE`). The data and imagery keep their own licences, listed in "Data and credits" above and in `LICENSE`: the 3D tiles include Sentinel-2 imagery from EOX (CC BY-NC-SA 4.0, non-commercial), so they cannot be reused commercially under the MIT licence.
