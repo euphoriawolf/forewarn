@@ -265,6 +265,7 @@ export function Find({ onPlace }: { onPlace: (p: Place) => void }) {
         <p>Sources: <a href="https://www.aljazeera.com/news/2024/5/1/blame-the-government-kenyans-bemoan-lack-of-support-amid-record-flooding">Al Jazeera, 1 May 2024</a> (Mathare, the night of 23 April). <a href="https://wmo.int/news/media-centre/early-warnings-all-action-plan-africa-launched">WMO, Early Warnings for All Action Plan for Africa, 2023</a>. <a href="https://news.un.org/en/story/2025/10/1166151">UN News, October 2025</a>. WMO at the EUMETSAT user forum, 2024 (about 45%).</p>
         <p>Photos at the top: {PHOTOS.map((p, i) => <span key={i}>{p.credit} </span>)}</p>
         <p>Data: CHIRPS daily rain (Climate Hazards Center, UC Santa Barbara), 1991 to 2024. ECMWF forecasts through Open-Meteo. Street water from Flood Check, a model estimate. Imagery: Esri, EOX Sentinel-2.</p>
+        <p>The code is open: <a href="https://github.com/euphoriawolf/forewarn">github.com/euphoriawolf/forewarn</a>.</p>
       </div></footer>
     </div>
   );

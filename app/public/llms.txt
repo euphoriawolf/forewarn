@@ -18,6 +18,10 @@ Forewarn works anywhere in Africa, with no account. Lagos and Nairobi also get a
 - [Scorecard (JSON)](https://forewarn.dawnstackai.com/api/past): every past flood, the forecast made 1 to 7 days before, the level of each day and whether an alert would have gone out
 - [One flood (JSON)](https://forewarn.dawnstackai.com/api/past/0): the same for one flood; numbers run from 0 to 39
 
+## Code
+
+- [github.com/euphoriawolf/forewarn](https://github.com/euphoriawolf/forewarn): the full source, the README, and the test scripts in evals/
+
 ## Optional
 
 - [Flood Check](https://flood-check.dawnstackai.com): the street-level flood model for Lagos and Nairobi that Forewarn reads (built before the hackathon)

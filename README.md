@@ -4,6 +4,8 @@ Forewarn tells you what the rain will do to your street, farm or village in Afri
 
 Live: https://forewarn.dawnstackai.com
 
+Code: https://github.com/euphoriawolf/forewarn
+
 Built for the Meta Global AI Developer Hackathon (Indie track), from 26 Oct 2026. Built with Muse Spark Open.
 
 ## What it does
