@@ -17,6 +17,7 @@ import { AIChatAgent } from '@cloudflare/ai-chat';
 import { streamText, convertToModelMessages } from 'ai';
 import { model, system, makeTools, checkNumbers, answer, loopOptions, noEmDash, followUps, OPENING, FROM_PAGE, type Env, type Place } from './harness';
 import { readForecast, outlookWeeks } from './forecast';
+import { rainLast30 } from './rain30';
 import { replay, scorecard, pastView, PAST_VERSION } from './past';
 import { floodLine, search, placeName } from './place';
 import { packFor, nearestFlood } from './packs';
@@ -227,7 +228,7 @@ export default {
           return Response.json(await answer(env, { name: q.get('name') ?? 'this place', where: '', lat, lon }, text, which));
         }
         const line = floodLine(env.FLOOD_CHECK_API, lat, lon), pack = packFor(lat, lon);
-        const [l, forecast, nearby] = await Promise.all([line, readForecast(lat, lon, line.then((x) => x.mm)), pack ? nearestFlood(env.ASSETS, pack).catch(() => null) : null]);
+        const [l, forecast, nearby] = await Promise.all([line, readForecast(lat, lon, line.then((x) => x.mm), rainLast30(env.ASSETS, lat, lon).then((g) => g.groundSoaked).catch(() => false)), pack ? nearestFlood(env.ASSETS, pack).catch(() => null) : null]);
         const outlook = await outlookWeeks(lat, lon, forecast.days.at(-1)!.day).catch(() => []);
         return Response.json({ floodLine: l, forecast, outlook, pack, nearby, logging: env.LOG_CHATS === '1' }, { headers: { 'Cache-Control': 'public, max-age=600' } });
       }

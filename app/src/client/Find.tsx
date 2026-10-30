@@ -134,7 +134,7 @@ export function Find({ onPlace }: { onPlace: (p: Place) => void }) {
         <div>
           <h2>The rain had been coming for a month.</h2>
           <p className="lead">In the 30 days before that night, Nairobi got 340 mm of rain. A normal year brings 161 mm. The ground was full, so the next rain went straight into the river.</p>
-          <p className="payoff">We replayed that week's forecasts through Forewarn. It would have sent an alert 5 days before the water came. <a href="?past=0">See the replay</a></p>
+          <p className="payoff">We replayed that week's forecasts through Forewarn. It would have flagged flooding as possible 7 days before the water came. <a href="?past=0">See the replay</a></p>
         </div>
         <figure className="barfig">
           <div className="bars" role="img" aria-label="Rain in the 30 days before 23 April: 340 mm in 2024, against a normal of 161 mm">
@@ -234,14 +234,14 @@ export function Find({ onPlace }: { onPlace: (p: Place) => void }) {
         </ul>
       </div></section>
 
-      {/* the numbers come from /api/past (21 of 36, 19 ahead, Nairobi 5 days), 28 Oct; change them with PAST_VERSION */}
+      {/* the numbers come from /api/past (29 of 36, 28 ahead, Nairobi 7 days), 30 Oct; change them with PAST_VERSION */}
       <section className="tested"><div className="wrap">
         <h2>Tested on 36 real floods</h2>
         <p className="lead">We replayed 36 floods in Africa since April 2024 through Forewarn, with the forecasts made the week before each one and the same rules the alerts use today.</p>
         <div className="nums">
-          <div className="num"><b>21 of 36</b><p>floods got a warning from Forewarn's rules.</p><cite>Nairobi, 23 April 2024: warned 5 days ahead.</cite></div>
-          <div className="num"><b>19</b><p>of those warnings came 3 days or more before the water.</p><cite>Time to move valuables, warn family and plan a route out.</cite></div>
-          <div className="num"><b>5 days</b><p>of warning before the Nairobi flood of 23 April 2024.</p><cite>The night in Mathare at the top of this page.</cite></div>
+          <div className="num"><b>29 of 36</b><p>floods flagged in advance by Forewarn's rules.</p><cite>That is 81%, from forecasts made the week before.</cite></div>
+          <div className="num"><b>28</b><p>of them flagged 3 days or more before the water.</p><cite>Time to move valuables, warn family and plan a route out.</cite></div>
+          <div className="num"><b>7 days</b><p>of warning before the Nairobi flood of 23 April 2024.</p><cite>The night in Mathare at the top of this page.</cite></div>
         </div>
         <p><a className="btn dark inline" href="?past">Open the time machine</a></p>
       </div></section>

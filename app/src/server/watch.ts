@@ -5,7 +5,7 @@
 // reaches a follower until a person approves it (src/server/alerts.ts).
 import { Agent, getAgentByName } from 'agents';
 import { generateText } from 'ai';
-import { readForecast, riskiest, THREE_DAY_MM, type Level } from './forecast';
+import { readForecast, alertRiskiest, THREE_DAY_MM, type Level } from './forecast';
 import { floodLine } from './place';
 import { rainLast30 } from './rain30';
 import { model, checkNumbers, type Env } from './harness';
@@ -42,8 +42,9 @@ export class Watch extends Agent<Env, State> {
     const line = test?.lineMm ? { mm: test.lineMm, note: `A test flood line of ${test.lineMm} mm, set by hand.` } : await floodLine(this.env.FLOOD_CHECK_API, area.lat, area.lon);
     const [f, ground] = await Promise.all([readForecast(area.lat, area.lon, line.mm), rainLast30(this.env.ASSETS, area.lat, area.lon).catch(() => null)]);
     // alerts look 7 days ahead: further out, a flood chance changes too much between runs to warn on
-    const week = f.days.slice(0, 7), worst = riskiest(week);
-    const reading: Reading = { at: new Date().toISOString(), day: worst.day, when: worst.when, level: worst.level, runsOverLine: worst.runsOverLine, runsOver3Days: worst.runsOver3Days, why: worst.why, runs: worst.runs, chance: worst.chance, middleMm: worst.middleMm, wettestMm: worst.wettestMm, floodLineMm: line.mm, lineNote: line.note,
+    // email alerts use the stricter rule (forecast.ts: ALERT), so people keep trusting them
+    const week = f.days.slice(0, 7), worst = alertRiskiest(week);
+    const reading: Reading = { at: new Date().toISOString(), day: worst.day, when: worst.when, level: worst.alertLevel, runsOverLine: worst.runsOverLine, runsOver3Days: worst.runsOver3Days, why: worst.alertWhy, runs: worst.runs, chance: worst.alertChance, middleMm: worst.middleMm, wettestMm: worst.wettestMm, floodLineMm: line.mm, lineNote: line.note,
       ground: ground ? { mm: ground.mm, normalMm: ground.normalMm, word: ground.word, groundSoaked: ground.groundSoaked } : null };
     const decision = this.decide(reading, this.state.last, this.state.lastAlert, !!test);
     if (decision.kind === 'alert') {

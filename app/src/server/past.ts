@@ -3,18 +3,20 @@
 // The floods and their forecasts are in public/past/floods.json (tools/make-past.py): for each flood,
 // ECMWF's 51 runs made 1 to 7 days before the flood day: each run's rain per day from the day it was
 // made to 8 days after, so 3-day totals can be added up. These are the runs of the grid square nearest the flood, not the four-square blend of the live app.
-import { dayOf, riskiest, type Day } from './forecast';
+import { dayOf, riskiest, alertRiskiest, type Day } from './forecast';
 import { floodLine, type FloodLine } from './place';
 import { rainArchive, rain30Ending, type Rain30 } from './rain30';
 import type { Env } from './harness';
 
-interface Flood { label: string; country: string; peak: string; days: string[]; lat: number; lon: number; reports: number; runs: Record<string, { init: string; mm: number[][] }> }
-export interface Lead { lead: number; init: string; days: Day[]; worst: Day; ground: Rain30 | null; alert: boolean }
+interface Flood { label: string; country: string; peak: string; days: string[]; lat: number; lon: number; reports: number; runs: Record<string, { init: string; mm: number[][]; burst: number[][] }> }
+// `flagged`: the app showed flooding possible or likely (the rule in forecast.ts); `alert`: an email alert
+// would have been drafted (the stricter rule)
+export interface Lead { lead: number; init: string; days: Day[]; worst: Day; ground: Rain30 | null; flagged: boolean; alert: boolean }
 export interface Replay { id: number; label: string; country: string; peak: string; lat: number; lon: number; reports: number; floodLine: FloodLine | null; leads: Lead[]; firstAlert: number | null; note?: string }
 export interface Scorecard { floods: number; withForecasts: number; warned: number; warned3: number; byLead: { lead: number; alerts: number }[]; groundSoaked: number; replays: Replay[]; source: string; method: string }
 
 // change this when the rules or the data change: the cached scorecard is keyed by it
-export const PAST_VERSION = '2026-10-28-3day';
+export const PAST_VERSION = '2026-10-30-burst';
 
 let data: Promise<{ floods: Flood[] }> | null = null;
 const load = (env: Env) => (data ??= env.ASSETS.fetch('http://localhost/past/floods.json').then((r) => r.json() as Promise<{ floods: Flood[] }>).catch((e) => { data = null; throw e; }));
@@ -32,19 +34,18 @@ export async function replay(env: Env, id: number): Promise<Replay> {
     rainArchive(f.lat, f.lon, iso(at(f.peak) - 40 * DAY), iso(at(f.peak) - DAY)).catch(() => null),
   ]);
   const out: Lead[] = await Promise.all(leads.map(async (lead) => {
-    const { init, mm } = f.runs[lead];
+    const { init, mm, burst } = f.runs[lead];
+    // the ground as it was known that morning: the 30 days that end the day before the forecast
+    const ground = daily ? await rain30Ending(env.ASSETS, f.lat, f.lon, daily, iso(at(init) - DAY)).catch(() => null) : null;
     // the day before the flood, the flood day and the day after, as days after the forecast was made
     const days = f.days.map((day) => {
       const j = Math.round((at(day) - at(init)) / DAY);
-      return dayOf(day, j, mm.map((run) => run[j]), line.mm, mm.map((run) => run.slice(Math.max(0, j - 2), j + 1).reduce((a, b) => a + b, 0)));
+      return dayOf(day, j, mm.map((run) => run[j]), line.mm, mm.map((run) => run.slice(Math.max(0, j - 2), j + 1).reduce((a, b) => a + b, 0)), burst.map((run) => run[j]), !!ground?.groundSoaked);
     });
     const worst = riskiest(days);
-    // the ground as it was known that morning: the 30 days that end the day before the forecast
-    const ground = daily ? await rain30Ending(env.ASSETS, f.lat, f.lon, daily, iso(at(init) - DAY)).catch(() => null) : null;
-    // the Watch agent's rule: an alert when the riskiest day is possible or likely
-    return { lead, init, days, worst, ground, alert: worst.level !== 'green' };
+    return { lead, init, days, worst, ground, flagged: worst.level !== 'green', alert: alertRiskiest(days).alertLevel !== 'green' };
   }));
-  return { ...base, floodLine: line, leads: out, firstAlert: out.find((l) => l.alert)?.lead ?? null };
+  return { ...base, floodLine: line, leads: out, firstAlert: out.find((l) => l.flagged)?.lead ?? null };
 }
 
 export async function scorecard(env: Env): Promise<Scorecard> {
@@ -57,11 +58,11 @@ export async function scorecard(env: Env): Promise<Scorecard> {
     floods: floods.length, withForecasts: tested.length,
     warned: tested.filter((r) => r.firstAlert !== null).length,
     warned3: tested.filter((r) => (r.firstAlert ?? 0) >= 3).length,
-    byLead: [7, 6, 5, 4, 3, 2, 1].map((lead) => ({ lead, alerts: tested.filter((r) => r.leads.find((l) => l.lead === lead)?.alert).length })),
+    byLead: [7, 6, 5, 4, 3, 2, 1].map((lead) => ({ lead, alerts: tested.filter((r) => r.leads.find((l) => l.lead === lead)?.flagged).length })),
     groundSoaked: tested.filter((r) => r.leads.find((l) => l.lead === 1)?.ground?.groundSoaked).length,
     replays,
     source: 'Floods: Google Groundsource, news reports placed on a map (CC BY 4.0). Forecasts: ECMWF IFS ensemble archive, dynamical.org (CC BY 4.0).',
-    method: 'For each flood, the 51 forecast runs made 1 to 7 days before the flood day. A warning counts when the day before, the flood day or the day after reaches possible or likely: at least 1 in 5 runs bring the flood line in one day, or 50 mm over 3 days. That is the rule the alerts use today.',
+    method: 'For each flood, the 51 forecast runs made 1 to 7 days before the flood day, the 4 forecast squares around it blended. A flood counts as flagged when the day before, the flood day or the day after shows flooding possible or likely: at least 1 in 10 runs bring the flood line in one day, 40 mm over 3 days or 20 mm in 3 hours (lower bars on soaked ground). That is the rule the app uses today.',
   };
 }
 

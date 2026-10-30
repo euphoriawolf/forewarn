@@ -3,30 +3,43 @@
 //
 // ECMWF's 51-run forecast comes on a 0.25 degree grid (about 28 km). A place near the edge of a
 // square would get one square's rain only, so we read the four squares around it and blend them
-// by distance (bilinear), run by run and day by day. The level of each day comes from how many of
-// the 51 blended runs reach the place's flood line in that day, or 50 mm over the 3 days that end on
-// it, whichever is more runs. The 3-day rule came from evals/rules.py on 28 Oct: on 36 past floods it
-// raised the warnings from 14 to 21, for about 1.5 more false alarms a place a year.
+// by distance (bilinear), run by run and hour by hour.
+//
+// Two rules, both from evals/rules2.py (30 Oct, every daily forecast since April 2024 at 36 past floods):
+// - The level in the app (the answer, the 3D, the time machine): a run counts when it brings the place's
+//   flood line in one day, 40 mm over the 3 days to it, or 20 mm in its heaviest 3 hours; on soaked
+//   ground each bar is 3/4 as high. Flooding is possible when 1 in 10 runs count, likely at half.
+//   On the 36 floods: 29 flagged in advance (81%).
+// - Email alerts stay stricter (evals/rules.py, 28 Oct): the flood line in one day or 50 mm over 3 days,
+//   in 1 in 5 runs. About 4 alerts a place a year, so people keep trusting them.
 import { fetchIn } from './net';
 
 export type Level = 'green' | 'amber' | 'red';
+export type Why = 'one day' | '3 days' | 'burst';
 export interface Day {
   day: string; weekday: string; when: string; runs: number; middleMm: number; wettestMm: number;
-  runsOverLine: number;      // runs with more than the flood line in this one day
-  runsOver3Days: number;     // runs with 50 mm or more over the 3 days that end on this day
-  threeDayLineMm: number;
-  why: 'one day' | '3 days'; // which count gave the level and the chance
+  runsFlagged: number;        // runs that count for the level in the app (any of the three signs)
+  why: Why;                   // the sign most runs show: the flood line in one day, 3 days of rain, or a 3-hour burst
+  lineMm: number; threeDayMm: number; burstMm: number; soaked: boolean; // the bars that day (lower on soaked ground)
+  wettestBurstMm: number;     // the heaviest 3 hours in the wettest run
   level: Level; chance: string;
+  // the stricter rule for email alerts
+  runsOverLine: number; runsOver3Days: number; alertLevel: Level; alertChance: string; alertWhy: 'one day' | '3 days';
 }
 export interface Forecast { lat: number; lon: number; floodLineMm: number; issued: string; squares: { lat: number; lon: number; weight: number }[]; days: Day[]; worst: Day }
 
 const STEP = 0.25;
-export const THREE_DAY_MM = 50;
-// the runs that count for a day: the larger of the two rules
-export const risk = (d: Day) => Math.max(d.runsOverLine, d.runsOver3Days);
+export const WATCH = { share: 0.1, threeDayMm: 40, burstMm: 20, soaked: 0.75 };
+export const ALERT = { share: 0.2, threeDayMm: 50 };
+export const THREE_DAY_MM = ALERT.threeDayMm;
+// the day with the most runs counting, for the app; and for email alerts, by the stricter rule
+export const risk = (d: Day) => d.runsFlagged;
 export const riskiest = (days: Day[]) => days.reduce((a, b) => (risk(b) > risk(a) ? b : a));
+export const alertRisk = (d: Day) => Math.max(d.runsOverLine, d.runsOver3Days);
+export const alertRiskiest = (days: Day[]) => days.reduce((a, b) => (alertRisk(b) > alertRisk(a) ? b : a));
 
-export const levelOf = (share: number): Level => (share >= 0.5 ? 'red' : share >= 0.2 ? 'amber' : 'green');
+export const levelOf = (share: number): Level => (share >= 0.5 ? 'red' : share >= ALERT.share ? 'amber' : 'green');
+export const watchLevelOf = (share: number): Level => (share >= 0.5 ? 'red' : share >= WATCH.share ? 'amber' : 'green');
 
 // The simplest "k in n" within 3 points of the share: "3 in 4", not "37 in 51".
 export function chanceWords(k: number, n: number): string {
@@ -38,44 +51,58 @@ export function chanceWords(k: number, n: number): string {
   return `${k} in ${n}`;
 }
 
-// One day of the forecast from its runs' rain: the level, the chance and the middle and wettest run.
-// `j` is how many days after the forecast was made (0 is today). `three` is each run's rain over the
-// 3 days that end on this day (fewer at the start of the forecast), in the same run order as `rain`.
-// The time machine uses this too.
-export function dayOf(day: string, j: number, rain: number[], line: number, three: number[]): Day {
-  const runs = [...rain].sort((a, b) => a - b), over = runs.filter((x) => x >= line).length;
-  const over3 = three.filter((x) => x >= THREE_DAY_MM).length, k = Math.max(over, over3);
+// One day of the forecast from its runs' rain, all arrays in the same run order: `rain` the day's total,
+// `three` the 3 days that end on it, `burst` the heaviest 3 hours. `j` is how many days after the
+// forecast was made (0 is today). The time machine uses this too.
+export function dayOf(day: string, j: number, rain: number[], line: number, three: number[], burst: number[], soaked = false): Day {
+  const n = rain.length, k = soaked ? WATCH.soaked : 1;
+  const lineMm = +(line * k).toFixed(1), threeDayMm = Math.round(WATCH.threeDayMm * k), burstMm = Math.round(WATCH.burstMm * k);
+  let flagged = 0, byLine = 0, by3 = 0, byBurst = 0, overLine = 0, over3 = 0;
+  for (let r = 0; r < n; r++) {
+    const a = rain[r] >= lineMm, b = three[r] >= threeDayMm, c = burst[r] >= burstMm;
+    if (a || b || c) flagged++;
+    if (a) byLine++; if (b) by3++; if (c) byBurst++;
+    if (rain[r] >= line) overLine++; if (three[r] >= ALERT.threeDayMm) over3++;
+  }
+  const sorted = [...rain].sort((a, b) => a - b), strict = Math.max(overLine, over3);
+  const why: Why = byBurst > Math.max(byLine, by3) ? 'burst' : by3 > byLine ? '3 days' : 'one day';
   const date = new Date(day + 'T12:00:00Z'), weekday = date.toLocaleDateString('en-GB', { weekday: 'long', timeZone: 'UTC' });
   // how to say the day: today, a weekday this week, or weekday and date further out (14 days repeat weekdays)
   const when = j === 0 ? 'today' : j === 1 ? 'tomorrow' : j < 7 ? weekday : date.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' });
-  return { day, weekday, when, runs: runs.length, middleMm: +runs[Math.floor(runs.length / 2)].toFixed(1), wettestMm: +runs[runs.length - 1].toFixed(1),
-    runsOverLine: over, runsOver3Days: over3, threeDayLineMm: THREE_DAY_MM, why: over3 > over ? '3 days' : 'one day', level: levelOf(k / runs.length), chance: chanceWords(k, runs.length) };
+  return { day, weekday, when, runs: n, middleMm: +sorted[Math.floor(n / 2)].toFixed(1), wettestMm: +sorted[n - 1].toFixed(1),
+    runsFlagged: flagged, why, lineMm, threeDayMm, burstMm, soaked, wettestBurstMm: +Math.max(...burst).toFixed(1),
+    level: watchLevelOf(flagged / n), chance: chanceWords(flagged, n),
+    runsOverLine: overLine, runsOver3Days: over3, alertLevel: levelOf(strict / n), alertChance: chanceWords(strict, n), alertWhy: over3 > overLine ? '3 days' : 'one day' };
 }
 
 // Each run's rain over the 3 days that end on day j (days before the first are not in the forecast).
 export const threeDays = (perDay: number[][], j: number) => perDay[j].map((_, r) => perDay.slice(Math.max(0, j - 2), j + 1).reduce((a, d) => a + d[r], 0));
 
-// Read the four squares (slow part, a network call) separately from counting against a line, so
-// the caller can fetch the forecast and the flood line at the same time.
-export async function readForecast(lat: number, lon: number, floodLineMm: number | Promise<number>): Promise<Forecast> {
+// Read the four squares hour by hour (the slow part, a network call). The flood line and whether the
+// ground is soaked can arrive at the same time.
+export async function readForecast(lat: number, lon: number, floodLineMm: number | Promise<number>, soakedGround: boolean | Promise<boolean> = false): Promise<Forecast> {
   const la0 = Math.floor(lat / STEP) * STEP, lo0 = Math.floor(lon / STEP) * STEP;
   const fy = (lat - la0) / STEP, fx = (lon - lo0) / STEP;
   const squares = [
     { lat: la0, lon: lo0, weight: (1 - fy) * (1 - fx) }, { lat: la0, lon: lo0 + STEP, weight: (1 - fy) * fx },
     { lat: la0 + STEP, lon: lo0, weight: fy * (1 - fx) }, { lat: la0 + STEP, lon: lo0 + STEP, weight: fy * fx },
   ].map((s) => ({ lat: +s.lat.toFixed(3), lon: +s.lon.toFixed(3), weight: +s.weight.toFixed(3) }));
-  const url = 'https://ensemble-api.open-meteo.com/v1/ensemble?daily=precipitation_sum&models=ecmwf_ifs025&forecast_days=14&timezone=auto'
+  const url = 'https://ensemble-api.open-meteo.com/v1/ensemble?hourly=precipitation&models=ecmwf_ifs025&forecast_days=14&timezone=auto'
     + `&latitude=${squares.map((s) => s.lat).join(',')}&longitude=${squares.map((s) => s.lon).join(',')}`;
-  const [res, line] = await Promise.all([fetchIn(url, 15000, 'The forecast service'), floodLineMm]);
-  floodLineMm = line;
+  const [res, line, soaked] = await Promise.all([fetchIn(url, 20000, 'The forecast service'), floodLineMm, soakedGround]);
   if (!res.ok) throw new Error(`forecast service answered ${res.status}`);
-  const all = (await res.json()) as { daily: Record<string, (number | null)[]> & { time: string[] } }[];
-  const keys = Object.keys(all[0].daily).filter((k) => k.startsWith('precipitation_sum'));
-  // each run's blended rain per day (runs in the same order every day, so 3-day totals follow one run)
-  const perDay = all[0].daily.time.map((_, j) => keys.map((k) => all.reduce((sum, p, i) => sum + squares[i].weight * (p.daily[k]?.[j] ?? 0), 0)));
-  const days: Day[] = all[0].daily.time.map((day, j) => dayOf(day, j, perDay[j], line, threeDays(perDay, j)));
-  const worst = riskiest(days);
-  return { lat, lon, floodLineMm: line, issued: new Date().toISOString(), squares, days, worst };
+  const all = (await res.json()) as { hourly: Record<string, (number | null)[]> & { time: string[] } }[];
+  const keys = Object.keys(all[0].hourly).filter((k) => k.startsWith('precipitation'));
+  const time = all[0].hourly.time;
+  // each run's blended rain per hour (runs in the same order everywhere, so totals follow one run)
+  const hourly = keys.map((k) => time.map((_, h) => all.reduce((sum, p, i) => sum + squares[i].weight * (p.hourly[k]?.[h] ?? 0), 0)));
+  const dayNames = [...new Set(time.map((t) => t.slice(0, 10)))];
+  const first = (d: string) => time.findIndex((t) => t.startsWith(d));
+  const perDay = dayNames.map((d) => { const a = first(d); return hourly.map((run) => run.slice(a, a + 24).reduce((x, y) => x + y, 0)); });
+  // the heaviest 3 hours of each day, run by run (a window may start in the evening before)
+  const bursts = dayNames.map((d) => { const a = first(d); return hourly.map((run) => { let top = 0; for (let h = a; h < a + 24 && h < run.length; h++) top = Math.max(top, run.slice(Math.max(0, h - 2), h + 1).reduce((x, y) => x + y, 0)); return top; }); });
+  const days: Day[] = dayNames.map((day, j) => dayOf(day, j, perDay[j], line, threeDays(perDay, j), bursts[j], soaked));
+  return { lat, lon, floodLineMm: line, issued: new Date().toISOString(), squares, days, worst: riskiest(days) };
 }
 
 // Beyond 14 days there is no useful flood chance, only whether rain will be above or below normal.

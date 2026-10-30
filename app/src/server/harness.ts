@@ -41,7 +41,7 @@ ${p ? `The person's place is ${p.name}${p.where ? `, ${p.where}` : ''}. Every to
 - If a tool returns an error, say in one plain sentence which information you could not get right now, then answer with what you do have. Never guess what the missing data would have said.
 - Water depths from last_flood are a model estimate (Flood Check), not measurements. Say "the model shows", never "measured".
 - Say the level as a word (unlikely, possible, likely) with its chance in words, for example "about 1 in 4 forecasts".
-- When a day's why is "3 days", its chance counts forecasts with 50 mm or more over the 3 days to that day: say that, not the flood line.
+- Say what a day's chance counts from its why: "one day" is lineMm or more that day; "3 days" is threeDayMm or more over the 3 days to that day; "burst" is burstMm or more in 3 hours. If soaked is true, say the ground is soaked so less rain is enough.
 - The forecast is for the area around the place (blended from 28 km squares). Say so only when they ask about one street or road.
 - Beyond 14 days only the weekly outlook exists: say wetter, near or drier than normal, never that it will or will not flood.
 - Name days with the "when" field of each day ("today", "Thursday", or "Wednesday 4 November" beyond a week), never as 2026-10-29. Do not name the levels by colour.
@@ -74,10 +74,10 @@ export function makeTools(env: Env, place: Place | null, results: unknown[], pas
   const pack = place ? packFor(place.lat, place.lon) : null;
   return {
     read_forecast: tool({
-      description: "Read the 51-run ECMWF rain forecast for the next 14 days at the person's place, plus a weekly outlook to about a month (only wetter or drier than normal, never a flood chance), blended from the four nearest 28 km squares. Per day: how many runs reach the place's flood line in that day (runsOverLine), how many bring 50 mm or more over the 3 days that end on it (runsOver3Days), the middle and the wettest run in mm, the level and the chance in words. `why` says which count gave the level and the chance.",
+      description: "Read the 51-run ECMWF rain forecast for the next 14 days at the person's place, plus a weekly outlook to about a month (only wetter or drier than normal, never a flood chance), blended from the four nearest 28 km squares. Per day: runsFlagged, the runs that bring the place's flood line in one day (lineMm), threeDayMm over the 3 days to it, or burstMm in its heaviest 3 hours (all 3/4 as high on soaked ground, when soaked is true); the level and the chance in words come from it, and `why` says which sign most runs show. Also the middle and wettest run in mm. The alert fields (alertLevel, alertChance) are for email alerts only: do not quote them.",
       inputSchema: z.object({}),
       execute: () => (past ? once('read_forecast', async () => past.forecast) : place ? once('read_forecast', async () => {
-        const l = await lineOf(), f = await readForecast(place.lat, place.lon, l.mm);
+        const l = await lineOf(), f = await readForecast(place.lat, place.lon, l.mm, rainLast30(env.ASSETS, place.lat, place.lon).then((g) => g.groundSoaked).catch(() => false));
         return { floodLine: l, ...f, outlookBeyond14Days: await outlookWeeks(place.lat, place.lon, f.days.at(-1)!.day).catch(() => []) };
       }) : Promise.resolve(none)),
     }),

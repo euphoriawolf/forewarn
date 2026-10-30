@@ -4,8 +4,8 @@ import { useEffect, useState } from 'react';
 import * as I from './icons';
 
 type Level = 'green' | 'amber' | 'red';
-interface Day { day: string; when: string; runsOverLine: number; runsOver3Days: number; threeDayLineMm: number; why: 'one day' | '3 days'; runs: number; middleMm: number; wettestMm: number; level: Level; chance: string }
-interface Lead { lead: number; init: string; days: Day[]; worst: Day; ground: { mm: number; normalMm: number; word: string; groundSoaked: boolean } | null; alert: boolean }
+interface Day { day: string; when: string; runs: number; middleMm: number; wettestMm: number; level: Level; chance: string; why: 'one day' | '3 days' | 'burst'; lineMm: number; threeDayMm: number; burstMm: number; soaked: boolean; wettestBurstMm: number }
+interface Lead { lead: number; init: string; days: Day[]; worst: Day; flagged: boolean; ground: { mm: number; normalMm: number; word: string; groundSoaked: boolean } | null; alert: boolean }
 interface Replay { id: number; label: string; country: string; peak: string; lat: number; lon: number; reports: number; floodLine: { mm: number; note: string } | null; leads: Lead[]; firstAlert: number | null; note?: string }
 interface Card { floods: number; withForecasts: number; warned: number; warned3: number; byLead: { lead: number; alerts: number }[]; replays: Replay[]; source: string; method: string }
 
@@ -90,8 +90,8 @@ function Flood({ r }: { r: Replay }) {
       <section className={`verdict ${l.worst.level}`}>
         <small>Forecast made {date(l.init)}</small>
         <h2>Flooding {WORD[l.worst.level]} {/^(today|tomorrow)$/.test(l.worst.when) ? l.worst.when : `on ${l.worst.when}`}</h2>
-        <p>{l.worst.why === '3 days' ? `${cap(l.worst.chance)} forecasts brought ${l.worst.threeDayLineMm} mm or more over the 3 days to then.` : `${cap(l.worst.chance)} forecasts brought ${r.floodLine?.mm} mm or more that day, the line for this place.`}</p>
-        <p className="act">{l.alert ? <><I.Bell /> Forewarn would have drafted an alert for a person to approve.</> : <><I.Minus /> Forewarn would have stayed quiet.</>}</p>
+        <p>{cap(l.worst.chance)} forecasts brought {l.worst.why === 'burst' ? `${l.worst.burstMm} mm or more in 3 hours` : l.worst.why === '3 days' ? `${l.worst.threeDayMm} mm or more over the 3 days to then` : `${l.worst.lineMm} mm or more that day, the line for this place`}.{l.worst.soaked ? ' The ground was already soaked, so less rain was enough.' : ''}</p>
+        {l.flagged && <p className="act"><I.Bell /> {l.alert ? 'Forewarn would have shown it in the app and drafted an email alert for a person to approve.' : 'Forewarn would have shown it in the app.'}</p>}
       </section>
       <div className="three">
         {l.days.map((d) => (

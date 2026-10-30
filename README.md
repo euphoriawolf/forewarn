@@ -19,14 +19,14 @@ Built for the Meta Global AI Developer Hackathon (Indie track), from 26 Oct 2026
 - **Near your place.** Every place shows what is near it, nearest first, with distance and direction: the street that flooded in the last storm (Lagos and Nairobi), flood reports from the last 48 hours, and past floods from the time machine. A tap flies the map there. Outside Lagos and Nairobi a satellite map shows the pin, the forecast squares and arrows at the edge for points off the screen.
 - **Flood reports on the map.** A person checks each photo report. After that, it shows for 48 hours on maps within 5 km, and the agent uses it in its answers.
 - **Alerts for your area.** Give an email and confirm it. An agent for your area checks the forecast every 6 hours. When a flood is possible in the next 7 days, it writes an alert. A person reads the alert before it goes out.
-- **The time machine.** Pick one of 36 past African floods and see what Forewarn would have said 7 days to 1 day before, with today's rules. The scorecard: 21 of 36 got a warning, 19 of them 3 days or more ahead.
+- **The time machine.** Pick one of 36 past African floods and see what Forewarn would have said 7 days to 1 day before, with today's rules. The scorecard: 29 of 36 flagged in advance (81%), 28 of them 3 days or more ahead.
 - **Warn your family.** The agent writes a short message from the forecast. You send it on WhatsApp from your own phone.
 
 ## How it works
 
 Code makes every number. The model explains the numbers and picks what to show.
 
-1. **Fixed steps run first, in code.** The app finds the place, reads the 51 forecasts, blends the four nearest forecast squares (each about 28 km) and counts the runs that bring the place's flood line in one day, or 50 mm over 3 days.
+1. **Fixed steps run first, in code.** The app finds the place, reads the 51 forecasts, blends the four nearest forecast squares (each about 28 km) and counts the runs that bring the place's flood line in one day, 40 mm over 3 days, or 20 mm in 3 hours (lower bars on soaked ground). Email alerts use a stricter rule so they stay rare.
 2. **The model picks optional tools.** Muse Spark Open calls tools for the 3D view, the reports, the ground, the alerts form and the family message.
 3. **A checker reads every answer.** It compares each number and each day in the answer with the tool results. If one does not match, the model tries again. Under each answer, "What I checked" lists those sources for the person.
 4. **Each followed area has its own agent.** It keeps its last reading in memory and wakes every 6 hours. A rule in code decides: no change, an update, or an alert draft.
@@ -117,8 +117,9 @@ The dev server must run first (`npm run dev` in `app/`).
 
 | Command | What it checks |
 |---|---|
-| `node evals/past-suite.mjs [days] [model]` | The agent answers from the forecast made that many days before each of 36 past floods. Each answer must pass the number checker and give the level that code computed. Last run (28 Oct, 3-day rule), 3 days before, Muse Spark Open: 35 of 36. The miss: Gqeberha, June 2024, right numbers but no level word. |
+| `node evals/past-suite.mjs [days] [model]` | The agent answers from the forecast made that many days before each of 36 past floods. Each answer must pass the number checker and give the level that code computed. Last run (30 Oct, the 81% rule), 3 days before, Muse Spark Open: 36 of 36. |
 | `modal run evals/modal_pull.py`, then `python3 evals/rules.py` | Every daily forecast since April 2024 at the flood places, pulled on Modal. Each alert rule is tuned on half the floods, checked on the other half, and scored for alerts with no flood after them. This chose the 3-day rule. |
+| `modal run evals/modal_pull4.py`, then `python3 evals/rules2.py` | The same search with the 4 forecast squares around each place and each day's heaviest 3 hours. This chose the app's rule: 29 of 36 floods flagged in advance (81%). |
 | `python3 evals/false-alarms.py` | How often soaked ground came with no flood after it, at the same places from 2000 to 2025. |
 | `modal run evals/modal_fleurs.py`, then `python3 evals/voice-langs.py` | 15 native-speaker clips per language from Google FLEURS (CC BY 4.0) through the voice route's model. A language passes at a median of 25% of words wrong or less. 28 Oct: English 5%, French 8%, Swahili 19% pass; Yoruba 37%, Hausa 48%, Igbo 61%, Amharic 73% fail. |
 | `modal run evals/modal_omni.py --cpu --model omniASR_CTC_1B`, then `python3 evals/voice-langs.py --heard evals/omni-heard.json` | The same clips through Meta's open Omnilingual ASR on Modal. 28 Oct, 1B CTC model on CPU: Swahili 7%, Yoruba 22% pass; Amharic 28%, Hausa 30%, Igbo 50% fail. Its training data may include FLEURS, which would flatter it. On CPU a clip takes 24 to 70 s, too slow to use live: live use needs a GPU. |

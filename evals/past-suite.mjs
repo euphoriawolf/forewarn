@@ -17,11 +17,11 @@ async function one(r) {
   Object.entries({ lat: r.lat, lon: r.lon, q: Q, past: r.id, lead: LEAD, model: MODEL }).forEach(([k, v]) => u.searchParams.set(k, String(v)));
   let d; try { d = await (await fetch(u)).json(); } catch (e) { d = { error: String(e) }; }
   // the level of the riskiest day: its word must be there, and no word for a higher level
-  // ("less likely", "most likely Saturday", "not yet likely" are not a level)
-  const words = [...(d.text ?? '').matchAll(/(?<!\b(?:less|more|most|not|yet) )\b(unlikely|possible|likely)\b/gi)].map((m) => m[1].toLowerCase());
+  // ("less likely", "most likely Saturday", "not yet likely", "not very likely" are not a level)
+  const words = [...(d.text ?? '').matchAll(/(?<!\b(?:less|more|most|not|yet|very) )\b(unlikely|possible|likely)\b/gi)].map((m) => m[1].toLowerCase());
   const want = d.expected ? WORD[d.expected.level] : null, rank = ['unlikely', 'possible', 'likely'];
   const said = words.length ? rank[Math.max(...words.map((w) => rank.indexOf(w)))] : null;
-  return { id: r.id, flood: `${r.label}, ${r.peak}`, want, said, levelOk: said === want, checked: d.checked === true, pass: said === want && d.checked === true, ms: d.ms, retried: d.retried, badNumbers: d.badNumbers, text: d.text, error: d.error };
+  return { id: r.id, flood: `${r.label}, ${r.peak}`, want, said, levelOk: !!want && said === want, checked: d.checked === true, pass: said === want && d.checked === true, ms: d.ms, retried: d.retried, badNumbers: d.badNumbers, text: d.text, error: d.error };
 }
 
 // three at a time, so the suite takes minutes, not half an hour

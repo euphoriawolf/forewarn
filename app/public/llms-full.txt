@@ -8,14 +8,14 @@ It was built for the Meta Global AI Developer Hackathon (Indie track), from 26 O
 
 For most people in Africa, the flood warning is the water itself. The World Meteorological Organization counted 40% of Africans covered by an early warning system in 2023, the lowest of any region. Its Early Warnings for All plan for Africa says 24 hours of notice can cut the damage from a flood or storm by up to 30%.
 
-In Mathare, Nairobi, on the night of 23 April 2024, people woke to their neighbours shouting "Maji! Maji!" (Water! Water!) as the river rose into their homes. In the 30 days before, Nairobi got 340 mm of rain against a normal 161 mm (CHIRPS). Only 1 year from 1991 to 2020 was wetter. Replayed through Forewarn, the forecasts of that week would have sent an alert 5 days before the water came.
+In Mathare, Nairobi, on the night of 23 April 2024, people woke to their neighbours shouting "Maji! Maji!" (Water! Water!) as the river rose into their homes. In the 30 days before, Nairobi got 340 mm of rain against a normal 161 mm (CHIRPS). Only 1 year from 1991 to 2020 was wetter. Replayed through Forewarn, the forecasts of that week would have flagged flooding as possible 7 days before the water came.
 
 ## What Forewarn does
 
 - Ask in plain words. Put a pin on your door and ask "will it flood here this week?". The answer gives a level (unlikely, possible or likely), the chance in words ("about 1 in 4 forecasts") and what to do.
 - Speak your question. Tap the microphone and ask out loud. Meta's Muse Voice Transcribe writes the words down, and the person can fix them before sending. Tested on native speakers from Google's FLEURS recordings: English (5% of words wrong), French (8%) and Swahili (19%) pass; Yoruba (37%), Hausa (48%), Igbo (61%) and Amharic (73%) do not yet, so the page names only the three that pass. Meta's open Omnilingual ASR (1B, on CPU) did better on the same clips: Yoruba 22% passes, Amharic 28%, Hausa 30% and Igbo 50% do not. Live use of it needs a GPU server, so it is not switched on yet.
 - Read aloud. Each answer has a Listen button. English and French use the phone's own voice. Swahili, Yoruba and Hausa use Meta's MMS voices (CC BY-NC 4.0) on Modal; Muse Spark first writes the numbers as words, since the voices cannot read digits.
-- 14 days ahead. The answer counts how many of 51 ECMWF forecast runs bring the rain that floods the place, for each of the next 14 days: the place's flood line in one day, or 50 mm over 3 days. A weekly outlook covers about a month, as wetter or drier than normal only.
+- 14 days ahead. The answer counts how many of 51 ECMWF forecast runs bring the rain that floods the place, for each of the next 14 days: the place's flood line in one day, 40 mm over 3 days, or 20 mm in 3 hours. A weekly outlook covers about a month, as wetter or drier than normal only.
 - How wet the ground is. The rain of the last 30 days against 30 years of normal (CHIRPS 1991 to 2020). Soaked ground floods sooner. On a farm, far below normal means a dry season.
 - The last flood in 3D. In Lagos and Nairobi, the agent plays the water of the last big storm on real ground, buildings and trees, and can light the roads that took water.
 - Send a photo of the water. SAM 3.1 marks the water and the people. Muse Spark 1.3 says what the water reaches and what to do. The page pixelates the people.
@@ -37,15 +37,15 @@ Code makes every number. The model explains the numbers and picks what to show.
 
 The flood line is the rain in one day that floods the place. In Lagos and Nairobi it comes from the Flood Check model runs of the June 2026 Lagos and March 2026 Nairobi storms. Elsewhere it is 30 mm.
 
-The levels count the runs that reach the flood line in one day or bring 50 mm or more over the 3 days to that day, whichever is more: likely when at least half of the 51 runs do, possible when at least 1 in 5 do, unlikely below that. The 3-day count was added on 28 October 2026 after the rule test below.
+The levels count the runs that bring the flood line in one day, 40 mm over the 3 days to that day, or 20 mm in its heaviest 3 hours (each bar 3/4 as high when the ground is soaked): likely when at least half of the 51 runs do, possible when at least 1 in 10 do. Email alerts use a stricter rule: the flood line in one day or 50 mm over 3 days, in at least 1 in 5 runs.
 
 ## Test results
 
 The time machine replays 36 past African floods (from Google Groundsource news reports) with the ECMWF forecasts made 1 to 7 days before each one, and applies today's alert rule.
 
-- 21 of 36 floods got a warning. 19 of them got it 3 days or more ahead. Nairobi, 23 April 2024, got it 5 days ahead.
-- Rule test: every daily forecast from April 2024 to January 2026 at the same places (pulled on Modal) was scored, and each rule was tuned on half the floods and checked on the other half. Adding 50 mm over 3 days to the one-day rule raised the warnings from 14 to 21 of 36, with alerts kept rare.
-- Agent test: for each of the 36 floods, the agent answered from the forecast made 3 days before. All 36 answers passed the number checker, and 35 of 36 gave the level that code computed.
+- 29 of 36 floods were flagged in advance (81%). 28 of them were flagged 3 days or more ahead. Nairobi, 23 April 2024, was flagged 7 days ahead.
+- Rule test: every daily forecast from April 2024 to January 2026 at the same places, the 4 forecast squares around each (pulled on Modal), was scored, and each rule was tuned on half the floods and checked on the other half. Adding a 3-hour burst of 20 mm, 40 mm over 3 days and a lower bar on soaked ground raised the floods flagged from 21 to 29 of 36. Email alerts keep a stricter rule so they stay rare.
+- Agent test: for each of the 36 floods, the agent answered from the forecast made 3 days before. All 36 answers passed the number checker and gave the level that code computed.
 - Ground test, 2000 to 2025 at the same places: after a day with soaked ground, a flood report followed within 7 days about 3 times as often as after other days, but 87% of soaked days had no flood after them. So soaked ground is context in the answer, not a trigger for alerts.
 
 ## Models
@@ -88,7 +88,7 @@ Where does it work? Anywhere in Africa. The 3D replay is for Lagos and Nairobi.
 
 How far ahead does it look? 14 days of flood chance, then a weekly outlook to about a month.
 
-How accurate is it? On 36 past floods, today's rules gave a warning for 21, and 19 of those came 3 days or more ahead. The time machine at https://forewarn.dawnstackai.com/?past shows each replay.
+How accurate is it? On 36 past floods, today's rules flagged 29 in advance (81%), and 28 of those 3 days or more ahead. The time machine at https://forewarn.dawnstackai.com/?past shows each replay.
 
 Does a person check the alerts? Yes. Every alert is approved by a person before it is sent.
 

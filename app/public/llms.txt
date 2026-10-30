@@ -2,7 +2,7 @@
 
 > Forewarn is a free flood early warning app for Africa. Put a pin on your street, farm or village, and an AI agent tells you if flooding looks unlikely, possible or likely in the next 14 days, with the chance in plain words ("about 1 in 4 forecasts"). Code computes every number from 51 ECMWF forecast runs; the agent explains them, and a checker holds every number it says to the data. Built on Meta's Muse Spark and SAM 3.1 for the Meta Global AI Developer Hackathon (Indie track), October to November 2026.
 
-Forewarn works anywhere in Africa, with no account. Lagos and Nairobi also get a 3D replay of the last big flood, street by street. Alerts by email are drafted by an agent that checks each followed area every 6 hours, and a person approves each alert before it is sent. We replayed 36 past African floods with today's rules: 21 got a warning, 19 of them 3 days or more ahead, and Nairobi's flood of 23 April 2024 got 5 days of warning.
+Forewarn works anywhere in Africa, with no account. Lagos and Nairobi also get a 3D replay of the last big flood, street by street. Alerts by email are drafted by an agent that checks each followed area every 6 hours, and a person approves each alert before it is sent. We replayed 36 past African floods with today's rules: 29 were flagged in advance (81%), 28 of them 3 days or more ahead, and Nairobi's flood of 23 April 2024 was flagged 7 days ahead.
 
 ## Pages
 

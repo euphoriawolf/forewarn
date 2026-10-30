@@ -24,3 +24,5 @@ evals/ens-daily.npz
 evals/ens-floods.npz
 evals/fleurs/
 evals/tts/*.wav
+evals/ens-daily4.npz
+evals/rules2-soaked.json
