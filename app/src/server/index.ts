@@ -103,8 +103,8 @@ export default {
         if (origin && new URL(origin).host !== url.host) return new Response('Not found', { status: 404 });
         const { success } = await env.VOICE_LIMIT.limit({ key: req.headers.get('CF-Connecting-IP') ?? 'local' });
         if (!success) return Response.json({ error: 'Too many requests in a minute. Try again shortly.' }, { status: 429 });
-        const b = (await req.json().catch(() => ({}))) as { lang?: string; text?: string };
-        try { return new Response(await speak(env, String(b.lang ?? ''), String(b.text ?? '')), { headers: { 'Content-Type': 'audio/wav' } }); }
+        const b = (await req.json().catch(() => ({}))) as { lang?: string; text?: string; translate?: boolean };
+        try { const { audio, said } = await speak(env, String(b.lang ?? ''), String(b.text ?? ''), !!b.translate); return new Response(audio, { headers: { 'Content-Type': 'audio/wav', 'X-Said': encodeURIComponent(said) } }); }
         catch (e) { return Response.json({ error: e instanceof Error ? e.message : 'The voice did not load. Try again.' }, { status: 502 }); }
       }
       if (url.pathname === '/api/reports' && req.method === 'POST') {

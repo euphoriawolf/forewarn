@@ -197,8 +197,8 @@ export function Find({ onPlace }: { onPlace: (p: Place) => void }) {
           <article className="feat">
             <div className="viz voice" role="img" aria-label="A message to send on WhatsApp"><I.Send /><span>Send on WhatsApp</span></div>
             <span className="model meta">Meta Muse Spark Open</span>
-            <h3>Warn your family</h3>
-            <p>The agent writes a short message from the forecast. You send it to your family from your own phone.</p>
+            <h3>Warn your family and neighbours</h3>
+            <p>The agent writes a short message from the forecast. Share it on WhatsApp as text, an image card, or a voice note in Swahili, Yoruba or Hausa, so one person can warn a whole street.</p>
           </article>
           <article className="feat">
             <div className="viz dots51" role="img" aria-label="3 of 51 forecasts lit">{Array.from({ length: 51 }, (_, i) => <i key={i} className={i < 3 ? 'on' : ''} />)}<b>about 1 in 20</b></div>

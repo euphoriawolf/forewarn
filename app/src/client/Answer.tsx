@@ -140,7 +140,7 @@ export function Answer({ place, onChange }: { place: Place; onChange: () => void
     // warn_family: the agent's words, sent by the person from their own phone
     if (x.action === 'share' && typeof x.message === 'string') {
       const text = `${x.message}\n\n${location.origin}/?${new URLSearchParams({ lat: String(place.lat), lon: String(place.lon), name: place.name, where: place.where })}`;
-      setNotes((n) => [...n, { id: Date.now(), text: x.message as string, small: 'A message for your family. You send it from your phone.', share: text }]);
+      setNotes((n) => [...n, { id: Date.now(), text: x.message as string, small: 'A message to share. You send it from your own phone.', share: text }]);
       return;
     }
     if (phone() && sheet.current && sheet.current.clientHeight > stops()[1] + 10) snapTo(stops()[1]);

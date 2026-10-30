@@ -412,3 +412,8 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--water); out
 @media (min-width: 760px) { .metas li { grid-template-columns: 220px 1fr; align-items: baseline; } }
 .metas b { font: 800 20px/1.2 var(--display); color: var(--water); }
 .metas span { font-size: 16px; color: #2c3a33; }
+/* share a warning (Share.tsx): WhatsApp, image card, voice note */
+.note > .sharetools { display: grid; gap: 8px; width: 100%; align-items: start; }
+.note > .sharetools > div { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.sharetools small { font-size: 12px; color: var(--muted); }
+.note .report:disabled, .sharetools .chip:disabled { opacity: .55; cursor: default; }

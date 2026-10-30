@@ -20,7 +20,7 @@ Built for the Meta Global AI Developer Hackathon (Indie track), from 26 Oct 2026
 - **Flood reports on the map.** A person checks each photo report. After that, it shows for 48 hours on maps within 5 km, and the agent uses it in its answers.
 - **Alerts for your area.** Give an email and confirm it. An agent for your area checks the forecast every 6 hours. When a flood is possible in the next 7 days, it writes an alert. A person reads the alert before it goes out.
 - **The time machine.** Pick one of 36 past African floods and see what Forewarn would have said 7 days to 1 day before, with today's rules. The scorecard: 29 of 36 flagged in advance (81%), 28 of them 3 days or more ahead.
-- **Warn your family.** The agent writes a short message from the forecast. You send it on WhatsApp from your own phone.
+- **Warn your family and neighbours.** The agent writes a short message from the forecast. Share any answer on WhatsApp as text, an image card, or a voice note in Swahili, Yoruba or Hausa, so one person can warn a whole street. You send it from your own phone, and you see the words of a voice note first.
 
 ## How it works
 

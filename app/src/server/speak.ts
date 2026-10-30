@@ -8,18 +8,22 @@ import { fetchIn } from './net';
 
 const NAME: Record<string, string> = { sw: 'Swahili', yo: 'Yoruba', ha: 'Hausa' };
 
-export async function speak(env: Env, lang: string, text: string): Promise<ArrayBuffer> {
+// `translate`: the text is in another language (a warning to share): Muse Spark puts it into this one first.
+// The words spoken come back too, so the person sees them before they share the voice note.
+export async function speak(env: Env, lang: string, text: string, translate = false): Promise<{ audio: ArrayBuffer; said: string }> {
   if (!NAME[lang]) throw new Error('Read aloud covers Swahili, Yoruba and Hausa.');
   text = text.slice(0, 600);
   let said = text;
-  if (/[\d%°]|\bmm\b/.test(text)) {
+  if (translate || /[\d%°]|\bmm\b/.test(text)) {
     const out = await generateText({
       model: model(env), maxOutputTokens: 2000, providerOptions: { baseten: { reasoningEffort: 'low' } }, abortSignal: AbortSignal.timeout(30000),
-      prompt: `Rewrite this ${NAME[lang]} text so it can be read aloud. Write every number, unit, abbreviation and symbol as ${NAME[lang]} words (for example "mm" as the word for millimetres). Change nothing else. Reply with the text only.\n\n${text}`,
+      prompt: translate
+        ? `Translate this flood warning into plain ${NAME[lang]} for reading aloud. Keep every fact and every number's value exactly. Write every number, unit, abbreviation and symbol as ${NAME[lang]} words. Leave out web addresses. Reply with the translation only.\n\n${text}`
+        : `Rewrite this ${NAME[lang]} text so it can be read aloud. Write every number, unit, abbreviation and symbol as ${NAME[lang]} words (for example "mm" as the word for millimetres). Change nothing else. Reply with the text only.\n\n${text}`,
     });
     if (out.text.trim()) said = out.text.trim();
   }
   const r = await fetchIn(env.TTS_URL, 60000, 'The voice service', { method: 'POST', headers: { Authorization: `Bearer ${env.TTS_TOKEN}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ lang, text: said }) });
   if (!r.ok) throw new Error(`The voice service answered ${r.status}.`);
-  return r.arrayBuffer();
+  return { audio: await r.arrayBuffer(), said };
 }

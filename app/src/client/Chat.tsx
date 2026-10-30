@@ -7,6 +7,8 @@ import { useAgent } from 'agents/react';
 import { useAgentChat } from '@cloudflare/ai-chat/react';
 import * as I from './icons';
 import { record, transcribe, type Recording } from './voice';
+import { guessLang } from './lang';
+import { ShareTools } from './Share';
 import type { Place } from './types';
 
 // the same words as OPENING in src/server/harness.ts, which tells the agent how to answer it
@@ -51,15 +53,6 @@ function sources(parts: { type: string; state?: string; output?: unknown }[]): s
 }
 // Read aloud. English and French: the phone's own voice (no server, free). Swahili, Yoruba and Hausa:
 // Meta's MMS voices through /api/speak, since phones rarely have them. The language is guessed from the words.
-const guessLang = (t: string) => {
-  const w = t.toLowerCase().match(/[a-zàâçéèêëîïôûùü]+/g) ?? [], n = (list: string[]) => w.filter((x) => list.includes(x)).length;
-  const sw = n(['na', 'ya', 'wa', 'kwa', 'mvua', 'mafuriko', 'siku', 'leo', 'kesho', 'hapa', 'ni', 'za', 'katika']);
-  const fr = n(['le', 'la', 'les', 'des', 'pluie', 'inondation', 'jours', 'aujourd', 'est', 'une', 'pour', 'dans']);
-  const yo = (t.match(/[ẹọṣẸỌṢ]/g) ?? []).length + n(['ni', 'ti', 'àwọn', 'òjò', 'ìkún', 'omi', 'ọjọ́', 'kò', 'yìí']);
-  const ha = (t.match(/[ɗƙɓƊƘƁ]/g) ?? []).length + n(['da', 'ruwa', 'ambaliyar', 'yau', 'gobe', 'ba', 'za', 'cikin', 'kuma', 'wannan']);
-  const best = Math.max(sw, fr, yo, ha);
-  return best <= 3 ? 'en' : best === yo ? 'yo' : best === ha ? 'ha' : best === sw ? 'sw' : 'fr';
-};
 // false when the phone has no voice for the answer's language (an English voice reading Swahili is worse than none)
 function speak(text: string, onEnd: () => void): boolean {
   const lang = guessLang(text), unit = ({ en: 'millimetres', fr: 'millimètres', sw: 'milimita' } as Record<string, string>)[lang] ?? 'millimetres';
@@ -176,7 +169,7 @@ export function Chat({ place, onAction, notes, onPhoto, say, logging }: { place:
       <div>{n.busy ? <span className="spin" /> : n.img ? <I.Camera /> : n.follow ? <I.Bell /> : n.share ? <I.Send /> : <I.Play />}<span>{n.text}{n.small && <small>{n.small}</small>}</span></div>
       {n.extra}
       {n.action && <button type="button" className="report" onClick={n.action.run}>{n.action.label}</button>}
-      {n.share && <a className="report wa" href={`https://wa.me/?text=${encodeURIComponent(n.share)}`} target="_blank" rel="noopener">Send on WhatsApp</a>}
+      {n.share && <ShareTools message={n.text} link={n.share} place={place} />}
     </div>
   ) : null));
 
@@ -204,7 +197,7 @@ export function Chat({ place, onAction, notes, onPhoto, say, logging }: { place:
                   {textOf(m) && <p className="bot">{textOf(m)}</p>}
                   {textOf(m) && !(busy && k === messages.length - 1) && (() => {
                     const list = sources(m.parts as { type: string; state?: string; output?: unknown }[]);
-                    const tools = <>{canSpeak && <button type="button" className={`listen ${reading === m.id ? 'on' : ''}`} onClick={() => listen(m.id, textOf(m))}>{reading === m.id ? <><I.Stop />Stop</> : <><I.Speaker />Listen</>}</button>}</>;
+                    const tools = <><button type="button" className="listen" onClick={() => onAction({ action: 'share', message: textOf(m) })}><I.Send />Share</button>{canSpeak && <button type="button" className={`listen ${reading === m.id ? 'on' : ''}`} onClick={() => listen(m.id, textOf(m))}>{reading === m.id ? <><I.Stop />Stop</> : <><I.Speaker />Listen</>}</button>}</>;
                     return list.length ? <div className="after">{tools}<details className="checked"><summary>What I checked</summary><ul>{list.map((x, i) => <li key={i}>{x}</li>)}</ul><p>A checker compares every number in the answer with these results before you see it.</p></details></div> : <div className="after">{tools}</div>;
                   })()}
                 </>

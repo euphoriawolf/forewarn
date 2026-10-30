@@ -22,7 +22,7 @@ In Mathare, Nairobi, on the night of 23 April 2024, people woke to their neighbo
 - What is near. Every place lists what is near it, nearest first, with distance and direction: the street that flooded in the last storm (Lagos and Nairobi), flood reports from the last 48 hours and past floods. A tap flies the map there.
 - Flood reports. A person checks each photo report. Approved reports show for 48 hours on maps within 5 km, and the agent uses them.
 - Alerts for your area. Give an email and confirm it. An agent for your area checks the forecast every 6 hours and drafts an alert when flooding looks possible or likely in the next 7 days. A person approves each alert before it goes out. At most 2 alerts a day, with a stop link in each.
-- Warn your family. The agent writes a short message from the forecast. You send it on WhatsApp from your own phone.
+- Warn your family and neighbours. The agent writes a short message from the forecast. Any answer can be shared on WhatsApp as text, an image card, or a voice note in Swahili, Yoruba or Hausa, so a chief, teacher or imam can warn a whole street. The person sends it from their own phone and sees the words of a voice note first.
 - The time machine. Pick one of 36 past African floods and see what Forewarn would have said 7 days to 1 day before.
 
 ## How the agent works
