@@ -112,7 +112,7 @@ export function Find({ onPlace }: { onPlace: (p: Place) => void }) {
   return (
     <div className="landing">
       <header className="hero"><div className="wrap">
-        <div className="lbrand"><I.Logo />Forewarn</div>
+        <div className="lbrand"><I.Logo />Forewarn<small>Early warnings for Africa. Floods first.</small></div>
         <div className="hero-grid">
           <div className="hero-text">
             <h1>For most people in Africa, the flood warning is the water itself.</h1>
@@ -258,6 +258,7 @@ export function Find({ onPlace }: { onPlace: (p: Place) => void }) {
 
       <section className="closing"><div className="wrap">
         <h2>Check your area before the next rains.</h2>
+        <p>We started with floods. The same system can watch for drought and storms next.</p>
         <button className="cta" type="button" onClick={() => { const f = document.getElementById('find'); f?.scrollIntoView({ behavior: 'smooth', block: 'center' }); setTimeout(() => f?.focus(), 500); }}><I.Search />Find your area</button>
       </div></section>
 

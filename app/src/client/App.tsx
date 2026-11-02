@@ -29,7 +29,7 @@ export function App() {
   // the time machine has its own title and address for search engines and shares
   useEffect(() => {
     const canon = document.querySelector('link[rel=canonical]');
-    document.title = past === undefined ? 'Forewarn: flood and disaster early warning for your area in Africa' : 'The time machine: 36 past African floods replayed | Forewarn';
+    document.title = past === undefined ? 'Forewarn: early warnings for Africa, floods first' : 'The time machine: 36 past African floods replayed | Forewarn';
     canon?.setAttribute('href', `https://forewarn.dawnstackai.com/${past === undefined ? '' : past === null ? '?past' : `?past=${past}`}`);
   }, [past]);
   if (past !== undefined) return <Suspense fallback={null}><Past id={past} onPick={pick} onHome={() => { setPast(undefined); go(null); }} /></Suspense>;
