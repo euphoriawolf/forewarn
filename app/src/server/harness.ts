@@ -45,9 +45,9 @@ ${p ? `The person's place is ${p.name}${p.where ? `, ${p.where}` : ''}. Every to
 - The forecast is for the area around the place (blended from 28 km squares). Say so only when they ask about one street or road.
 - Beyond 14 days only the weekly outlook exists: say wetter, near or drier than normal, never that it will or will not flood.
 - Name days with the "when" field of each day ("today", "Thursday", or "Wednesday 4 November" beyond a week), never as 2026-10-29. Do not name the levels by colour.
-${p && packFor(p.lat, p.lon) ? `- The screen shows the place in 3D. Change it with tools: show_last_flood when they ask how bad it was or what it looks like; show_nearest_flood when they ask what floods near them or where it flooded; light_roads when they ask about a road or a route; show_street_view or show_overview to move the camera; mark_day to point at a day. Say in one short sentence what the view now shows.` : '- There is no 3D view for this place yet. If they ask to see it, say that street-level 3D covers Lagos and Nairobi for now.'}
+${p && packFor(p.lat, p.lon) ? `- The screen shows the place on a satellite map. Change it with tools: show_last_flood when they ask how bad it was or what it looks like; show_nearest_flood when they ask what floods near them or where it flooded; light_roads when they ask about a road or a route; show_street_view or show_overview to move the camera; mark_day to point at a day. Say in one short sentence what the view now shows.` : '- There is no 3D view for this place yet. If they ask to see it, say that street-level 3D covers Lagos and Nairobi for now.'}
 - When they want alerts, call follow_area and say in one sentence that the form is on their screen and a person checks every alert before it goes out. When they want to warn family or neighbours, call read_forecast, then warn_family with the message, and say they can send it from their phone.
-- When the question is "${OPENING}", it opens the conversation: call read_forecast, read_last_30_days and flood_reports, and do not move the 3D. If flood_reports has any, say first that people near them reported floodwater, using its when and distance words. Then do not call flooding unlikely: say the water is already there, and what the forecast and the ground add to it. Answer in three short sentences, in this shape (the numbers here are only an example): "Flooding looks unlikely here for the next 14 days. The riskiest day is Thursday: about 1 in 20 forecasts bring more than 28.4 mm, more than the worst day of the March storm. The ground is not soaked: 46 mm in the last 30 days, close to normal." Mention the weeks after 14 days only if they look wetter or drier than normal. Take every number, day and the meaning of the flood line from the tool result.
+- When the question is "${OPENING}", it opens the conversation: call read_forecast, read_last_30_days and flood_reports, and do not move the map. If flood_reports has any, say first that people near them reported floodwater, using its when and distance words. Then do not call flooding unlikely: say the water is already there, and what the forecast and the ground add to it. Answer in three short sentences, in this shape (the numbers here are only an example): "Flooding looks unlikely here for the next 14 days. The riskiest day is Thursday: about 1 in 20 forecasts bring more than 28.4 mm, more than the worst day of the March storm. The ground is not soaked: 46 mm in the last 30 days, close to normal." Mention the weeks after 14 days only if they look wetter or drier than normal. Take every number, day and the meaning of the flood line from the tool result.
 - A message starting with "${FROM_PAGE}" is the page telling you what the person just did; they did not write it. When it says they added a photo of floodwater, take it as fact and never say you believe them or question it. Call read_forecast and read_last_30_days, then answer in three short sentences: what the water means for them now, whether more rain is coming and whether the ground is soaked, and that they can report it with the button under their photo.
 - Answer in at most three short sentences, about 60 words in all. Lead with the answer; leave out anything they did not ask about. Plain English. No em dashes, no dashes between words.`;
 
@@ -82,25 +82,25 @@ export function makeTools(env: Env, place: Place | null, results: unknown[], pas
       }) : Promise.resolve(none)),
     }),
     show_last_flood: tool({
-      description: "Play the last big storm's water on the 3D view of the person's place, hour by hour, and stop at its highest. Use for: how bad was it, what does it look like, where did it flood.",
+      description: "Play the last big storm's water on the satellite map of the person's place, hour by hour, and stop at its highest. Use for: how bad was it, what does it look like, where did it flood.",
       inputSchema: z.object({}),
-      execute: async () => (pack ? { action: 'play_last_flood', lastFlood: (await lineOf()).lastFlood ?? null } : { shown: false, reason: 'No 3D view for this place yet.' }),
+      execute: async () => (pack ? { action: 'play_last_flood', lastFlood: (await lineOf()).lastFlood ?? null } : { shown: false, reason: 'No flood map view for this place yet.' }),
     }),
     light_roads: tool({
-      description: 'Light named roads on the 3D view: red where water stood in the last storm, green where it stayed dry. Returns for each road how much of it had water and how deep it got.',
+      description: 'Light named roads on the map: red where water stood in the last storm, green where it stayed dry. Returns for each road how much of it had water and how deep it got.',
       inputSchema: z.object({ names: z.array(z.string()).min(1).max(4).describe('Road names as the person said them') }),
       execute: async ({ names }) => {
-        if (!pack) return { shown: false, reason: 'No 3D view for this place yet.' };
+        if (!pack) return { shown: false, reason: 'No flood map view for this place yet.' };
         return once(`light_roads:${[...names].sort().join('|').toLowerCase()}`, async () => ({ action: 'light_roads', roads: await roadsCheck(env.ASSETS, pack, names) }));
       },
     }),
     show_nearest_flood: tool({
-      description: 'Find the nearest spot to the pin where the last storm brought 10 cm of water or more, and point the 3D view at it. Use when the person asks what floods near them, or when their own spot stayed dry.',
+      description: 'Find the nearest spot to the pin where the last storm brought 10 cm of water or more, and point the map at it. Use when the person asks what floods near them, or when their own spot stayed dry.',
       inputSchema: z.object({}),
-      execute: () => (pack ? once('nearest', async () => { const n = await nearestFlood(env.ASSETS, pack); return n ? { action: 'show_spot', ...n } : { found: false, reason: 'No spot in this area reached 10 cm in the last storm.' }; }) : Promise.resolve({ shown: false, reason: 'No 3D view for this place yet.' })),
+      execute: () => (pack ? once('nearest', async () => { const n = await nearestFlood(env.ASSETS, pack); return n ? { action: 'show_spot', ...n } : { found: false, reason: 'No spot in this area reached 10 cm in the last storm.' }; }) : Promise.resolve({ shown: false, reason: 'No flood map view for this place yet.' })),
     }),
-    show_street_view: tool({ description: 'Move the 3D camera down to street level at the pin.', inputSchema: z.object({}), execute: async () => (pack ? { action: 'street_view' } : { shown: false }) }),
-    show_overview: tool({ description: 'Move the 3D camera up to see the whole area.', inputSchema: z.object({}), execute: async () => (pack ? { action: 'overview' } : { shown: false }) }),
+    show_street_view: tool({ description: 'Zoom the map in to street level at the pin.', inputSchema: z.object({}), execute: async () => (pack ? { action: 'street_view' } : { shown: false }) }),
+    show_overview: tool({ description: 'Zoom the map out to see the whole area.', inputSchema: z.object({}), execute: async () => (pack ? { action: 'overview' } : { shown: false }) }),
     mark_day: tool({
       description: 'Point at one day of the 7-day forecast on the screen.',
       inputSchema: z.object({ weekday: z.string().describe('For example Thursday') }),
@@ -166,7 +166,7 @@ export async function followUps(env: Env, place: Place | null, asked: string[], 
   const can = [
     'the rain and flood chance on a given day in the next 14 days', 'which day is riskiest', 'whether the weeks after that look wetter or drier than normal',
     'how wet the ground already is (the last 30 days against normal)', 'what to do to get ready',
-    ...(has3d ? ['how bad the last big storm was here, played in 3D', 'where the nearest spot that flooded is', 'whether a named road flooded in the last storm', 'a street-level view'] : []),
+    ...(has3d ? ['how bad the last big storm was here, played on the map', 'where the nearest spot that flooded is', 'whether a named road flooded in the last storm', 'a street-level view'] : []),
     'adding a photo of floodwater where they are', 'getting flood alerts for this area by email', 'warning their family on WhatsApp',
   ];
   const r = await generateText({

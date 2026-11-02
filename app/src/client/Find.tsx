@@ -147,8 +147,8 @@ export function Find({ onPlace }: { onPlace: (p: Place) => void }) {
 
       <section className="film"><div className="wrap">
         <h2>Nairobi's Industrial Area, filling up hour by hour.</h2>
-        <video ref={film} src="/og-video.mp4" poster="/flood-poster.jpg" muted loop playsInline preload="none" aria-label="3D flood model: water rises over a Nairobi neighbourhood" />
-        <p className="filmnote">The March 2026 storm, from the Flood Check model. Blue is water. Amber is a building with water at the door. Water is drawn 4 times deeper so it shows from above.</p>
+        <video ref={film} src="/og-video.mp4" poster="/flood-poster.jpg" muted loop playsInline preload="none" aria-label="Flood model on the satellite map: water rises over a Nairobi neighbourhood" />
+        <p className="filmnote">The March 2026 storm, from the Flood Check model, over the satellite map. The darker the blue, the deeper the water.</p>
       </div></section>
 
       <section className="gap"><div className="wrap">
@@ -213,10 +213,10 @@ export function Find({ onPlace }: { onPlace: (p: Place) => void }) {
             <p>The last month against 30 years of records. On a farm, a low number means a dry season.</p>
           </article>
           <article className="feat">
-            <div className="viz still" style={{ backgroundImage: 'url(/flood-poster.jpg)' }} role="img" aria-label="Floodwater in a 3D model of Nairobi" />
+            <div className="viz still" style={{ backgroundImage: 'url(/flood-poster.jpg)' }} role="img" aria-label="Floodwater from a flood model over the satellite map of Nairobi" />
             <span className="model">Flood Check model</span>
-            <h3>The last flood in 3D</h3>
-            <p>Lagos and Nairobi, street by street, with the water at each door.</p>
+            <h3>The last flood, on the map</h3>
+            <p>Lagos and Nairobi, street by street: the last storm's water over the satellite map, hour by hour.</p>
           </article>
         </div>
       </div></section>

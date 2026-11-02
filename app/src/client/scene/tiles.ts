@@ -1,6 +1,6 @@
 // Joins the four 2 km tiles around a pin (public/tiles, see tools/make-tiles.py) into one 4 km
-// scene, in metres from the square's centre (x east, z south): the shape place3d.js draws.
-// Each part is fetched once and shared, so the staged loading in place3d stays staged.
+// area, in metres from the square's centre (x east, z south): the shape the flood map (sat.ts) draws.
+// Each part is fetched once and shared.
 
 export interface PinInPack { region: string; tiles: [number, number][]; cx: number; cz: number; dx: number; dz: number; start: string }
 interface Index { tile: number; cmx: number; cmz: number; hours: number; start: string }

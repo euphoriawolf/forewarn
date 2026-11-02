@@ -1,8 +1,8 @@
-// The place in 3D, beside the chat. The agent drives it: each of its 3D tools returns an action,
-// and run() does it here. The buttons on the map run the same actions and put one line in the chat.
-// The chat never waits for this: the 3D loads in stages.
+// The place on the satellite map, beside the chat, with the last storm's water from Flood Check. The agent
+// drives it: each of its map tools returns an action, and run() does it here. The buttons on the map run
+// the same actions and put one line in the chat. The chat never waits for the map.
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
-import { placeScene } from './scene/place3d.js';
+import { satScene } from './scene/sat';
 import * as I from './icons';
 import type { Nearby } from './types';
 
@@ -33,7 +33,7 @@ export const Stage = forwardRef<StageApi, { pack: PackPin; nearby?: Nearby | nul
   const [pack, setPack] = useState(start);
   useEffect(() => setPack(start), [`${start.region}:${start.cx}:${start.cz}:${start.dx}:${start.dz}`]);
   const nextCamera = useRef<Record<string, number> | null>(null);
-  const box = useRef<HTMLDivElement>(null), canvas = useRef<HTMLCanvasElement>(null), scene = useRef<Scene | null>(null), pin = useRef<HTMLElement | null>(null), roadTags = useRef<HTMLElement[]>([]);
+  const box = useRef<HTMLDivElement>(null), scene = useRef<Scene | null>(null), pin = useRef<HTMLElement | null>(null), roadTags = useRef<HTMLElement[]>([]);
   const queued = useRef<Record<string, unknown>[]>([]);
   const key = `${pack.region}:${pack.cx}:${pack.cz}:${pack.dx}:${pack.dz}`;
   const [load, setLoad] = useState({ f: 0, text: 'Loading the ground' });
@@ -48,7 +48,7 @@ export const Stage = forwardRef<StageApi, { pack: PackPin; nearby?: Nearby | nul
 
   useEffect(() => {
     let gone = false;
-    placeScene({ stage: box.current, canvas: canvas.current, source: tileSource(pack), view: 'overview', quality: film ? 'high' : lowEnd() ? 'low' : 'high', drift: film ? 0.00003 : 0, progress: (f: number, text: string) => !gone && setLoad({ f, text }), start: nextCamera.current ?? undefined, onSettle: (x: number, z: number) => !gone && moveTo(x, z), onView: (yaw: number) => { if (needle.current) needle.current.style.transform = `rotate(${yaw}rad)`; } })
+    satScene({ stage: box.current!, source: tileSource(pack), pack, drift: film ? 0.0004 : 0, progress: (f: number, text: string) => !gone && setLoad({ f, text }), start: (nextCamera.current as { tx: number; tz: number } | null) ?? undefined, onSettle: (x: number, z: number) => !gone && moveTo(x, z), onView: (yaw: number) => { if (needle.current) needle.current.style.transform = `rotate(${yaw}rad)`; } })
       .then((s: Scene) => {
         if (gone) return s.dispose();
         scene.current = s;
@@ -58,7 +58,7 @@ export const Stage = forwardRef<StageApi, { pack: PackPin; nearby?: Nearby | nul
         s.setInset(insetRef.current);
         for (const a of queued.current.splice(0)) run(a);
       })
-      .catch(() => setLoad({ f: 1, text: 'The 3D could not load on this connection. The chat still works.' }));
+      .catch(() => setLoad({ f: 1, text: 'The map could not load on this connection. The chat still works.' }));
     return () => { gone = true; scene.current?.dispose(); scene.current = null; };
   }, [key]);
 
@@ -163,10 +163,10 @@ export const Stage = forwardRef<StageApi, { pack: PackPin; nearby?: Nearby | nul
   }
 
   // the film: only the picture, for the landing video and recordings (see Film.tsx)
-  if (film) return <div className="stage film"><div className="scene" ref={box}><canvas ref={canvas} /></div>{load.f >= 1 && <i data-ready />}</div>;
+  if (film) return <div className="stage film"><div className="scene" ref={box} />{load.f >= 1 && <i data-ready />}</div>;
   return (
     <div className="stage" style={{ ['--inset' as string]: `${inset}px` }}>
-      <div className="scene" ref={box}><canvas ref={canvas} /></div>
+      <div className="scene" ref={box} />
       {clock && <div className="clock">{clock}<span>{storm}</span></div>}
       <div className="acts">{ACTS.map(([label, action, Icon]) => <button key={action} type="button" className={on === action ? 'on' : ''} onClick={() => tap(action)}><Icon />{label}</button>)}</div>
       <div className="nav">
@@ -174,7 +174,7 @@ export const Stage = forwardRef<StageApi, { pack: PackPin; nearby?: Nearby | nul
         <button type="button" className="desk" aria-label="Zoom in" onClick={() => scene.current?.zoom(0.6)}><I.Plus /></button>
         <button type="button" className="desk" aria-label="Zoom out" onClick={() => scene.current?.zoom(1 / 0.6)}><I.Minus /></button>
       </div>
-      {legend === 'water' && <div className="legend"><i className="w" />Water (drawn 4x deeper)<i className="a" />Water at the door</div>}
+      {legend === 'water' && <div className="legend"><i className="w" />Water: the darker, the deeper</div>}
       {legend === 'roads' && <div className="legend"><i className="r" />Water in the last storm<i className="g" />Stayed dry</div>}
       <div className={`load ${load.f >= 1 ? 'done' : ''}`}><span>{load.text}</span><i><b style={{ width: `${load.f * 100}%` }} /></i></div>
     </div>

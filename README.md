@@ -16,7 +16,7 @@ Built for the Meta Global AI Developer Hackathon (Indie track), from 26 Oct 2026
 - **Speak your question.** Tap the microphone and ask out loud. Meta's Muse Voice Transcribe writes it down, and you can fix the words before you send. It works in English, French and Swahili. Yoruba, Hausa, Igbo and Amharic failed the test (`evals/voice-langs.py`), so the page does not offer them yet.
 - **14 days ahead.** The answer uses 51 rain forecasts for the next 14 days, plus a weekly outlook to about a month.
 - **How wet the ground is.** The rain of the last 30 days, against 30 years of normal. Soaked ground floods sooner.
-- **The last flood in 3D.** In Lagos and Nairobi, the agent plays the water of the last big storm on real ground, buildings and trees. It can light the roads that took water.
+- **The last flood on the map.** In Lagos and Nairobi, the agent plays the water of the last big storm over the satellite map, hour by hour. It can light the roads that took water.
 - **Send a photo of the water.** SAM 3.1 marks the water and the people. Muse Spark says what the water reaches. The page pixelates the people before it shows the photo or sends it as a report.
 - **Near your place.** Every place shows what is near it, nearest first, with distance and direction: the street that flooded in the last storm (Lagos and Nairobi), flood reports from the last 48 hours, and past floods from the time machine. A tap flies the map there. Outside Lagos and Nairobi a satellite map shows the pin, the forecast squares and arrows at the edge for points off the screen.
 - **Flood reports on the map.** A person checks each photo report. After that, it shows for 48 hours on maps within 5 km, and the agent uses it in its answers.
@@ -29,7 +29,7 @@ Built for the Meta Global AI Developer Hackathon (Indie track), from 26 Oct 2026
 Code makes every number. The model explains the numbers and picks what to show.
 
 1. **Fixed steps run first, in code.** The app finds the place, reads the 51 forecasts, blends the four nearest forecast squares (each about 28 km) and counts the runs that bring the place's flood line in one day, 40 mm over 3 days, or 20 mm in 3 hours (lower bars on soaked ground). Email alerts use a stricter rule so they stay rare.
-2. **The model picks optional tools.** Muse Spark Open calls tools for the 3D view, the reports, the ground, the alerts form and the family message.
+2. **The model picks optional tools.** Muse Spark Open calls tools for the flood map, the reports, the ground, the alerts form and the family message.
 3. **A checker reads every answer.** It compares each number and each day in the answer with the tool results. If one does not match, the model tries again. Under each answer, "What I checked" lists those sources for the person.
 4. **Each followed area has its own agent.** It keeps its last reading in memory and wakes every 6 hours. A rule in code decides: no change, an update, or an alert draft.
 5. **A person approves every warning** that goes to someone else. Drafts wait on a review page. Nothing goes out before a person approves it.
@@ -52,7 +52,7 @@ We do not use the `-contributor` models. They let Meta train on what we send, an
 
 - Cloudflare Workers and the [Agents SDK](https://developers.cloudflare.com/agents/). The chat agent and the Watch agent of each followed area are Durable Objects with SQLite.
 - [Vercel AI SDK 6](https://ai-sdk.dev) for the tool loop, with typed tools (zod).
-- React and Vite for the page, MapLibre for the map, three.js for the 3D.
+- React and Vite for the page, MapLibre for the satellite map and the flood water.
 - Cloudflare Email Sending for alerts.
 
 ## Code
@@ -72,8 +72,8 @@ app/
     review.ts     the review page
     nearby.ts     flood reports and past floods near a place, with distance and direction
     past.ts       the time machine and its scorecard
-  src/client/   the page, the map, the chat and the 3D
-  tools/        scripts that cut the 3D tiles and the rain normals
+  src/client/   the page, the maps and the chat
+  tools/        scripts that cut the flood tiles and the rain normals
 evals/          the model test, the agent test suite and the false-alarm test
 spike/          the first test of Muse Spark Open with a tool
 design/         mockups
@@ -145,21 +145,22 @@ The dev server must run first (`npm run dev` in `app/`).
 | Satellite map | Esri World Imagery | Esri terms, with credit |
 | Past floods | Google Groundsource, news reports placed on a map | CC BY 4.0 |
 | Past forecasts (ECMWF IFS ensemble archive) | [dynamical.org](https://dynamical.org) | CC BY 4.0 |
-| 3D ground imagery | Sentinel-2 cloudless by [EOX](https://s2maps.eox.at) | CC BY-NC-SA 4.0 |
+| Hill shading on the flood map | Terrain tiles (Mapzen) on [AWS Open Data](https://registry.opendata.aws/terrain-tiles/) | Credit in the map |
+| Imagery inside the tile files (not shown) | Sentinel-2 cloudless by [EOX](https://s2maps.eox.at) | CC BY-NC-SA 4.0 |
 
 Photo credits for the landing page are at the bottom of the page itself.
 
 ## Work from before the hackathon
 
-All code in this repository is new, written from 26 Oct 2026. Forewarn uses one older project as an input: **Flood Check** (https://flood-check.dawnstackai.com), by the same author. Forewarn reads its public API and its data: ground, buildings, trees and roads. It also uses the Flood Check model runs of the March 2026 Nairobi flood and the June 2026 Lagos flood. The 3D tiles in `app/public/tiles/` come from that data. No Flood Check code is in this repository.
+All code in this repository is new, written from 26 Oct 2026. Forewarn uses one older project as an input: **Flood Check** (https://flood-check.dawnstackai.com), by the same author. Forewarn reads its public API and its data: ground, buildings, trees and roads. It also uses the Flood Check model runs of the March 2026 Nairobi flood and the June 2026 Lagos flood. The flood tiles in `app/public/tiles/` come from that data. No Flood Check code is in this repository.
 
 ## Limits
 
-- The 3D flood replay exists only for Lagos and Nairobi. Other places get the forecast and the satellite map.
+- The flood replay exists only for Lagos and Nairobi. Other places get the forecast and the satellite map.
 - The forecast squares are about 28 km wide. A level for a street is a level for the area around it, and each answer says so.
 - The flood line outside Lagos and Nairobi is a fixed 30 mm. The real line is different for each street.
 - Forewarn is not an official warning service. Follow what your local authorities say.
 
 ## Licence
 
-The code is MIT licensed (see `LICENSE`). The data and imagery keep their own licences, listed in "Data and credits" above and in `LICENSE`: the 3D tiles include Sentinel-2 imagery from EOX (CC BY-NC-SA 4.0, non-commercial), so they cannot be reused commercially under the MIT licence.
+The code is MIT licensed (see `LICENSE`). The data and imagery keep their own licences, listed in "Data and credits" above and in `LICENSE`: the tile files include Sentinel-2 imagery from EOX (CC BY-NC-SA 4.0, non-commercial), so they cannot be reused commercially under the MIT licence.

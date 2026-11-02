@@ -188,7 +188,7 @@ export function Answer({ place, onChange }: { place: Place; onChange: () => void
           {!a && !error && <div className="stage"><div className="load"><span>Loading {place.name}</span></div></div>}
           {error && <div className="stage none"><p>{error}</p></div>}
           {a && !a.pack && <Safe note="The map could not load on this connection. The chat still works."><Suspense fallback={<div className="stage"><div className="load"><span>Loading the map</span></div></div>}><Map2D ref={flat} place={place} points={points ?? []} squares={a.forecast.squares} inset={inset} /></Suspense></Safe>}
-          {a?.pack && <Safe note="The 3D view could not load on this connection. The chat still works."><Suspense fallback={<div className="stage"><div className="load"><span>Loading the 3D</span></div></div>}><Stage ref={stage} pack={a.pack} nearby={a.nearby} inset={inset} label={pinLabel(place.name)} onNote={(t) => setNotes((n) => [...n, { id: Date.now(), text: t }])} /></Suspense></Safe>}
+          {a?.pack && <Safe note="The map could not load on this connection. The chat still works."><Suspense fallback={<div className="stage"><div className="load"><span>Loading the 3D</span></div></div>}><Stage ref={stage} pack={a.pack} nearby={a.nearby} inset={inset} label={pinLabel(place.name)} onNote={(t) => setNotes((n) => [...n, { id: Date.now(), text: t }])} /></Suspense></Safe>}
           {a && <Near points={points} name={place.name} onPick={pick} room={inset ? (body.current?.clientHeight ?? 0) - inset : undefined} />}
         </div>
         <div className="sheet" ref={sheet}>
