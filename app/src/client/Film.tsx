@@ -9,7 +9,7 @@ export function Film({ lat, lon }: { lat: number; lon: number }) {
   const stage = useRef<StageApi>(null);
   useEffect(() => { fetch(`/api/place?lat=${lat}&lon=${lon}`).then((r) => r.json() as Promise<A>).then(setA); }, [lat, lon]);
   // the recorder calls window.play() once the scene is in, so the film starts from dry streets
-  useEffect(() => { (window as unknown as { play: () => void }).play = () => stage.current?.run({ action: 'play_last_flood', dist: 700, pitch: 0.55 }); }, []);
-  useEffect(() => { if (a?.pack && !new URLSearchParams(location.search).has('wait')) stage.current?.run({ action: 'play_last_flood', dist: 700, pitch: 0.55 }); }, [a]);
+  useEffect(() => { (window as unknown as { play: () => void }).play = () => { const q = new URLSearchParams(location.search); stage.current?.run({ action: 'play_last_flood', dist: Number(q.get('dist') ?? 700), pitch: Number(q.get('pitch') ?? 0.55) }); }; }, []);
+  useEffect(() => { if (a?.pack && !new URLSearchParams(location.search).has('wait')) { const q = new URLSearchParams(location.search); stage.current?.run({ action: 'play_last_flood', dist: Number(q.get('dist') ?? 700), pitch: Number(q.get('pitch') ?? 0.55) }); }; }, [a]);
   return <div className="film-page">{a?.pack && <Stage ref={stage} pack={a.pack} film />}</div>;
 }
