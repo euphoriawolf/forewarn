@@ -174,7 +174,7 @@ export const Stage = forwardRef<StageApi, { pack: PackPin; nearby?: Nearby | nul
         <button type="button" className="desk" aria-label="Zoom in" onClick={() => scene.current?.zoom(0.6)}><I.Plus /></button>
         <button type="button" className="desk" aria-label="Zoom out" onClick={() => scene.current?.zoom(1 / 0.6)}><I.Minus /></button>
       </div>
-      {legend === 'water' && <div className="legend"><i className="w" />Water: the darker, the deeper</div>}
+      {legend === 'water' && <div className="legend"><i className="w" />Water<i className="r" />Water reached the building</div>}
       {legend === 'roads' && <div className="legend"><i className="r" />Water in the last storm<i className="g" />Stayed dry</div>}
       <div className={`load ${load.f >= 1 ? 'done' : ''}`}><span>{load.text}</span><i><b style={{ width: `${load.f * 100}%` }} /></i></div>
     </div>

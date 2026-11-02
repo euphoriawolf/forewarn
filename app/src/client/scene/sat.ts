@@ -1,7 +1,8 @@
 // The last flood on the satellite map: Flood Check's water, hour by hour, drawn over Esri imagery with
 // light hill shading. It keeps the interface the 3D scene had (Stage.tsx drives both the same way), in
 // metres from the square's centre (x east, z south). The water comes in 60 m cells; it is read between
-// cell centres so the edges come out soft, and each new hour fades in over 300 ms.
+// cell centres so the edges come out soft, and each hour fades into the next. Buildings the water reached
+// (10 cm or more at the building, from Flood Check's footprints) rise in red from the hour it got there.
 import * as maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url';
@@ -56,7 +57,7 @@ export async function satScene({ stage, source, pack, progress, onSettle, onView
         if (depth < 2) { d[k + 3] = 0; continue; }
         const deep = smooth(5, 150, depth), edge = smooth(0, 3 * S, Math.min(x, y, cv.width - 1 - x, cv.height - 1 - y));
         d[k] = 120 - 110 * deep; d[k + 1] = 190 - 148 * deep; d[k + 2] = 255 - 133 * deep;
-        d[k + 3] = 255 * edge * Math.min(0.9, smooth(2, 18, depth) * (0.55 + 0.35 * deep));
+        d[k + 3] = 255 * edge * Math.min(0.72, smooth(3, 25, depth) * (0.4 + 0.32 * deep));
       }
     }
     ctx.putImageData(img, 0, 0);
@@ -69,16 +70,19 @@ export async function satScene({ stage, source, pack, progress, onSettle, onView
     bearing: startCam.bearing ?? -12, maxPitch: 65, maxZoom: 18.5, attributionControl: false, fadeDuration: 0, canvasContextAttributes: { preserveDrawingBuffer: true },
     style: {
       version: 8,
+      state: { hour: { default: -1 } },
       sources: {
         img: { type: 'raster', tileSize: 256, maxzoom: 19, attribution: 'Imagery: Esri, Maxar, Earthstar Geographics', tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'] },
         dem: { type: 'raster-dem', encoding: 'terrarium', tileSize: 256, maxzoom: 14, attribution: 'Terrain: Mapzen, AWS Open Data', tiles: ['https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'] },
         water: { type: 'canvas', canvas: cv, coordinates: corners, animate: true } as unknown as maplibregl.SourceSpecification, // canvas sources work, but are missing from the style types
         roads: { type: 'geojson', data: { type: 'FeatureCollection', features: [] } },
+        houses: { type: 'geojson', data: { type: 'FeatureCollection', features: [] } },
       },
       layers: [
         { id: 'img', type: 'raster', source: 'img' },
         { id: 'relief', type: 'hillshade', source: 'dem', paint: { 'hillshade-exaggeration': 0.35, 'hillshade-shadow-color': 'rgba(0,0,0,.55)', 'hillshade-highlight-color': 'rgba(255,255,255,.12)', 'hillshade-accent-color': 'rgba(0,0,0,0)' } },
         { id: 'water', type: 'raster', source: 'water', paint: { 'raster-resampling': 'linear', 'raster-fade-duration': 0 } },
+        { id: 'houses', type: 'fill-extrusion', source: 'houses', filter: ['all', ['has', 'w'], ['<=', ['get', 'w'], ['global-state', 'hour']]], paint: { 'fill-extrusion-color': '#d4342a', 'fill-extrusion-height': ['get', 'h'], 'fill-extrusion-opacity': 0.88, 'fill-extrusion-vertical-gradient': true } },
         { id: 'roads-edge', type: 'line', source: 'roads', paint: { 'line-color': '#ffffff', 'line-width': 7, 'line-opacity': 0.85 }, layout: { 'line-cap': 'round', 'line-join': 'round' } },
         { id: 'roads', type: 'line', source: 'roads', paint: { 'line-color': ['case', ['get', 'wet'], '#b42318', '#2f7d4f'], 'line-width': 4 }, layout: { 'line-cap': 'round', 'line-join': 'round' } },
       ],
@@ -94,13 +98,24 @@ export async function satScene({ stage, source, pack, progress, onSettle, onView
 
   // roads come from the city files, only for "light the roads"
   const roads: { n: string; p: [number, number][] }[] = [];
-  source.city().then((c) => roads.push(...c.roads)).catch(() => {});
+  source.city().then((c) => {
+    roads.push(...c.roads);
+    // each building: the first hour the water at it reached 10 cm, and its height (1 storey when unknown)
+    const features = c.buildings.flatMap((bd) => {
+      const n = bd.p.length, cx = bd.p.reduce((a, q) => a + q[0], 0) / n, cz = bd.p.reduce((a, q) => a + q[1], 0) / n;
+      if (cell(peak, cx, cz) < 10) return [];
+      const w = life.cm.findIndex((cm) => cell(cm, cx, cz) >= 10);
+      const ring = bd.p.map(([x, z]) => toLngLat(x, z)); ring.push(ring[0]);
+      return [{ type: 'Feature' as const, properties: { w, h: Math.max(3.5, bd.h || 0) }, geometry: { type: 'Polygon' as const, coordinates: [ring] } }];
+    });
+    (map.getSource('houses') as maplibregl.GeoJSONSource).setData({ type: 'FeatureCollection', features });
+  }).catch(() => {});
 
   let inset = 0, frameFn: ((t: number) => void) | null = null, raf = 0, gone = false;
   const tags: maplibregl.Marker[] = [];
   const loop = (t: number) => {
     if (gone) return;
-    if (mixing) { const f = Math.min(1, (t - mixStart) / 300); draw(f); if (f >= 1) mixing = false; }
+    if (mixing) { const f = Math.min(1, (t - mixStart) / 350); draw(f); if (f >= 1) mixing = false; }
     frameFn?.(t);
     if (drift && !map.isMoving()) map.setBearing(map.getBearing() + drift * 60); // never during a fly, which a bearing change would cancel
     raf = requestAnimationFrame(loop);
@@ -116,8 +131,9 @@ export async function satScene({ stage, source, pack, progress, onSettle, onView
     setWater(cm: ArrayLike<number> | null) {
       // fade from what is on screen to the new hour
       const now = performance.now();
-      if (mixing) draw(Math.min(1, (now - mixStart) / 300));
+      if (mixing) draw(Math.min(1, (now - mixStart) / 350));
       from = to; to = cm ?? empty; mixStart = now; mixing = true;
+      map.setGlobalStateProperty('hour', cm === null ? -1 : cm === peak ? 1e6 : life.cm.indexOf(cm as number[]));
     },
     lightRoads(names: string[] | null) {
       const features = (names ?? []).flatMap((n) => roads.filter((r) => r.n === n).flatMap((r) => r.p.slice(1).map((b, k) => {
