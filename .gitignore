@@ -27,3 +27,4 @@ evals/tts/*.wav
 evals/ens-daily4.npz
 evals/rules2-soaked.json
 VIDEO-SCRIPT.md
+VIDEO-PLAN.md
