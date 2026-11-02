@@ -12,7 +12,7 @@
 //   On the 36 floods: 29 flagged in advance (81%).
 // - Email alerts stay stricter (evals/rules.py, 28 Oct): the flood line in one day or 50 mm over 3 days,
 //   in 1 in 5 runs. About 4 alerts a place a year, so people keep trusting them.
-import { fetchIn } from './net';
+import { fetchShared } from './net';
 
 export type Level = 'green' | 'amber' | 'red';
 export type Why = 'one day' | '3 days' | 'burst';
@@ -89,7 +89,7 @@ export async function readForecast(lat: number, lon: number, floodLineMm: number
   ].map((s) => ({ lat: +s.lat.toFixed(3), lon: +s.lon.toFixed(3), weight: +s.weight.toFixed(3) }));
   const url = 'https://ensemble-api.open-meteo.com/v1/ensemble?hourly=precipitation&models=ecmwf_ifs025&forecast_days=14&timezone=auto'
     + `&latitude=${squares.map((s) => s.lat).join(',')}&longitude=${squares.map((s) => s.lon).join(',')}`;
-  const [res, line, soaked] = await Promise.all([fetchIn(url, 20000, 'The forecast service'), floodLineMm, soakedGround]);
+  const [res, line, soaked] = await Promise.all([fetchShared(url, 20000, 'The forecast service', 1800), floodLineMm, soakedGround]);
   if (!res.ok) throw new Error(`forecast service answered ${res.status}`);
   const all = (await res.json()) as { hourly: Record<string, (number | null)[]> & { time: string[] } }[];
   const keys = Object.keys(all[0].hourly).filter((k) => k.startsWith('precipitation'));
@@ -110,7 +110,7 @@ export async function readForecast(lat: number, lon: number, floodLineMm: number
 // runs above normal. 50% means no signal either way.
 export interface Week { start: string; aboveNormalPct: number; meanMm: number; word: 'wetter than normal' | 'near normal' | 'drier than normal' }
 export async function outlookWeeks(lat: number, lon: number, after: string): Promise<Week[]> {
-  const r = await fetchIn(`https://seasonal-api.open-meteo.com/v1/seasonal?latitude=${lat}&longitude=${lon}&weekly=precipitation_anomaly_gt0,precipitation_mean&models=ecmwf_seasonal_ensemble_mean_seamless&forecast_days=46`, 12000, 'The weekly outlook service');
+  const r = await fetchShared(`https://seasonal-api.open-meteo.com/v1/seasonal?latitude=${lat}&longitude=${lon}&weekly=precipitation_anomaly_gt0,precipitation_mean&models=ecmwf_seasonal_ensemble_mean_seamless&forecast_days=46`, 12000, 'The weekly outlook service', 21600);
   if (!r.ok) return [];
   const d = (await r.json()) as { weekly: { time: string[]; precipitation_anomaly_gt0: (number | null)[]; precipitation_mean: (number | null)[] } };
   const end = new Date(Date.parse(after + 'T00:00:00Z') + 31 * 86400e3).toISOString().slice(0, 10);

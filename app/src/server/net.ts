@@ -9,3 +9,8 @@ export async function fetchIn(url: string, ms: number, who: string, init: Reques
     throw new Error(`${who} could not be reached: ${e instanceof Error ? e.message : String(e)}`);
   }
 }
+
+// A read the edge can keep for ttl seconds. Open-Meteo limits requests per address, so people in the same
+// forecast square share one read. Errors are never kept.
+export const fetchShared = (url: string, ms: number, who: string, ttl: number) =>
+  fetchIn(url, ms, who, { cf: { cacheEverything: true, cacheTtlByStatus: { '200-299': ttl, '300-599': 0 } } } as RequestInit);

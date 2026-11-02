@@ -4,7 +4,7 @@
 // Recent rain: Open-Meteo (model analysis, the 4 nearest forecast points blended like the forecast).
 // Normal: CHIRPS 1991 to 2020, monthly means per 0.25 degree square (public/normals, tools/make-normals.py).
 // Two sources: a "close to normal" band of 0.8 to 1.25 absorbs the usual difference between them.
-import { fetchIn } from './net';
+import { fetchIn, fetchShared } from './net';
 
 const W = 300, H = 320, WEST = -20, NORTH = 40, CELL = 0.25, NODATA = 65535;
 let normals: Promise<Uint16Array> | null = null;
@@ -20,7 +20,7 @@ const loadNormals = (assets: Fetcher) => (normals ??= assets.fetch('http://local
 
 export async function rainLast30(assets: Fetcher, lat: number, lon: number): Promise<Rain30> {
   const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=precipitation_sum&past_days=30&forecast_days=1&timezone=auto`;
-  const [grid, res] = await Promise.all([loadNormals(assets), fetchIn(url, 12000, 'The rain records service')]);
+  const [grid, res] = await Promise.all([loadNormals(assets), fetchShared(url, 12000, 'The rain records service', 3600)]);
   if (!res.ok) throw new Error(`rain service answered ${res.status}`);
   const d = (await res.json()) as { daily: { time: string[]; precipitation_sum: (number | null)[] } };
   // evals/rain-sources.py, 28 Oct: on 35 past floods this source and CHIRPS (stations and satellite) were more
