@@ -10,6 +10,10 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-title" content="Forewarn" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <!-- Browsers that run the app hide the plain copy in #root (it is for search engines and AI tools) and paint the
+       page's own colour until the design loads, so nobody sees a bare page first: night blue on the landing page, paper elsewhere -->
+  <script>document.documentElement.classList.add('js'); document.documentElement.style.background = location.search ? '#f8f9f6' : '#0b1420';</script>
+  <style>html.js #root > main.plain { display: none; }</style>
   <title>Forewarn: early warnings for Africa, floods first</title>
   <meta name="description" content="Forewarn tells you days before a flood reaches your area, down to your street, farm or village. Free, for anywhere in Africa. Ask the agent, see the last flood on the satellite map in Lagos and Nairobi." />
   <link rel="canonical" href="https://forewarn.site/" />
@@ -68,7 +72,7 @@
 <body>
   <div id="root">
     <!-- What a reader without JavaScript sees (search engines, AI tools, slow phones). React replaces it on load. Keep it in step with the page and public/llms-full.txt. -->
-    <main style="max-width:680px;margin:0 auto;padding:24px 16px;font:16px/1.55 system-ui,sans-serif;color:#16201b;background:#f8f9f6">
+    <main class="plain" style="max-width:680px;margin:0 auto;padding:24px 16px;font:16px/1.55 system-ui,sans-serif;color:#16201b;background:#f8f9f6">
       <h1>For most people in Africa, the flood warning is the water itself.</h1>
       <p>Forewarn warns you days before a flood reaches your area: your street, your farm, your village. Free, anywhere in Africa, no account needed.</p>
       <p>We replayed the forecasts of the week before the Nairobi flood of 23 April 2024 through Forewarn. It would have flagged flooding as possible 7 days before the water came. <a href="/?past=0">See the replay</a>.</p>

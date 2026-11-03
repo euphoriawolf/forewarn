@@ -11,12 +11,11 @@ const Pin = lazy(() => import('./Pin').then((m) => ({ default: m.Pin })));
 
 // The hero gallery: real floods in African cities, each shown no wider than it can hold sharply. The
 // front photo changes every 6 seconds, the next one revealed by water rising up the frame; two cards
-// float behind it with the photos to come. The Commons photos are linked from Wikimedia (free licences,
-// credited below). public/hero-lagos.jpg is The Guardian Nigeria's, credited and linked, and kept out of
-// the public repo (git-ignored); without the file the gallery starts at Kampala.
+// float behind it with the photos to come. Every photo is linked from Wikimedia Commons (free licences,
+// credited below).
 const W = 'https://upload.wikimedia.org/wikipedia/commons/thumb/';
 const PHOTOS = [
-  { src: '/hero-lagos.jpg', city: 'Lagos', where: 'Nigeria', credit: <>Lagos: <a href="https://guardian.ng/news/nigeria/metro/lagos-residents-lament-as-flooding-cripples-transport-businesses/">The Guardian Nigeria</a>.</> },
+  { src: W.replace('thumb/', '') + 'b/b4/Lagos_Street_at_high_tide.jpg', city: 'Lagos', where: 'Nigeria, 2010', credit: <>Lagos: <a href="https://commons.wikimedia.org/wiki/File:Lagos_Street_at_high_tide.jpg">ISeeAfrica</a>, CC BY-SA 4.0.</> },
   { src: W + '5/59/Moment_of_a_life_saver_at_the_right_time.jpg/1280px-Moment_of_a_life_saver_at_the_right_time.jpg', city: 'Kampala', where: 'Uganda, 2018', credit: <>Kampala: <a href="https://commons.wikimedia.org/wiki/File:Moment_of_a_life_saver_at_the_right_time.jpg">Jameswasswa</a>, CC BY-SA 4.0.</> },
   { src: W + 'a/aa/Flooding_Accra_4.jpg/1280px-Flooding_Accra_4.jpg', city: 'Accra', where: 'Ghana, 2022', credit: <>Accra: <a href="https://commons.wikimedia.org/wiki/File:Flooding_Accra_4.jpg">Fquasie</a>, CC BY-SA 4.0.</> },
   { src: W + '5/55/Floods_in_Kibra_slums.jpg/1280px-Floods_in_Kibra_slums.jpg', city: 'Kibra, Nairobi', where: 'Kenya, 2026', credit: <>Kibra: <a href="https://commons.wikimedia.org/wiki/File:Floods_in_Kibra_slums.jpg">Queen Asali</a>, CC BY-SA 4.0.</> },
@@ -133,22 +132,22 @@ export function Find({ onPlace }: { onPlace: (p: Place) => void }) {
       <section><div className="wrap weeks">
         <div>
           <h2>The rain had been coming for a month.</h2>
-          <p className="lead">In the 30 days before that night, Nairobi got 340 mm of rain. A normal year brings 161 mm. The ground was full, so the next rain went straight into the river.</p>
+          <p className="lead">In the 30 days before that night, Nairobi got 340 mm of rain. In a normal year, those 30 days bring 161 mm. The ground was full, so the next rain went straight into the river.</p>
           <p className="payoff">We replayed that week's forecasts through Forewarn. It would have flagged flooding as possible 7 days before the water came. <a href="?past=0">See the replay</a></p>
         </div>
         <figure className="barfig">
           <div className="bars" role="img" aria-label="Rain in the 30 days before 23 April: 340 mm in 2024, against a normal of 161 mm">
             <div className="now"><strong>340 mm</strong><b style={{ height: 200 }} /><span>April 2024</span></div>
-            <div><strong>161 mm</strong><b style={{ height: 95 }} /><span>A normal year</span></div>
+            <div><strong>161 mm</strong><b style={{ height: 95 }} /><span>Normal for those days</span></div>
           </div>
           <figcaption>Only 1 year from 1991 to 2020 was wetter. CHIRPS rain records.</figcaption>
         </figure>
       </div></section>
 
       <section className="film"><div className="wrap">
-        <h2>Nairobi's Industrial Area, filling up hour by hour.</h2>
-        <video ref={film} src="/og-video.mp4" poster="/flood-poster.jpg" muted loop playsInline preload="none" aria-label="Flood model on the satellite map: water rises over a Nairobi neighbourhood" />
-        <p className="filmnote">The March 2026 storm, from the Flood Check model, over the satellite map. The darker the blue, the deeper the water.</p>
+        <h2>Mathare, filling up hour by hour.</h2>
+        <video ref={film} src="/og-video.mp4" poster="/flood-poster.jpg" muted loop playsInline preload="none" aria-label="Flood model on the satellite map: water rises through Mathare, Nairobi, and the buildings it reaches turn red" />
+        <p className="filmnote">The March 2026 storm, from the Flood Check model, over the satellite map. The darker the blue, the deeper the water. Red marks the buildings the water reached.</p>
       </div></section>
 
       <section className="gap"><div className="wrap">
@@ -180,7 +179,7 @@ export function Find({ onPlace }: { onPlace: (p: Place) => void }) {
               <h3>Send a photo of the water</h3>
               <p>SAM marks the water and the people. Muse Spark tells you what the water reaches and what to do. People are pixelated, so nobody can be recognised.</p>
             </div>
-            <img className="wit" src="/witness-lagos.jpg" alt="A flooded Lagos street: the water marked in blue, the people pixelated" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+            <img className="wit" src="/witness-accra.jpg" alt="A flooded street in Accra: SAM 3.1 marked the water in blue, and the two people in it are pixelated" />
           </article>
           <article className="feat">
             <div className="viz voice" role="img" aria-label="A spoken question written out as text"><I.Mic /><span>"Will it flood in Kibera this week?"</span></div>
@@ -213,7 +212,7 @@ export function Find({ onPlace }: { onPlace: (p: Place) => void }) {
             <p>The last month against 30 years of records. On a farm, a low number means a dry season.</p>
           </article>
           <article className="feat">
-            <div className="viz still" style={{ backgroundImage: 'url(/flood-poster.jpg)' }} role="img" aria-label="Floodwater from a flood model over the satellite map of Nairobi" />
+            <div className="viz still" style={{ backgroundImage: 'url(/flood-poster.jpg)' }} role="img" aria-label="Floodwater from a flood model over the satellite map of Mathare, Nairobi, with the buildings it reached in red" />
             <span className="model">Flood Check model</span>
             <h3>The last flood, on the map</h3>
             <p>Lagos and Nairobi, street by street: the last storm's water over the satellite map, hour by hour.</p>
@@ -265,6 +264,7 @@ export function Find({ onPlace }: { onPlace: (p: Place) => void }) {
       <footer><div className="wrap">
         <p>Sources: <a href="https://www.aljazeera.com/news/2024/5/1/blame-the-government-kenyans-bemoan-lack-of-support-amid-record-flooding">Al Jazeera, 1 May 2024</a> (Mathare, the night of 23 April). <a href="https://wmo.int/news/media-centre/early-warnings-all-action-plan-africa-launched">WMO, Early Warnings for All Action Plan for Africa, 2023</a>. <a href="https://news.un.org/en/story/2025/10/1166151">UN News, October 2025</a>. WMO at the EUMETSAT user forum, 2024 (about 45%).</p>
         <p>Photos at the top: {PHOTOS.map((p, i) => <span key={i}>{p.credit} </span>)}</p>
+        <p>Photo check: Accra, <a href="https://commons.wikimedia.org/wiki/File:Flooding_Accra_4.jpg">Fquasie</a>, CC BY-SA 4.0, with the water and the people marked by SAM 3.1 (the marked photo is CC BY-SA 4.0 too).</p>
         <p>Data: CHIRPS daily rain (Climate Hazards Center, UC Santa Barbara), 1991 to 2024. ECMWF forecasts through Open-Meteo. Street water from Flood Check, a model estimate. Imagery: Esri, EOX Sentinel-2.</p>
         <p>The code is open: <a href="https://github.com/euphoriawolf/forewarn">github.com/euphoriawolf/forewarn</a>.</p>
       </div></footer>
