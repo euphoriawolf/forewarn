@@ -214,6 +214,13 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--water); out
 .bars strong { font: 800 30px/1 var(--display); }
 .bars span { font-size: 14px; color: var(--muted); }
 
+.landing .watchlink { display: inline-flex; align-items: center; gap: 8px; margin-top: 14px; font-weight: 600; color: #fff; text-decoration: none; }
+.landing .watchlink svg { width: 18px; height: 18px; color: var(--water-lit); }
+.landing .watchlink:hover { text-decoration: underline; }
+.landing .watch { background: var(--night); color: #fff; padding-top: 24px; }
+.landing .watch h2 { max-width: none; }
+.landing .watch video { width: 100%; border-radius: 18px; display: block; margin-top: 8px; background: #000; aspect-ratio: 16 / 9; box-shadow: 0 24px 60px rgba(0,0,0,.45); }
+.landing .watch p { font-size: 14px; color: #9fb0c4; margin-top: 12px; }
 .landing .film video { width: 100%; border-radius: 18px; display: block; margin-top: 24px; background: #c9d3d6; aspect-ratio: 16 / 9; }
 .landing .film .filmnote { font-size: 13px; color: var(--muted); margin-top: 10px; }
 

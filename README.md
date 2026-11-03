@@ -4,7 +4,9 @@ Early warnings for Africa. Floods first.
 
 Forewarn tells you what the rain will do to your street, farm or village, before it comes. The same system can watch for drought and storms next.
 
-Live: https://forewarn.dawnstackai.com
+Live: https://forewarn.site
+
+The 3-minute film: https://forewarn.site/forewarn-film.mp4
 
 Code: https://github.com/euphoriawolf/forewarn
 

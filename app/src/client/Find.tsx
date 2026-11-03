@@ -117,10 +117,18 @@ export function Find({ onPlace }: { onPlace: (p: Place) => void }) {
             <h1>For most people in Africa, the flood warning is the water itself.</h1>
             <p className="sub">Forewarn warns you days before a flood reaches your area: your street, your farm, your village.</p>
             <Search onPick={setPicked} id="find" />
+            <a className="watchlink" href="#watch"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor" /></svg>Watch the 3-minute film</a>
           </div>
           <Gallery />
         </div>
       </div></header>
+
+      {/* the demo film (public/forewarn-film.mp4, 720p for the web): the story of Mathare and the app at work, captions burned in */}
+      <section className="watch" id="watch"><div className="wrap">
+        <h2>Watch it work, in 3 minutes.</h2>
+        <video src="/forewarn-film.mp4" poster="/forewarn-film-poster.jpg" controls preload="none" playsInline aria-label="The Forewarn film: the Mathare flood of 23 April 2024, and how Forewarn would have warned people a week before" />
+        <p>The film for the Meta Global AI Developer Hackathon. The captions are in the video.</p>
+      </div></section>
 
       <section className="night"><div className="wrap">
         <p className="wherewhen">Mathare, Nairobi. The night of Tuesday 23 April 2024.</p>
