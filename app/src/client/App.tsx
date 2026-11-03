@@ -30,7 +30,7 @@ export function App() {
   useEffect(() => {
     const canon = document.querySelector('link[rel=canonical]');
     document.title = past === undefined ? 'Forewarn: early warnings for Africa, floods first' : 'The time machine: 36 past African floods replayed | Forewarn';
-    canon?.setAttribute('href', `https://forewarn.dawnstackai.com/${past === undefined ? '' : past === null ? '?past' : `?past=${past}`}`);
+    canon?.setAttribute('href', `https://forewarn.site/${past === undefined ? '' : past === null ? '?past' : `?past=${past}`}`);
   }, [past]);
   if (past !== undefined) return <Suspense fallback={null}><Past id={past} onPick={pick} onHome={() => { setPast(undefined); go(null); }} /></Suspense>;
   if (place && new URLSearchParams(location.search).has('film')) return <Suspense fallback={null}><Film lat={place.lat} lon={place.lon} /></Suspense>;

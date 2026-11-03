@@ -49,7 +49,7 @@ export async function placeName(lat: number, lon: number): Promise<{ name: strin
   const r = await fetchIn(`https://photon.komoot.io/reverse?lat=${lat}&lon=${lon}&limit=1`, 8000, 'Place names', { headers: { 'User-Agent': 'Forewarn (hackathon prototype)' } }).catch(() => null);
   const p = r?.ok ? ((await r.json()) as { features: { properties: Record<string, string> }[] }).features[0]?.properties : undefined;
   if (p) return tidy(p.name ?? p.street ?? p.locality ?? p.district ?? p.city ?? 'Unnamed place', [p.locality ?? p.district, p.city ?? p.county, p.country]);
-  const n = await fetchIn(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=17&lat=${lat}&lon=${lon}`, 8000, 'Place names', { headers: { 'User-Agent': 'Forewarn/0.1 (https://forewarn.dawnstackai.com)', 'Accept-Language': 'en' } }).catch(() => null);
+  const n = await fetchIn(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=17&lat=${lat}&lon=${lon}`, 8000, 'Place names', { headers: { 'User-Agent': 'Forewarn/0.1 (https://forewarn.site)', 'Accept-Language': 'en' } }).catch(() => null);
   if (!n?.ok) return null;
   const a = ((await n.json()) as { address?: Record<string, string> }).address;
   if (!a) return null;

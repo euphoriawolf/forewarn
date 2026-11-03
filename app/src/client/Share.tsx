@@ -32,7 +32,7 @@ async function card(place: Place, message: string): Promise<Blob> {
   let size = 52, lines = wrap(size);
   while (lines.length * size * 1.34 > 620 && size > 26) { size -= 2; lines = wrap(size); }
   g.fillStyle = '#eef1ec'; lines.forEach((l, i) => g.fillText(l, pad, 330 + i * size * 1.34));
-  g.fillStyle = '#a9b3ad'; g.font = `500 32px ${body}`; g.fillText('Check your area: forewarn.dawnstackai.com', pad, S - 76);
+  g.fillStyle = '#a9b3ad'; g.font = `500 32px ${body}`; g.fillText('Check your area: forewarn.site', pad, S - 76);
   return new Promise((ok, no) => c.toBlob((b) => (b ? ok(b) : no(new Error('The card did not draw.'))), 'image/png'));
 }
 

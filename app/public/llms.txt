@@ -6,17 +6,17 @@ Floods are where it starts; the same system can watch for drought and storms nex
 
 ## Pages
 
-- [Forewarn](https://forewarn.dawnstackai.com/): find your place and get the answer for the next 14 days
-- [The time machine](https://forewarn.dawnstackai.com/?past): what Forewarn would have said before 36 real floods, 7 days to 1 day ahead, with the scorecard
+- [Forewarn](https://forewarn.site/): find your place and get the answer for the next 14 days
+- [The time machine](https://forewarn.site/?past): what Forewarn would have said before 36 real floods, 7 days to 1 day ahead, with the scorecard
 
 ## Full text
 
-- [llms-full.txt](https://forewarn.dawnstackai.com/llms-full.txt): what Forewarn does, how the agent works, the models, the data, the test results, privacy and limits
+- [llms-full.txt](https://forewarn.site/llms-full.txt): what Forewarn does, how the agent works, the models, the data, the test results, privacy and limits
 
 ## Data you can read
 
-- [Scorecard (JSON)](https://forewarn.dawnstackai.com/api/past): every past flood, the forecast made 1 to 7 days before, the level of each day and whether an alert would have gone out
-- [One flood (JSON)](https://forewarn.dawnstackai.com/api/past/0): the same for one flood; numbers run from 0 to 39
+- [Scorecard (JSON)](https://forewarn.site/api/past): every past flood, the forecast made 1 to 7 days before, the level of each day and whether an alert would have gone out
+- [One flood (JSON)](https://forewarn.site/api/past/0): the same for one flood; numbers run from 0 to 39
 
 ## Code
 
