@@ -91,7 +91,10 @@ export async function satScene({ stage, source, pack, progress, onSettle, onView
   (window as unknown as { fwMap: maplibregl.Map }).fwMap = map; // recorders wait on fwMap.areTilesLoaded()
   map.dragRotate.enable(); map.touchZoomRotate.enableRotation();
   map.addControl(new maplibregl.AttributionControl({ compact: true }), 'top-right'); // the clock and the zoom buttons sit at the bottom
-  stage.querySelector('.maplibregl-ctrl-attrib')?.classList.remove('maplibregl-compact-show'); // folded to its (i) until tapped
+  // folded to its (i) until tapped: MapLibre opens the credit on the first data that carries one, and open
+  // it lies under the chips on a phone. This listener runs after the control's own, so it folds it straight back.
+  const fold = () => { const a = stage.querySelector('.maplibregl-ctrl-attrib'); if (a?.classList.contains('maplibregl-compact-show')) { a.classList.remove('maplibregl-compact-show'); map.off('sourcedata', fold); } };
+  map.on('sourcedata', fold);
   // 'load' can wait a long time while the animated water keeps the sources busy: the style is enough to start
   await new Promise<void>((ok) => { map.once('load', () => ok()); map.once('style.load', () => setTimeout(ok, 800)); });
   progress?.(1, '');

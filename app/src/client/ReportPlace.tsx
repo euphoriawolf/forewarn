@@ -28,7 +28,7 @@ export function ReportPlace({ here, photo, onSend }: { here: Place; photo?: Spot
   // search as you type, after a short pause
   useEffect(() => {
     if (pick !== 'other' || q.trim().length < 2) { setHits([]); return; }
-    const t = setTimeout(() => fetch(`/api/search?q=${encodeURIComponent(q)}`).then((r) => r.json() as Promise<Place[]>).then(setHits).catch(() => setHits([])), 300);
+    const t = setTimeout(() => fetch(`/api/search?q=${encodeURIComponent(q)}`).then((r) => r.json() as Promise<Place[]>).then((d) => setHits(Array.isArray(d) ? d : [])).catch(() => setHits([])), 300);
     return () => clearTimeout(t);
   }, [q, pick]);
 

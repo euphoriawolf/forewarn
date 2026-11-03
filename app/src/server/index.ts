@@ -209,7 +209,9 @@ export default {
       }
       if (url.pathname === '/api/search') {
         const text = (q.get('q') ?? '').trim();
-        return Response.json(text.length < 2 ? [] : await search(text));
+        if (text.length < 2) return Response.json([]);
+        try { return Response.json(await search(text), { headers: { 'Cache-Control': 'public, max-age=3600' } }); }
+        catch { return Response.json({ error: 'Search is not answering. Try again in a minute.' }, { status: 502 }); }
       }
       if (url.pathname === '/api/place' || url.pathname === '/api/ask') {
         const lat = num(q.get('lat')), lon = num(q.get('lon'));

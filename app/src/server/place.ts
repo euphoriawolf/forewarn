@@ -57,12 +57,26 @@ export async function placeName(lat: number, lon: number): Promise<{ name: strin
 }
 
 export async function search(q: string) {
-  const r = await fetchIn(`https://photon.komoot.io/api/?q=${encodeURIComponent(q)}&limit=6&bbox=-26,-35,52,38`, 10000, 'Place search', { headers: { 'User-Agent': 'Forewarn (hackathon prototype)' } });
-  const d = (await r.json()) as { features: { geometry: { coordinates: [number, number] }; properties: Record<string, string> }[] };
-  return d.features.map((f) => {
-    const p = f.properties;
-    const name = p.name ?? p.street ?? p.city ?? 'Unnamed place';
-    const where = [p.district ?? p.locality, p.city ?? p.county, p.state, p.country].filter((x, i, a) => x && x !== name && a.indexOf(x) === i).join(', ');
-    return { name, where, lat: f.geometry.coordinates[1], lon: f.geometry.coordinates[0] };
+  // Photon often answers Cloudflare with an error (521), so it gets a second try, then Nominatim takes over
+  for (let i = 0; i < 2; i++) {
+    const r = await fetchIn(`https://photon.komoot.io/api/?q=${encodeURIComponent(q)}&limit=6&bbox=-26,-35,52,38`, 6000, 'Place search', { headers: { 'User-Agent': 'Forewarn (hackathon prototype)' } }).catch(() => null);
+    if (!r?.ok) continue;
+    const d = (await r.json().catch(() => null)) as { features: { geometry: { coordinates: [number, number] }; properties: Record<string, string> }[] } | null;
+    if (!d?.features) continue;
+    return d.features.map((f) => {
+      const p = f.properties;
+      const name = p.name ?? p.street ?? p.city ?? 'Unnamed place';
+      const where = [p.district ?? p.locality, p.city ?? p.county, p.state, p.country].filter((x, i, a) => x && x !== name && a.indexOf(x) === i).join(', ');
+      return { name, where, lat: f.geometry.coordinates[1], lon: f.geometry.coordinates[0] };
+    });
+  }
+  const n = await fetchIn(`https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=6&viewbox=-26,38,52,-35&bounded=1&q=${encodeURIComponent(q)}`, 8000, 'Place search', { headers: { 'User-Agent': 'Forewarn/0.1 (https://forewarn.site)', 'Accept-Language': 'en' } });
+  if (!n.ok) throw new Error(`Place search answered ${n.status}`);
+  const rows = (await n.json()) as { lat: string; lon: string; name?: string; address?: Record<string, string> }[];
+  return rows.map((x) => {
+    const a = x.address ?? {};
+    const name = x.name || a.road || a.suburb || a.city || 'Unnamed place';
+    const where = [a.suburb ?? a.neighbourhood, a.city ?? a.town ?? a.county, a.state, a.country].filter((v, i, l) => v && v !== name && l.indexOf(v) === i).join(', ');
+    return { name, where, lat: Number(x.lat), lon: Number(x.lon) };
   });
 }

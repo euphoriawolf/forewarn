@@ -68,7 +68,11 @@ function Search({ onPick, id }: { onPick: (p: Place) => void; id?: string }) {
   useEffect(() => {
     if (q.trim().length < 2) { setHits([]); return; }
     const t = setTimeout(async () => {
-      try { setHits(await fetch(`/api/search?q=${encodeURIComponent(q)}`).then((r) => r.json())); setError(''); }
+      try {
+        const d = await fetch(`/api/search?q=${encodeURIComponent(q)}`).then((r) => r.json());
+        if (!Array.isArray(d)) throw new Error();
+        setHits(d); setError('');
+      }
       catch { setError('Search is not answering. Check your connection and try again.'); }
     }, 300);
     return () => clearTimeout(t);
